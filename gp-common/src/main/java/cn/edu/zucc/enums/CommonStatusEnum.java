@@ -12,18 +12,18 @@ public enum CommonStatusEnum {
     NO(0, "禁用");
 
     int code;
-    String desc;
+    String message;
 
-    CommonStatusEnum(int code, String desc) {
+    CommonStatusEnum(int code, String message) {
         this.code = code;
-        this.desc = desc;
+        this.message = message;
     }
 
     public int getCode() {
         return code;
     }
 
-    public String getDesc() {
-        return desc;
+    public String getMessage() {
+        return message;
     }
 }

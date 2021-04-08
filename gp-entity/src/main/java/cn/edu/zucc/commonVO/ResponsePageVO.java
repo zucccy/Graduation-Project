@@ -16,7 +16,7 @@ import java.util.List;
 public class ResponsePageVO<T> {
 
     // 响应码
-    private String code;
+    private Long code;
 
     // 响应信息
     private String msg;

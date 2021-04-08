@@ -12,15 +12,15 @@ public enum DelFlagEnum {
     YES(1, "已删除");
 
     int code;
-    String desc;
+    String message;
 
-    DelFlagEnum(int code, String desc) {
+    DelFlagEnum(int code, String message) {
         this.code = code;
-        this.desc = desc;
+        this.message = message;
     }
 
-    public String getDesc() {
-        return desc;
+    public String getMessage() {
+        return message;
     }
 
     public int getCode() {
