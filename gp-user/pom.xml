@@ -34,13 +34,12 @@
             <artifactId>springfox-swagger2</artifactId>
         </dependency>
         <dependency>
-            <groupId>cn.edu.zucc</groupId>
-            <artifactId>gp-common</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>cn.edu.zucc</groupId>
-            <artifactId>gp-dao</artifactId>
+            <artifactId>gp-common</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
@@ -51,6 +50,11 @@
         <dependency>
             <groupId>cn.edu.zucc</groupId>
             <artifactId>gp-service</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.edu.zucc</groupId>
+            <artifactId>gp-dao</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
