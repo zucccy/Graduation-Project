@@ -33,8 +33,9 @@ public final class ResponseBuilder {
                 .msg(msg)
                 .data(pageData.getResult())
                 .total(pageData.getTotal())
-                .pageNum(pageData.getPageNum() + 1)
+                .pageNum(pageData.getPageNum())
                 .pageSize(pageData.getPageSize())
+                .totalPages(pageData.getPages())
                 .build();
     }
 
@@ -76,4 +77,5 @@ public final class ResponseBuilder {
     public static <T> ResponseVO<T> buildErrorResponse(BaseException e) {
         return buildResponse(ResultCodeEnum.FAILED.getCode(), e.getMessage(), null);
     }
+
 }
