@@ -27,7 +27,7 @@ public interface HospitalService {
      *
      * @param hospitalName 医院名称
      * @param pageNum      第几页
-     * @param pageSize     每页多少个
+     * @param pageSize     页大小
      * @return 医院列表
      */
     List<Hospital> findHospitalList(String hospitalName, Integer pageNum, Integer pageSize);
@@ -89,4 +89,14 @@ public interface HospitalService {
      * @return 是否存在
      */
     boolean countOfficeRelation(HospitalOfficeRelDTO hospitalOfficeRelDTO);
+
+    /**
+     * 根据科室编号查找医院列表
+     *
+     * @param officeId 科室编号
+     * @param pageNum  第几页
+     * @param pageSize 页大小
+     * @return java.util.List<cn.edu.zucc.po.Hospital>
+     */
+    List<Hospital> findHospitalList(Long officeId, Integer pageNum, Integer pageSize);
 }

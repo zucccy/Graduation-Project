@@ -66,4 +66,9 @@ public class HospitalServiceImpl implements HospitalService {
     public boolean countOfficeRelation(HospitalOfficeRelDTO hospitalOfficeRelDTO) {
         return false;
     }
+
+    @Override
+    public List<Hospital> findHospitalList(Long officeId, Integer pageNum, Integer pageSize) {
+        return null;
+    }
 }
