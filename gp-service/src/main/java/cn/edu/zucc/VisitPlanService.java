@@ -76,11 +76,9 @@ public interface VisitPlanService {
      * 根据出诊编号列表获取出诊计划完整信息
      *
      * @param visitIdList 出诊编号列表
-     * @param pageNum     第几页
-     * @param pageSize    页大小
      * @return java.util.List<cn.edu.zucc.dto.VisitPlanAllDTO>
      */
-    List<VisitPlanAllDTO> findVisitPlanListAll(List<Long> visitIdList, Integer pageNum, Integer pageSize);
+    List<VisitPlanAllDTO> findVisitPlanListAll(List<Long> visitIdList);
 
     /**
      * 添加出诊计划时，添加出诊时间关系
@@ -121,7 +119,26 @@ public interface VisitPlanService {
      * @param visitId     出诊编号
      * @param visitPeriod 出诊时段
      * @param visitDay    出诊日期
-     * @return java.util.List<cn.edu.zucc.po.VisitRelTime>
+     * @return 出诊计划时间关系列表
      */
     List<VisitRelTime> findVisitRelTimeList(Long visitId, Byte visitPeriod, Date visitDay);
+
+//    /**
+//     * 根据医生编号、出诊时段、出诊日期获取某天出诊计划信息
+//     * @param doctorId 医生编号
+//     * @param visitPeriod 出诊时段
+//     * @param visitDay 出诊日期
+//     * @return java.util.List<cn.edu.zucc.dto.VisitPlanAllDTO>
+//     */
+//    List<VisitPlanAllDTO> getByTimeAndDate(Long doctorId, Byte visitPeriod, Date visitDay);
+
+    /**
+     * 获取某段时间出诊计划
+     *
+     * @param start 开始时间
+     * @param end   结束时间
+     * @return 出诊计划编号
+     */
+    List<Long> list(Date start, Date end);
+
 }
