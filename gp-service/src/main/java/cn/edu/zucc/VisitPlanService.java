@@ -1,11 +1,8 @@
 package cn.edu.zucc;
 
-import cn.edu.zucc.dto.VisitPlanAllDTO;
+import cn.edu.zucc.dto.VisitDoctorPlanDTO;
 import cn.edu.zucc.dto.VisitPlanInfoDTO;
-import cn.edu.zucc.dto.VisitPlanTimeRelDTO;
-import cn.edu.zucc.dto.VisitPlanTimeRelUpdateDTO;
 import cn.edu.zucc.po.VisitPlan;
-import cn.edu.zucc.po.VisitRelTime;
 
 import java.util.Date;
 import java.util.List;
@@ -36,7 +33,7 @@ public interface VisitPlanService {
     boolean update(Long id, VisitPlanInfoDTO visitPlanInfoDTO);
 
     /**
-     * 伪删除出诊计划信息
+     * 删除出诊计划信息
      *
      * @param id 出诊编号
      * @return 是否成功
@@ -52,17 +49,19 @@ public interface VisitPlanService {
     VisitPlan findVisitPlanById(Long id);
 
     /**
-     * 根据医院编号、科室编号、医生编号、出诊类型查找出诊计划列表
+     * 查找出诊计划列表
      *
-     * @param hospitalId 医院编号
-     * @param officeId   科室编号
-     * @param doctorId   医生编号
-     * @param visitType  出诊类型
-     * @param pageNum    第几页
-     * @param pageSize   页大小
+     * @param hospitalId  医院编号
+     * @param officeId    科室编号
+     * @param doctorId    医生编号
+     * @param visitType   出诊计划类型
+     * @param visitPeriod 出诊时段
+     * @param visitDay    出诊日期
+     * @param pageNum     第几页
+     * @param pageSize    页大小
      * @return java.util.List<cn.edu.zucc.po.VisitPlan>
      */
-    List<VisitPlan> findVisitPlanList(Long hospitalId, Long officeId, Long doctorId, Byte visitType, Integer pageNum, Integer pageSize);
+    List<VisitPlan> findVisitPlanList(Long hospitalId, Long officeId, Long doctorId, Byte visitType, Byte visitPeriod, Date visitDay, Integer pageNum, Integer pageSize);
 
     /**
      * 判断出诊计划是否存在
@@ -73,72 +72,40 @@ public interface VisitPlanService {
     boolean count(Long id);
 
     /**
-     * 根据出诊编号列表获取出诊计划完整信息
+     * 根据出诊编号列表获取出诊计划信息列表
      *
      * @param visitIdList 出诊编号列表
-     * @return java.util.List<cn.edu.zucc.dto.VisitPlanAllDTO>
+     * @return java.util.List<cn.edu.zucc.po.VisitPlan>
      */
-    List<VisitPlanAllDTO> findVisitPlanListAll(List<Long> visitIdList);
+    List<VisitPlan> findVisitPlanList(List<Long> visitIdList);
 
     /**
-     * 添加出诊计划时，添加出诊时间关系
+     * 获取医生某天出诊计划信息
      *
-     * @param visitPlanTimeRelDTO 出诊计划时间关系参数
-     * @return 是否成功
-     */
-    boolean insertRelation(VisitPlanTimeRelDTO visitPlanTimeRelDTO);
-
-    /**
-     * 更新出诊计划时，更新出诊计划时间关系
-     *
-     * @param id                        出诊时间编号
-     * @param visitPlanTimeRelUpdateDTO 出诊计划时间关系更新参数
-     * @return 是否成功
-     */
-    boolean updateRelation(Long id, VisitPlanTimeRelUpdateDTO visitPlanTimeRelUpdateDTO);
-
-    /**
-     * 伪删除出诊计划时，删除相关的出诊计划时间关系
-     *
-     * @param id 出诊时间编号
-     * @return 是否成功
-     */
-    boolean deleteRealation(Long id);
-
-    /**
-     * 根据关系编号查找出诊计划时间关系
-     *
-     * @param id 关系编号
-     * @return cn.edu.zucc.po.VisitRelTime
-     */
-    VisitRelTime findVisitRelTime(Long id);
-
-    /**
-     * 根据出诊编号、出诊时段、出诊日期查找出诊计划时间关系
-     *
-     * @param visitId     出诊编号
+     * @param doctorId    医生编号
      * @param visitPeriod 出诊时段
      * @param visitDay    出诊日期
-     * @return 出诊计划时间关系列表
+     * @return java.util.List<cn.edu.zucc.po.VisitPlan>
      */
-    List<VisitRelTime> findVisitRelTimeList(Long visitId, Byte visitPeriod, Date visitDay);
-
-//    /**
-//     * 根据医生编号、出诊时段、出诊日期获取某天出诊计划信息
-//     * @param doctorId 医生编号
-//     * @param visitPeriod 出诊时段
-//     * @param visitDay 出诊日期
-//     * @return java.util.List<cn.edu.zucc.dto.VisitPlanAllDTO>
-//     */
-//    List<VisitPlanAllDTO> getByTimeAndDate(Long doctorId, Byte visitPeriod, Date visitDay);
+    List<VisitPlan> getByTimeAndDate(Long doctorId, Byte visitPeriod, Date visitDay);
 
     /**
-     * 获取某段时间出诊计划
+     * 获取某段时间出诊计划的编号列表
      *
      * @param start 开始时间
      * @param end   结束时间
      * @return 出诊计划编号
      */
     List<Long> list(Date start, Date end);
+
+    /**
+     * 获取一段时间内医生出诊计划
+     *
+     * @param doctorId 医生编号
+     * @param start    开始日期
+     * @param end      结束日期
+     * @return VisitDoctorPlanDTO
+     */
+    VisitDoctorPlanDTO getDoctorPlan(Long doctorId, Date start, Date end);
 
 }

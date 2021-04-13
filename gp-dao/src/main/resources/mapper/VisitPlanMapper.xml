@@ -2,17 +2,19 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.edu.zucc.mapper.VisitPlanMapper">
   <resultMap id="BaseResultMap" type="cn.edu.zucc.po.VisitPlan">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    <id column="id" jdbcType="BIGINT" property="id"/>
-    <result column="hospital_id" jdbcType="BIGINT" property="hospitalId"/>
-    <result column="office_id" jdbcType="BIGINT" property="officeId"/>
-    <result column="doctor_id" jdbcType="BIGINT" property="doctorId"/>
-    <result column="visit_type" jdbcType="TINYINT" property="visitType"/>
-    <result column="is_delete" jdbcType="TINYINT" property="isDelete"/>
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
-    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+      <!--
+        WARNING - @mbg.generated
+      -->
+      <id column="id" jdbcType="BIGINT" property="id"/>
+      <result column="hospital_id" jdbcType="BIGINT" property="hospitalId"/>
+      <result column="office_id" jdbcType="BIGINT" property="officeId"/>
+      <result column="doctor_id" jdbcType="BIGINT" property="doctorId"/>
+      <result column="visit_type" jdbcType="TINYINT" property="visitType"/>
+      <result column="visit_period" jdbcType="TINYINT" property="visitPeriod"/>
+      <result column="visit_day" jdbcType="DATE" property="visitDay"/>
+      <result column="time_period" jdbcType="VARCHAR" property="timePeriod"/>
+      <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+      <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
   </resultMap>
   <sql id="Example_Where_Clause">
     <!--
@@ -82,7 +84,7 @@
     <!--
       WARNING - @mbg.generated
     -->
-    id, hospital_id, office_id, doctor_id, visit_type, is_delete, create_time, update_time
+      id, hospital_id, office_id, doctor_id, visit_type, visit_period, visit_day, time_period,
+      create_time, update_time
   </sql>
-
 </mapper>

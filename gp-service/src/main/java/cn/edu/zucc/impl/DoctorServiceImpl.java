@@ -8,6 +8,7 @@ import cn.edu.zucc.po.DoctorInfoExample;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
@@ -39,13 +40,14 @@ public class DoctorServiceImpl implements DoctorService {
         DoctorInfoExample.Criteria criteria = example.createCriteria();
 
         if (!StringUtils.isEmpty(doctorName)) {
-            criteria.andDoctorNameEqualTo("%" + doctorName + "%");
+            criteria.andDoctorNameLike("%" + doctorName + "%");
         }
 
         return doctorInfoMapper.selectByExample(example);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean insert(DoctorInfoDTO doctorInfoDTO) {
         DoctorInfo doctorInfo = new DoctorInfo();
 
@@ -58,6 +60,7 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean update(Long id, DoctorInfoDTO doctorInfoDTO) {
         DoctorInfo doctorInfo = new DoctorInfo();
 
@@ -70,6 +73,7 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean delete(Long id) {
         return doctorInfoMapper.deleteByPrimaryKey(id) > 0;
     }
@@ -83,6 +87,8 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     public List<DoctorInfo> findDoctorList(Long officeId, Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+
         DoctorInfoExample example = new DoctorInfoExample();
         DoctorInfoExample.Criteria criteria = example.createCriteria();
 
@@ -95,6 +101,8 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     public List<DoctorInfo> findDoctorListByHosId(Long hospitalId, Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+
         DoctorInfoExample example = new DoctorInfoExample();
         DoctorInfoExample.Criteria criteria = example.createCriteria();
 

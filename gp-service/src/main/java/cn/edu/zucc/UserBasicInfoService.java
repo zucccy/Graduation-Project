@@ -76,12 +76,11 @@ public interface UserBasicInfoService {
      * 根据用户名、手机号查找用户列表
      *
      * @param userName 用户名
-     * @param phone    手机号
      * @param pageNum  第几页
      * @param pageSize 页大小
      * @return java.util.List<cn.edu.zucc.po.UserBasicInfo>
      */
-    List<UserBasicInfo> findUserList(String userName, String phone, Integer pageNum, Integer pageSize);
+    List<UserBasicInfo> findUserList(String userName, Integer pageNum, Integer pageSize);
 
     /**
      * 判断用户是否存在

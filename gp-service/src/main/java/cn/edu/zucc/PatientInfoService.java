@@ -15,6 +15,15 @@ import java.util.List;
 public interface PatientInfoService {
 
     /**
+     * 根据身份证号查找患者信息
+     *
+     * @param idCard 身份证号
+     * @return cn.edu.zucc.po.PatientInfo
+     */
+    PatientInfo findPatientInfoByIdCard(String idCard);
+
+
+    /**
      * 为用户创建一个患者信息，添加用户患者关系
      *
      * @param userId         用户编号
@@ -38,7 +47,7 @@ public interface PatientInfoService {
      * @param relationId 关系id
      * @return 是否成功
      */
-    boolean delete(Long relationId);
+    boolean deleteRelation(Long relationId);
 
     /**
      * 根据患者编号查找患者信息

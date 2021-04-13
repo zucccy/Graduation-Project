@@ -44,10 +44,22 @@ public class VisitPlan {
     private Byte visitType;
 
     /**
-     * 伪删除 1已删除，0未删除
+     * 出诊时段 1上午 2下午 3晚上，默认为1
      */
-    @Column(name = "`is_delete`")
-    private Byte isDelete;
+    @Column(name = "`visit_period`")
+    private Byte visitPeriod;
+
+    /**
+     * 出诊日期
+     */
+    @Column(name = "`visit_day`")
+    private Date visitDay;
+
+    /**
+     * 出诊具体时间
+     */
+    @Column(name = "`time_period`")
+    private String timePeriod;
 
     /**
      * 创建时间

@@ -2,6 +2,7 @@ package cn.edu.zucc.po;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 public class VisitPlanExample {
@@ -103,6 +104,32 @@ public class VisitPlanExample {
                 throw new RuntimeException("Between values for " + property + " cannot be null");
             }
             criteria.add(new Criterion(condition, value1, value2));
+        }
+
+        protected void addCriterionForJDBCDate(String condition, Date value, String property) {
+            if (value == null) {
+                throw new RuntimeException("Value for " + property + " cannot be null");
+            }
+            addCriterion(condition, new java.sql.Date(value.getTime()), property);
+        }
+
+        protected void addCriterionForJDBCDate(String condition, List<Date> values, String property) {
+            if (values == null || values.size() == 0) {
+                throw new RuntimeException("Value list for " + property + " cannot be null or empty");
+            }
+            List<java.sql.Date> dateList = new ArrayList<java.sql.Date>();
+            Iterator<Date> iter = values.iterator();
+            while (iter.hasNext()) {
+                dateList.add(new java.sql.Date(iter.next().getTime()));
+            }
+            addCriterion(condition, dateList, property);
+        }
+
+        protected void addCriterionForJDBCDate(String condition, Date value1, Date value2, String property) {
+            if (value1 == null || value2 == null) {
+                throw new RuntimeException("Between values for " + property + " cannot be null");
+            }
+            addCriterion(condition, new java.sql.Date(value1.getTime()), new java.sql.Date(value2.getTime()), property);
         }
 
         public Criteria andIdIsNull() {
@@ -405,63 +432,193 @@ public class VisitPlanExample {
             return (Criteria) this;
         }
 
-        public Criteria andIsDeleteIsNull() {
-            addCriterion("is_delete is null");
+        public Criteria andVisitPeriodIsNull() {
+            addCriterion("visit_period is null");
             return (Criteria) this;
         }
 
-        public Criteria andIsDeleteIsNotNull() {
-            addCriterion("is_delete is not null");
+        public Criteria andVisitPeriodIsNotNull() {
+            addCriterion("visit_period is not null");
             return (Criteria) this;
         }
 
-        public Criteria andIsDeleteEqualTo(Byte value) {
-            addCriterion("is_delete =", value, "isDelete");
+        public Criteria andVisitPeriodEqualTo(Byte value) {
+            addCriterion("visit_period =", value, "visitPeriod");
             return (Criteria) this;
         }
 
-        public Criteria andIsDeleteNotEqualTo(Byte value) {
-            addCriterion("is_delete <>", value, "isDelete");
+        public Criteria andVisitPeriodNotEqualTo(Byte value) {
+            addCriterion("visit_period <>", value, "visitPeriod");
             return (Criteria) this;
         }
 
-        public Criteria andIsDeleteGreaterThan(Byte value) {
-            addCriterion("is_delete >", value, "isDelete");
+        public Criteria andVisitPeriodGreaterThan(Byte value) {
+            addCriterion("visit_period >", value, "visitPeriod");
             return (Criteria) this;
         }
 
-        public Criteria andIsDeleteGreaterThanOrEqualTo(Byte value) {
-            addCriterion("is_delete >=", value, "isDelete");
+        public Criteria andVisitPeriodGreaterThanOrEqualTo(Byte value) {
+            addCriterion("visit_period >=", value, "visitPeriod");
             return (Criteria) this;
         }
 
-        public Criteria andIsDeleteLessThan(Byte value) {
-            addCriterion("is_delete <", value, "isDelete");
+        public Criteria andVisitPeriodLessThan(Byte value) {
+            addCriterion("visit_period <", value, "visitPeriod");
             return (Criteria) this;
         }
 
-        public Criteria andIsDeleteLessThanOrEqualTo(Byte value) {
-            addCriterion("is_delete <=", value, "isDelete");
+        public Criteria andVisitPeriodLessThanOrEqualTo(Byte value) {
+            addCriterion("visit_period <=", value, "visitPeriod");
             return (Criteria) this;
         }
 
-        public Criteria andIsDeleteIn(List<Byte> values) {
-            addCriterion("is_delete in", values, "isDelete");
+        public Criteria andVisitPeriodIn(List<Byte> values) {
+            addCriterion("visit_period in", values, "visitPeriod");
             return (Criteria) this;
         }
 
-        public Criteria andIsDeleteNotIn(List<Byte> values) {
-            addCriterion("is_delete not in", values, "isDelete");
+        public Criteria andVisitPeriodNotIn(List<Byte> values) {
+            addCriterion("visit_period not in", values, "visitPeriod");
             return (Criteria) this;
         }
 
-        public Criteria andIsDeleteBetween(Byte value1, Byte value2) {
-            addCriterion("is_delete between", value1, value2, "isDelete");
+        public Criteria andVisitPeriodBetween(Byte value1, Byte value2) {
+            addCriterion("visit_period between", value1, value2, "visitPeriod");
             return (Criteria) this;
         }
 
-        public Criteria andIsDeleteNotBetween(Byte value1, Byte value2) {
-            addCriterion("is_delete not between", value1, value2, "isDelete");
+        public Criteria andVisitPeriodNotBetween(Byte value1, Byte value2) {
+            addCriterion("visit_period not between", value1, value2, "visitPeriod");
+            return (Criteria) this;
+        }
+
+        public Criteria andVisitDayIsNull() {
+            addCriterion("visit_day is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andVisitDayIsNotNull() {
+            addCriterion("visit_day is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andVisitDayEqualTo(Date value) {
+            addCriterionForJDBCDate("visit_day =", value, "visitDay");
+            return (Criteria) this;
+        }
+
+        public Criteria andVisitDayNotEqualTo(Date value) {
+            addCriterionForJDBCDate("visit_day <>", value, "visitDay");
+            return (Criteria) this;
+        }
+
+        public Criteria andVisitDayGreaterThan(Date value) {
+            addCriterionForJDBCDate("visit_day >", value, "visitDay");
+            return (Criteria) this;
+        }
+
+        public Criteria andVisitDayGreaterThanOrEqualTo(Date value) {
+            addCriterionForJDBCDate("visit_day >=", value, "visitDay");
+            return (Criteria) this;
+        }
+
+        public Criteria andVisitDayLessThan(Date value) {
+            addCriterionForJDBCDate("visit_day <", value, "visitDay");
+            return (Criteria) this;
+        }
+
+        public Criteria andVisitDayLessThanOrEqualTo(Date value) {
+            addCriterionForJDBCDate("visit_day <=", value, "visitDay");
+            return (Criteria) this;
+        }
+
+        public Criteria andVisitDayIn(List<Date> values) {
+            addCriterionForJDBCDate("visit_day in", values, "visitDay");
+            return (Criteria) this;
+        }
+
+        public Criteria andVisitDayNotIn(List<Date> values) {
+            addCriterionForJDBCDate("visit_day not in", values, "visitDay");
+            return (Criteria) this;
+        }
+
+        public Criteria andVisitDayBetween(Date value1, Date value2) {
+            addCriterionForJDBCDate("visit_day between", value1, value2, "visitDay");
+            return (Criteria) this;
+        }
+
+        public Criteria andVisitDayNotBetween(Date value1, Date value2) {
+            addCriterionForJDBCDate("visit_day not between", value1, value2, "visitDay");
+            return (Criteria) this;
+        }
+
+        public Criteria andTimePeriodIsNull() {
+            addCriterion("time_period is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTimePeriodIsNotNull() {
+            addCriterion("time_period is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTimePeriodEqualTo(String value) {
+            addCriterion("time_period =", value, "timePeriod");
+            return (Criteria) this;
+        }
+
+        public Criteria andTimePeriodNotEqualTo(String value) {
+            addCriterion("time_period <>", value, "timePeriod");
+            return (Criteria) this;
+        }
+
+        public Criteria andTimePeriodGreaterThan(String value) {
+            addCriterion("time_period >", value, "timePeriod");
+            return (Criteria) this;
+        }
+
+        public Criteria andTimePeriodGreaterThanOrEqualTo(String value) {
+            addCriterion("time_period >=", value, "timePeriod");
+            return (Criteria) this;
+        }
+
+        public Criteria andTimePeriodLessThan(String value) {
+            addCriterion("time_period <", value, "timePeriod");
+            return (Criteria) this;
+        }
+
+        public Criteria andTimePeriodLessThanOrEqualTo(String value) {
+            addCriterion("time_period <=", value, "timePeriod");
+            return (Criteria) this;
+        }
+
+        public Criteria andTimePeriodLike(String value) {
+            addCriterion("time_period like", value, "timePeriod");
+            return (Criteria) this;
+        }
+
+        public Criteria andTimePeriodNotLike(String value) {
+            addCriterion("time_period not like", value, "timePeriod");
+            return (Criteria) this;
+        }
+
+        public Criteria andTimePeriodIn(List<String> values) {
+            addCriterion("time_period in", values, "timePeriod");
+            return (Criteria) this;
+        }
+
+        public Criteria andTimePeriodNotIn(List<String> values) {
+            addCriterion("time_period not in", values, "timePeriod");
+            return (Criteria) this;
+        }
+
+        public Criteria andTimePeriodBetween(String value1, String value2) {
+            addCriterion("time_period between", value1, value2, "timePeriod");
+            return (Criteria) this;
+        }
+
+        public Criteria andTimePeriodNotBetween(String value1, String value2) {
+            addCriterion("time_period not between", value1, value2, "timePeriod");
             return (Criteria) this;
         }
 

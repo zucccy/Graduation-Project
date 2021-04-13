@@ -19,7 +19,7 @@ public interface AppointmentInfoService {
      * 创建预约信息
      *
      * @param appointmentInfoDTO 预约信息参数
-     * @return boolean
+     * @return 是否成功
      */
     boolean insert(AppointmentInfoDTO appointmentInfoDTO);
 
@@ -33,12 +33,20 @@ public interface AppointmentInfoService {
     boolean update(Long id, Byte visitStatus);
 
     /**
-     * 伪删除预约信息
+     * 删除预约信息
      *
      * @param id 预约信息编号
      * @return 是否成功
      */
     boolean delete(Long id);
+
+    /**
+     * 判断预约信息是否存在
+     *
+     * @param id 预约编号
+     * @return 是否存在
+     */
+    boolean count(Long id);
 
     /**
      * 根据预约编号查找预约信息
@@ -51,20 +59,22 @@ public interface AppointmentInfoService {
     /**
      * 根据用户编号查找预约信息列表
      *
-     * @param userId   用户编号
-     * @param pageNum  第几页
-     * @param pageSize 页大小
+     * @param userId      用户编号
+     * @param visitStatus 预约状态
+     * @param pageNum     第几页
+     * @param pageSize    页大小
      * @return java.util.List<cn.edu.zucc.po.AppointmentInfo>
      */
-    List<AppointmentInfo> findAppointmentListByUserId(Long userId, Integer pageNum, Integer pageSize);
+    List<AppointmentInfo> findAppointmentListByUserId(Long userId, Byte visitStatus, Integer pageNum, Integer pageSize);
 
     /**
-     * 判断是否已预约 若count不为0，find后判断is_delete是否为1，若为1，count=0
+     * 判断该患者是否已预约
      *
-     * @param id 预约信息编号
+     * @param patientId 患者编号
+     * @param visitId   出诊编号
      * @return 是否存在
      */
-    boolean count(Long id);
+    boolean count(Long patientId, Long visitId);
 
     /**
      * 根据医生编号查找预约信息列表
@@ -89,14 +99,22 @@ public interface AppointmentInfoService {
     List<AppointmentInfo> findAppointmentList(Long patientId, Byte visitStatus, Integer pageNum, Integer pageSize);
 
     /**
-     * 获取预约患者信息列表
+     * 获取（某天）医生（某时段）预约患者信息列表
      *
      * @param doctorId    医生编号
      * @param visitPeriod 出诊时段
-     * @param day         出诊日期
+     * @param visitDay    出诊日期
      * @param pageNum     第几页
      * @param pageSize    页大小
      * @return java.util.List<cn.edu.zucc.dto.VisitPatientInfoDTO>
      */
-    List<VisitPatientInfoDTO> visitPatientInfoList(Long doctorId, Integer visitPeriod, Date day, Integer pageNum, Integer pageSize);
+    List<VisitPatientInfoDTO> visitPatientInfoList(Long doctorId, Byte visitPeriod, Date visitDay, Integer pageNum, Integer pageSize);
+
+    /**
+     * 根据出诊编号列表查找预约信息列表
+     *
+     * @param visitIdList 出诊编号列表
+     * @return java.util.List<cn.edu.zucc.po.AppointmentInfo>
+     */
+    List<AppointmentInfo> findAppointmentList(List<Long> visitIdList);
 }

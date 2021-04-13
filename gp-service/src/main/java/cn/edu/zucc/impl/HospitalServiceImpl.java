@@ -13,6 +13,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
@@ -57,6 +58,7 @@ public class HospitalServiceImpl implements HospitalService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean insert(HospitalInfoDTO hospitalInfoDTO) {
         Hospital hospital = new Hospital();
 
@@ -70,6 +72,7 @@ public class HospitalServiceImpl implements HospitalService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean update(Long id, HospitalInfoDTO hospitalInfoDTO) {
         Hospital hospital = new Hospital();
 
@@ -82,6 +85,7 @@ public class HospitalServiceImpl implements HospitalService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean delete(Long id) {
         return hospitalMapper.deleteByPrimaryKey(id) > 0;
     }
@@ -96,6 +100,7 @@ public class HospitalServiceImpl implements HospitalService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean insertOfficeRelation(HospitalOfficeRelDTO hospitalOfficeRelDTO) {
         HospitalRelOffice hospitalRelOffice = new HospitalRelOffice();
 
@@ -108,6 +113,7 @@ public class HospitalServiceImpl implements HospitalService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean deleteOfficeRelation(Long hospitalId, Long officeId) {
         HospitalRelOfficeExample example = new HospitalRelOfficeExample();
 

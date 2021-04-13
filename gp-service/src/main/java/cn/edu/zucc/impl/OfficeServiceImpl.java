@@ -12,6 +12,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
@@ -62,13 +63,14 @@ public class OfficeServiceImpl implements OfficeService {
         OfficeExample.Criteria criteria = example.createCriteria();
 
         if (!StringUtils.isEmpty(officeName)) {
-            criteria.andOfficeNameEqualTo("%" + officeName + "%");
+            criteria.andOfficeNameLike("%" + officeName + "%");
         }
 
         return officeMapper.selectByExample(example);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean insert(OfficeInfoDTO officeInfoDTO) {
         Office office = new Office();
 
@@ -81,6 +83,7 @@ public class OfficeServiceImpl implements OfficeService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean update(Long id, OfficeInfoDTO officeInfoDTO) {
         Office office = new Office();
 
@@ -93,6 +96,7 @@ public class OfficeServiceImpl implements OfficeService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean delete(Long id) {
         return officeMapper.deleteByPrimaryKey(id) > 0;
     }

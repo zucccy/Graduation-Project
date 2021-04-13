@@ -50,12 +50,6 @@ public class AppointmentInfo {
     private Byte visitStatus;
 
     /**
-     * 伪删除 1已删除，0未删除，默认为0
-     */
-    @Column(name = "`is_delete`")
-    private Byte isDelete;
-
-    /**
      * 创建时间
      */
     @Column(name = "`create_time`")
