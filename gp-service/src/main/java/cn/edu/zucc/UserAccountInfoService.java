@@ -1,5 +1,6 @@
 package cn.edu.zucc;
 
+import cn.edu.zucc.dto.UpdatePasswordDTO;
 import cn.edu.zucc.dto.UserAccountInfoUpdateDTO;
 import cn.edu.zucc.dto.UserLoginDTO;
 import cn.edu.zucc.dto.UserRegisterDTO;
@@ -105,5 +106,22 @@ public interface UserAccountInfoService {
      * @param phone 手机号
      * @return 是否存在
      */
-    boolean count(String phone);
+    boolean countByPhone(String phone);
+
+    /**
+     * 判断用户是否存在
+     *
+     * @param email 邮箱
+     * @return 是否存在
+     */
+    boolean countByEmail(String email);
+
+    /**
+     * 用户修改密码
+     *
+     * @param id                用户编号
+     * @param updatePasswordDTO 用户修改密码参数
+     * @return 是否成功
+     */
+    void updatePassword(Long id, UpdatePasswordDTO updatePasswordDTO);
 }

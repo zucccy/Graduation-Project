@@ -1,7 +1,6 @@
 package cn.edu.zucc.utils;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.DigestUtils;
 
 /**
@@ -12,9 +11,7 @@ import org.springframework.util.DigestUtils;
  */
 public class CryptUtils {
 
-    @Value("${spring.datasource.salt}")
-    private static String salt;
-
+    private static final String salt = "chenyungp";
     /**
      * 用户密码加密
      *
@@ -22,6 +19,7 @@ public class CryptUtils {
      * @return 密文
      */
     public static String cryptAccountPassword(String password) {
+        System.out.println(password + salt);
         return DigestUtils.md5DigestAsHex((password + salt).getBytes());
     }
 
@@ -32,7 +30,7 @@ public class CryptUtils {
      * @param password    输入的密码
      * @return 是否相等
      */
-    public static boolean matchAccountPasswd(String rawPassword, String password) {
+    public static boolean matchAccountPassword(String rawPassword, String password) {
         return StringUtils.equals(rawPassword, cryptAccountPassword(password));
     }
 }

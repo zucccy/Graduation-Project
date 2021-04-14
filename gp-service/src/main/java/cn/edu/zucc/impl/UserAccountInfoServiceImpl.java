@@ -1,10 +1,12 @@
 package cn.edu.zucc.impl;
 
 import cn.edu.zucc.UserAccountInfoService;
+import cn.edu.zucc.dto.UpdatePasswordDTO;
 import cn.edu.zucc.dto.UserAccountInfoUpdateDTO;
 import cn.edu.zucc.dto.UserLoginDTO;
 import cn.edu.zucc.dto.UserRegisterDTO;
 import cn.edu.zucc.enums.ResultCodeEnum;
+import cn.edu.zucc.exception.ExistsException;
 import cn.edu.zucc.exception.FormException;
 import cn.edu.zucc.exception.SourceNotFoundException;
 import cn.edu.zucc.exception.WrongPasswordException;
@@ -38,7 +40,7 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
     //登录
     public UserAccountInfo login(UserLoginDTO userLoginDTO) {
         UserAccountInfo userAccountInfo = findUserByOpenCode(userLoginDTO.getOpenCode());
-        if (!CryptUtils.matchAccountPasswd(userAccountInfo.getPassword(), userLoginDTO.getPassword())) {
+        if (!CryptUtils.matchAccountPassword(userAccountInfo.getPassword(), userLoginDTO.getPassword())) {
             throw new WrongPasswordException();
         }
         return userAccountInfo;
@@ -54,13 +56,21 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
         String openCode = userRegisterDTO.getOpenCode();
         //邮箱
         if (FormatUtils.isEmail(openCode)) {
+            //若已存在
+            if (countByEmail(openCode)) {
+                throw new ExistsException();
+            }
             userAccountInfo.setEmail(openCode);
         }
         //手机号
         else if (FormatUtils.isPhoneNumber(openCode)) {
-            userAccountInfo.setEmail(openCode);
+            //若已存在
+            if (countByPhone(openCode)) {
+                throw new ExistsException();
+            }
+            userAccountInfo.setPhone(openCode);
         } else {
-            throw new FormException(ResultCodeEnum.REQUEST_INFO_ERROR.getMessage());
+            throw new FormException();
         }
         //密码加密
         userAccountInfo.setPassword(CryptUtils.cryptAccountPassword(userRegisterDTO.getPassword()));
@@ -88,7 +98,7 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
             if (FormatUtils.isPhoneNumber(phone)) {
                 userAccountInfo.setPhone(phone);
             } else {
-                throw new FormException(ResultCodeEnum.REQUEST_INFO_ERROR.getMessage());
+                throw new FormException();
             }
         }
         //邮箱不为空，修改邮箱
@@ -97,7 +107,7 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
             if (FormatUtils.isEmail(email)) {
                 userAccountInfo.setEmail(email);
             } else {
-                throw new FormException(ResultCodeEnum.REQUEST_INFO_ERROR.getMessage());
+                throw new FormException();
             }
         }
 
@@ -109,7 +119,7 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
         if (null != id) {
             return userAccountInfoMapper.deleteByPrimaryKey(id) > 0;
         } else {
-            throw new FormException(ResultCodeEnum.REQUEST_INFO_ERROR.getMessage());
+            throw new FormException();
         }
     }
 
@@ -118,7 +128,7 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
         if (null != id) {
             return userAccountInfoMapper.selectByPrimaryKey(id);
         } else {
-            throw new FormException(ResultCodeEnum.REQUEST_INFO_ERROR.getMessage());
+            throw new FormException();
         }
     }
 
@@ -162,19 +172,51 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
         if (null != id) {
             example.createCriteria().andIdEqualTo(id);
         } else {
-            throw new FormException(ResultCodeEnum.REQUEST_INFO_ERROR.getMessage());
+            throw new FormException();
         }
         return userAccountInfoMapper.selectCountByExample(example) > 0;
     }
 
     @Override
-    public boolean count(String phone) {
+    public boolean countByPhone(String phone) {
         UserAccountInfoExample example = new UserAccountInfoExample();
         if (!StringUtils.isBlank(phone)) {
             example.createCriteria().andPhoneEqualTo(phone);
         } else {
-            throw new FormException(ResultCodeEnum.REQUEST_INFO_ERROR.getMessage());
+            throw new FormException();
         }
         return userAccountInfoMapper.selectCountByExample(example) > 0;
+    }
+
+    @Override
+    public boolean countByEmail(String email) {
+        UserAccountInfoExample example = new UserAccountInfoExample();
+        if (!StringUtils.isBlank(email)) {
+            example.createCriteria().andEmailEqualTo(email);
+        } else {
+            throw new FormException();
+        }
+        return userAccountInfoMapper.selectCountByExample(example) > 0;
+    }
+
+    @Override
+    public void updatePassword(Long id, UpdatePasswordDTO updatePasswordDTO) {
+        UserAccountInfo userAccountInfo = findUserById(id);
+        //用户未找到
+        if (null == userAccountInfo) {
+            throw new SourceNotFoundException(ResultCodeEnum.NOT_FOUND.getMessage());
+        }
+        //判断当前密码是否正确，正确则修改密码
+        if (CryptUtils.matchAccountPassword(userAccountInfo.getPassword(), updatePasswordDTO.getRowPassword())) {
+            //判断新密码是否为空
+            if (!StringUtils.isBlank(updatePasswordDTO.getNewPassword())) {
+                userAccountInfo.setPassword(CryptUtils.cryptAccountPassword(updatePasswordDTO.getNewPassword()));
+                userAccountInfoMapper.updateByPrimaryKeySelective(userAccountInfo);
+            } else {
+                throw new FormException();
+            }
+        } else {
+            throw new WrongPasswordException();
+        }
     }
 }

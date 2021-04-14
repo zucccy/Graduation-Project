@@ -2,16 +2,10 @@ spring:
   # 数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/gp?characterEncoding=UTF-8&useSSL=false&useUnicode=true&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/gp?characterEncoding=UTF-8&useSSL=false&useUnicode=true&serverTimezone=GMT%2B8
     username: root
     password: 123456
     salt: chenyungp
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri:
-          jwk-set-uri:
 
 # mybatis配置，扫描所有*.xml
 mybatis:
@@ -40,3 +34,15 @@ pagehelper:
   params: pageNum=pageNum;pageSize=pageSize;
   # 当该参数设置为true时，如果pageSize=0，就会查询出全部的结果（相当于没有执行分页查询，但是返回结果仍然是Page类型）
   pageSizeZero: false
+
+# jwt配置
+jwt:
+  # 密钥, 经过Base64加密, 可自行替换
+  secret: Y2hlbnl1bmdw
+
+# Json配置
+jackson:
+  # 日期格式化
+  date-format: yyyy-MM-dd HH:mm:ss
+  #时区设置
+  time-zone: GMT+8

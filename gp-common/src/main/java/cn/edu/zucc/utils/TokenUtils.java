@@ -16,11 +16,11 @@ public class TokenUtils {
     private TokenUtils() {
     }
 
-    public static DecodedJWT getJwt(String token, String tokenSecret, String issuer) {
-        return JWT.require(Algorithm.HMAC256(tokenSecret)).withIssuer(issuer).build().verify(token);
+    public static DecodedJWT getJwt(String token, String tokenSecret) {
+        return JWT.require(Algorithm.HMAC256(tokenSecret)).build().verify(token);
     }
 
-    public static Long getUserId(String token, String tokenSecret, String issuer) {
-        return getJwt(token, tokenSecret, issuer).getClaim("userId").asLong();
+    public static Long getUserId(String token, String tokenSecret) {
+        return getJwt(token, tokenSecret).getClaim("userId").asLong();
     }
 }

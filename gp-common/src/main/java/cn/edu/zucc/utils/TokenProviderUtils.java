@@ -26,12 +26,11 @@ public class TokenProviderUtils {
      * @param userId 登录信息
      * @return token
      */
-    public static String sign(Long userId, String tokenSecret, String issuer) {
+    public static String sign(Long userId, String tokenSecret) {
         String token = null;
         try {
             Date expiresAt = new Date(System.currentTimeMillis() + EXPIRE_TIME);
             token = JWT.create()
-                    .withIssuer(issuer)
                     .withClaim("userId", userId)
                     .withExpiresAt(expiresAt)
                     .sign(Algorithm.HMAC256(tokenSecret));
