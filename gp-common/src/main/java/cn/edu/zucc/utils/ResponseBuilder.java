@@ -69,13 +69,13 @@ public final class ResponseBuilder {
     }
 
     /**
-     * 失败返回结果
+     * 异常返回结果
      *
      * @param e
      * @return ResponseVO<T>
      */
     public static <T> ResponseVO<T> buildErrorResponse(BaseException e) {
-        return buildResponse(ResultCodeEnum.FAILED.getCode(), e.getMessage(), null);
+        return buildResponse(e.getCode(), e.getMessage(), null);
     }
 
 }

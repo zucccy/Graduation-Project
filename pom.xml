@@ -29,6 +29,8 @@
         <tkMapper.generator.version>4.1.5</tkMapper.generator.version>
         <mysql.version>8.0.21</mysql.version>
         <hutool.version>4.5.7</hutool.version>
+        <jwt.version>3.13.0</jwt.version>
+        <apache.commons.version>3.11</apache.commons.version>
     </properties>
 
     <dependencyManagement>
@@ -81,6 +83,16 @@
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
                 <version>${hutool.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.auth0</groupId>
+                <artifactId>java-jwt</artifactId>
+                <version>${jwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${apache.commons.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

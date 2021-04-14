@@ -4,23 +4,15 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-
-
 /**
  * Description: TODO
  *
  * @author chenyun
- * @since 09.04.2021
+ * @since 14.04.2021
  */
-@ApiModel(value = "UserRegisterDTO", description = "用户注册参数")
+@ApiModel(value = "UserLoginDTO", description = "用户登录参数")
 @Data
-public class UserRegisterDTO {
-
-    /**
-     * 用户名
-     */
-    @ApiModelProperty(value = "用户名")
-    private String userName;
+public class UserLoginDTO {
 
     /**
      * 前端传来帐号
@@ -34,9 +26,4 @@ public class UserRegisterDTO {
     @ApiModelProperty(value = "登录密码，md5加密")
     private String password;
 
-    /**
-     * 用户头像
-     */
-    @ApiModelProperty(value = "用户头像")
-    private String profile;
 }

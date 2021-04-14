@@ -8,14 +8,14 @@ package cn.edu.zucc.exception;
  */
 public class BaseException extends RuntimeException {
 
-    private final String code;
+    private final long code;
 
-    BaseException(String msg, String code) {
+    BaseException(String msg, long code) {
         super(msg);
         this.code = code;
     }
 
-    public String getCode() {
+    public long getCode() {
         return code;
     }
 }

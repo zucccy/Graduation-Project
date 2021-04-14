@@ -20,7 +20,12 @@ public enum ResultCodeEnum {
     /**
      * 参数错误码
      */
-    VALIDATE_FAILED(404, "参数检验失败"),
+    NOT_FOUND(404, "未找到"),
+
+    /**
+     * 请求信息有误
+     */
+    REQUEST_INFO_ERROR(400, "请求信息有误"),
 
     /**
      * 会话过时码

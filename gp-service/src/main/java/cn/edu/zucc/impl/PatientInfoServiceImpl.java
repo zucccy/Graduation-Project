@@ -1,7 +1,7 @@
 package cn.edu.zucc.impl;
 
 import cn.edu.zucc.PatientInfoService;
-import cn.edu.zucc.UserBasicInfoService;
+import cn.edu.zucc.UserAccountInfoService;
 import cn.edu.zucc.dto.PatientInfoDTO;
 import cn.edu.zucc.dto.PatientInfoUpadateDTO;
 import cn.edu.zucc.mapper.PatientInfoMapper;
@@ -41,7 +41,7 @@ public class PatientInfoServiceImpl implements PatientInfoService {
     private UserRelPatientMapper userRelPatientMapper;
 
     @Resource
-    private UserBasicInfoService userBasicInfoService;
+    private UserAccountInfoService userAccountInfoService;
 
     @Override
     public PatientInfo findPatientInfoByIdCard(String idCard) {

@@ -9,8 +9,8 @@ import javax.persistence.Table;
 import java.util.Date;
 
 @Data
-@Table(name = "`user_basic_info`")
-public class UserBasicInfo {
+@Table(name = "`user_account_info`")
+public class UserAccountInfo {
     /**
      * 编号
      */
@@ -26,22 +26,40 @@ public class UserBasicInfo {
     private String userName;
 
     /**
-     * 登录密码，md5加密
-     */
-    @Column(name = "`password`")
-    private String password;
-
-    /**
      * 手机号
      */
     @Column(name = "`phone`")
     private String phone;
 
     /**
+     * 邮箱
+     */
+    @Column(name = "`email`")
+    private String email;
+
+    /**
+     * 登录密码，md5加密
+     */
+    @Column(name = "`password`")
+    private String password;
+
+    /**
      * 用户头像
      */
     @Column(name = "`profile`")
     private String profile;
+
+    /**
+     * 角色类型，1用户 2医生 3管理员，默认为1
+     */
+    @Column(name = "`role_type`")
+    private Byte roleType;
+
+    /**
+     * 状态 1有效 2无效，默认为1
+     */
+    @Column(name = "`status`")
+    private Byte status;
 
     /**
      * 创建时间

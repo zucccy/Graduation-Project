@@ -10,7 +10,7 @@ import java.util.List;
  * @author chenyun
  * @since 09.04.2021
  */
-public class PageUtil {
+public class PageUtils {
 
     public static <T> Page<T> restPage(List<T> list) {
         Page<T> pageInfo = (Page<T>) list;
