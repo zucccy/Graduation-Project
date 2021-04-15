@@ -11,6 +11,7 @@ import cn.edu.zucc.po.UserAccountInfo;
 import cn.edu.zucc.utils.ResponseBuilder;
 import cn.edu.zucc.utils.TokenProviderUtils;
 import cn.edu.zucc.utils.TokenUtils;
+import cn.edu.zucc.vo.MyAppointmentVO;
 import cn.edu.zucc.vo.UserAccountInfoVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * Description: TODO
@@ -119,5 +121,10 @@ public class UserController {
         return ResponseBuilder.success();
     }
 
-
+    @ApiOperation(value = "获取我的预约")
+    @GetMapping(value = "/getMyAppointments")
+    //必须传入token（用户必须登录），才能继续操作
+    public ResponseVO<List<MyAppointmentVO>> getMyAppointments(@RequestHeader("Authorization") String token) {
+        return ResponseBuilder.success(userAccountInfoService.getMyAppointments(TokenUtils.getUserId(token, tokenSecret)));
+    }
 }

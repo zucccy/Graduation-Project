@@ -1,6 +1,10 @@
 package cn.edu.zucc.impl;
 
 import cn.edu.zucc.AppointmentInfoService;
+import cn.edu.zucc.DoctorService;
+import cn.edu.zucc.HospitalService;
+import cn.edu.zucc.OfficeService;
+import cn.edu.zucc.PatientInfoService;
 import cn.edu.zucc.VisitPlanService;
 import cn.edu.zucc.dto.AppointmentInfoDTO;
 import cn.edu.zucc.dto.VisitPatientInfoDTO;
@@ -10,10 +14,16 @@ import cn.edu.zucc.mapper.PatientInfoMapper;
 import cn.edu.zucc.mapper.VisitPlanMapper;
 import cn.edu.zucc.po.AppointmentInfo;
 import cn.edu.zucc.po.AppointmentInfoExample;
+import cn.edu.zucc.po.DoctorInfo;
+import cn.edu.zucc.po.Hospital;
+import cn.edu.zucc.po.Office;
 import cn.edu.zucc.po.PatientInfo;
 import cn.edu.zucc.po.VisitPlan;
+import cn.edu.zucc.vo.MyAppointmentVO;
+import cn.hutool.json.JSONUtil;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -42,6 +52,21 @@ public class AppointmentInfoServiceImpl implements AppointmentInfoService {
     @Resource
     private VisitPlanService visitPlanService;
 
+    @Resource
+    private HospitalService hospitalService;
+
+    @Resource
+    private OfficeService officeService;
+
+    @Resource
+    private PatientInfoService patientInfoService;
+
+    @Resource
+    private DoctorService doctorService;
+
+    @Resource
+    private RedisTemplate redisTemplate;
+
     @Override
     public boolean insert(AppointmentInfoDTO appointmentInfoDTO) {
         AppointmentInfo appointmentInfo = new AppointmentInfo();
@@ -51,7 +76,48 @@ public class AppointmentInfoServiceImpl implements AppointmentInfoService {
         appointmentInfo.setCreateTime(new Date());
         appointmentInfo.setUpdateTime(new Date());
 
-        return appointmentInfoMapper.insertSelective(appointmentInfo) > 0;
+        appointmentInfoMapper.insertSelective(appointmentInfo);
+
+        MyAppointmentVO myAppointmentVO = new MyAppointmentVO();
+
+        //预约时间、预约状态
+        myAppointmentVO.setCreateTime(appointmentInfo.getCreateTime());
+        myAppointmentVO.setVisitStatus(appointmentInfo.getVisitStatus());
+
+        //查找医生名称、医院id、科室id
+        Long doctorId = appointmentInfo.getDoctorId();
+        DoctorInfo doctorInfo = doctorService.findDoctorById(doctorId);
+        myAppointmentVO.setDoctorName(doctorInfo.getDoctorName());
+
+        //查找医院名、医院地址
+        Long hospitalId = doctorInfo.getHospitalId();
+        Hospital hospital = hospitalService.findHospitalById(hospitalId);
+        myAppointmentVO.setHospitalName(hospital.getHospitalName());
+        myAppointmentVO.setAddress(hospital.getAddress());
+
+        //查找科室名
+        Long officeId = doctorInfo.getOfficeId();
+        Office office = officeService.findOfficeById(officeId);
+        myAppointmentVO.setOfficeName(office.getOfficeName());
+
+        //查找患者名称、患者手机号
+        Long patientId = appointmentInfo.getPatientId();
+        PatientInfo patientInfo = patientInfoService.findPatientInfoById(patientId);
+        myAppointmentVO.setPatientName(patientInfo.getPatientName());
+        myAppointmentVO.setPhone(patientInfo.getPhone());
+
+        //查找具体就诊时间
+        Long visitId = appointmentInfo.getVisitId();
+        VisitPlan visitPlan = visitPlanService.findVisitPlanById(visitId);
+        myAppointmentVO.setTimePeriod(visitPlan.getTimePeriod());
+
+        //将对象转换为Json字符串
+        String myAppointmentVOJson = JSONUtil.toJsonStr(myAppointmentVO);
+        //key = 用户编号:预约编号
+        String key = appointmentInfo.getUserId() + ":" + appointmentInfo.getId();
+        redisTemplate.opsForValue().set(key, myAppointmentVOJson);
+
+        return true;
     }
 
     @Override

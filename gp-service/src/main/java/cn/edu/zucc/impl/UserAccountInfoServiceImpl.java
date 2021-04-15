@@ -15,14 +15,21 @@ import cn.edu.zucc.po.UserAccountInfo;
 import cn.edu.zucc.po.UserAccountInfoExample;
 import cn.edu.zucc.utils.CryptUtils;
 import cn.edu.zucc.utils.FormatUtils;
+import cn.edu.zucc.vo.MyAppointmentVO;
+import cn.hutool.core.collection.CollectionUtil;
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Description: TODO
@@ -35,6 +42,12 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
 
     @Resource
     private UserAccountInfoMapper userAccountInfoMapper;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
+    @Resource
+    private RedisTemplate redisTemplate;
 
     @Override
     //登录
@@ -219,4 +232,24 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
             throw new WrongPasswordException();
         }
     }
+
+    @Override
+    public List<MyAppointmentVO> getMyAppointments(Long id) {
+
+        List<MyAppointmentVO> list = new ArrayList<>();
+        //redis里查找用户预约列表
+        String pattern = id + ":*";
+        Set<String> keys = stringRedisTemplate.keys(pattern);
+        if (CollectionUtil.isEmpty(keys)) {
+            return new ArrayList<>();
+        }
+        for (String accurateKey : keys) {
+            String cacheValue = (String) redisTemplate.opsForValue().get(accurateKey);
+            MyAppointmentVO myAppointmentVO = JSON.parseObject(cacheValue, MyAppointmentVO.class);
+            list.add(myAppointmentVO);
+        }
+
+        return list;
+    }
+
 }
