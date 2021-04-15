@@ -1,10 +1,14 @@
 package cn.edu.zucc.impl;
 
 import cn.edu.zucc.DoctorService;
+import cn.edu.zucc.HospitalService;
+import cn.edu.zucc.OfficeService;
 import cn.edu.zucc.dto.DoctorInfoDTO;
+import cn.edu.zucc.exception.SourceNotFoundException;
 import cn.edu.zucc.mapper.DoctorInfoMapper;
 import cn.edu.zucc.po.DoctorInfo;
 import cn.edu.zucc.po.DoctorInfoExample;
+import cn.edu.zucc.vo.DoctorVO;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -27,9 +31,31 @@ public class DoctorServiceImpl implements DoctorService {
     @Resource
     DoctorInfoMapper doctorInfoMapper;
 
+    @Resource
+    OfficeService officeService;
+
+    @Resource
+    HospitalService hospitalService;
+
     @Override
     public DoctorInfo findDoctorById(Long id) {
+
+        if (!count(id)) {
+            throw new SourceNotFoundException("医生不存在");
+        }
+
         return doctorInfoMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public DoctorVO findDoctorVOById(Long id) {
+
+        DoctorVO doctorVO = new DoctorVO();
+        DoctorInfo doctorInfo = findDoctorById(id);
+        BeanUtils.copyProperties(doctorInfo, doctorVO);
+        doctorVO.setOfficeName(officeService.findOfficeById(doctorInfo.getOfficeId()).getOfficeName());
+        doctorVO.setHospitalName(hospitalService.findHospitalById(doctorInfo.getHospitalId()).getHospitalName());
+        return doctorVO;
     }
 
     @Override

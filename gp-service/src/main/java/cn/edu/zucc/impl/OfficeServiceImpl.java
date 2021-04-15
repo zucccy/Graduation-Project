@@ -122,15 +122,15 @@ public class OfficeServiceImpl implements OfficeService {
             throw new SourceNotFoundException("医院不存在");
         }
 
-        PageHelper.startPage(pageNum, pageSize);
-
         HospitalRelOfficeExample example = new HospitalRelOfficeExample();
         example.createCriteria().andHospitalIdEqualTo(hospitalId);
 
+        List<Long> officeIdList = hospitalRelOfficeMapper.selectByExample(example)
+                .stream().map(HospitalRelOffice::getOfficeId).collect(Collectors.toList());
+
         //开启分页
         PageHelper.startPage(pageNum, pageSize);
-        return findOfficeList(hospitalRelOfficeMapper.selectByExample(example)
-                .stream().map(HospitalRelOffice::getOfficeId).collect(Collectors.toList()));
+        return findOfficeList(officeIdList);
     }
 
     @Override

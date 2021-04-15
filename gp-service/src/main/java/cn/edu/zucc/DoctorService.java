@@ -2,6 +2,7 @@ package cn.edu.zucc;
 
 import cn.edu.zucc.dto.DoctorInfoDTO;
 import cn.edu.zucc.po.DoctorInfo;
+import cn.edu.zucc.vo.DoctorVO;
 
 import java.util.List;
 
@@ -20,6 +21,8 @@ public interface DoctorService {
      * @return cn.edu.zucc.po.DoctorInfo
      */
     DoctorInfo findDoctorById(Long id);
+
+    DoctorVO findDoctorVOById(Long id);
 
     /**
      * 根据医生名称查找医生列表
