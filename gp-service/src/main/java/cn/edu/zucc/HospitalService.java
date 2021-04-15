@@ -23,14 +23,15 @@ public interface HospitalService {
     Hospital findHospitalById(Long id);
 
     /**
-     * 分页搜索医院信息，可根据医院名搜索
+     * 分页搜索医院信息，可根据医院名、医院地址搜索
      *
      * @param hospitalName 医院名称
+     * @param address      医院地址
      * @param pageNum      第几页
      * @param pageSize     页大小
      * @return 医院列表
      */
-    List<Hospital> findHospitalList(String hospitalName, Integer pageNum, Integer pageSize);
+    List<Hospital> findHospitalList(String hospitalName, String address, Integer pageNum, Integer pageSize);
 
     /**
      * 添加医院信息
@@ -74,7 +75,7 @@ public interface HospitalService {
     boolean insertOfficeRelation(HospitalOfficeRelDTO hospitalOfficeRelDTO);
 
     /**
-     * 在医院中删除科室
+     * 在医院中删除科室//判断子科室
      *
      * @param hospitalId 医院编号
      * @param officeId   科室编号
@@ -99,4 +100,12 @@ public interface HospitalService {
      * @return java.util.List<cn.edu.zucc.po.Hospital>
      */
     List<Hospital> findHospitalList(Long officeId, Integer pageNum, Integer pageSize);
+
+    /**
+     * 根据医院编号列表查找医院信息列表
+     *
+     * @param hospitalIdList 医院编号列表
+     * @return java.util.List<cn.edu.zucc.po.Hospital>
+     */
+    List<Hospital> findHospitalList(List<Long> hospitalIdList);
 }

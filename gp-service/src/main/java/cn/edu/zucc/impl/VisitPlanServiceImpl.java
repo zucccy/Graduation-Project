@@ -11,6 +11,7 @@ import cn.edu.zucc.po.VisitPlanExample;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class VisitPlanServiceImpl implements VisitPlanService {
     private DoctorService doctorService;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean insert(VisitPlanInfoDTO visitPlanInfoDTO) {
         VisitPlan visitPlan = new VisitPlan();
 
@@ -46,6 +48,7 @@ public class VisitPlanServiceImpl implements VisitPlanService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean update(Long id, VisitPlanInfoDTO visitPlanInfoDTO) {
         VisitPlan visitPlan = new VisitPlan();
 
@@ -58,6 +61,7 @@ public class VisitPlanServiceImpl implements VisitPlanService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean delete(Long id) {
         return visitPlanMapper.deleteByPrimaryKey(id) > 0;
     }

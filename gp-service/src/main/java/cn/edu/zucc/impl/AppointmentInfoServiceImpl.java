@@ -19,12 +19,15 @@ import cn.edu.zucc.po.Hospital;
 import cn.edu.zucc.po.Office;
 import cn.edu.zucc.po.PatientInfo;
 import cn.edu.zucc.po.VisitPlan;
+import cn.edu.zucc.vo.MyAppointmentListVO;
 import cn.edu.zucc.vo.MyAppointmentVO;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -68,70 +71,54 @@ public class AppointmentInfoServiceImpl implements AppointmentInfoService {
     private RedisTemplate redisTemplate;
 
     @Override
-    public boolean insert(AppointmentInfoDTO appointmentInfoDTO) {
+    @Transactional(rollbackFor = Exception.class)
+    public boolean insert(Long userId, AppointmentInfoDTO appointmentInfoDTO) {
         AppointmentInfo appointmentInfo = new AppointmentInfo();
 
         BeanUtils.copyProperties(appointmentInfoDTO, appointmentInfo);
 
+        appointmentInfo.setUserId(userId);
         appointmentInfo.setCreateTime(new Date());
         appointmentInfo.setUpdateTime(new Date());
 
         appointmentInfoMapper.insertSelective(appointmentInfo);
-
-        MyAppointmentVO myAppointmentVO = new MyAppointmentVO();
-
-        //预约时间、预约状态
-        myAppointmentVO.setCreateTime(appointmentInfo.getCreateTime());
-        myAppointmentVO.setVisitStatus(appointmentInfo.getVisitStatus());
-
-        //查找医生名称、医院id、科室id
-        Long doctorId = appointmentInfo.getDoctorId();
-        DoctorInfo doctorInfo = doctorService.findDoctorById(doctorId);
-        myAppointmentVO.setDoctorName(doctorInfo.getDoctorName());
-
-        //查找医院名、医院地址
-        Long hospitalId = doctorInfo.getHospitalId();
-        Hospital hospital = hospitalService.findHospitalById(hospitalId);
-        myAppointmentVO.setHospitalName(hospital.getHospitalName());
-        myAppointmentVO.setAddress(hospital.getAddress());
-
-        //查找科室名
-        Long officeId = doctorInfo.getOfficeId();
-        Office office = officeService.findOfficeById(officeId);
-        myAppointmentVO.setOfficeName(office.getOfficeName());
-
-        //查找患者名称、患者手机号
-        Long patientId = appointmentInfo.getPatientId();
-        PatientInfo patientInfo = patientInfoService.findPatientInfoById(patientId);
-        myAppointmentVO.setPatientName(patientInfo.getPatientName());
-        myAppointmentVO.setPhone(patientInfo.getPhone());
-
-        //查找具体就诊时间
-        Long visitId = appointmentInfo.getVisitId();
-        VisitPlan visitPlan = visitPlanService.findVisitPlanById(visitId);
-        myAppointmentVO.setTimePeriod(visitPlan.getTimePeriod());
+        //获取我的预约对象
+        MyAppointmentListVO myAppointmentListVO = convertMyAppointmentListVO(appointmentInfo);
 
         //将对象转换为Json字符串
-        String myAppointmentVOJson = JSONUtil.toJsonStr(myAppointmentVO);
+        String myAppointmentVOListJson = JSONUtil.toJsonStr(myAppointmentListVO);
         //key = 用户编号:预约编号
         String key = appointmentInfo.getUserId() + ":" + appointmentInfo.getId();
-        redisTemplate.opsForValue().set(key, myAppointmentVOJson);
+        redisTemplate.opsForValue().set(key, myAppointmentVOListJson);
 
         return true;
     }
 
     @Override
-    public boolean update(Long id, Byte visitStatus) {
+    @Transactional(rollbackFor = Exception.class)
+    public boolean update(Long userId, Long id, Byte visitStatus) {
         AppointmentInfo appointmentInfo = new AppointmentInfo();
 
         appointmentInfo.setId(id);
         appointmentInfo.setVisitStatus(visitStatus);
         appointmentInfo.setUpdateTime(new Date());
+        appointmentInfoMapper.updateByPrimaryKeySelective(appointmentInfo);
 
-        return appointmentInfoMapper.updateByPrimaryKeySelective(appointmentInfo) > 0;
+        //修改redis
+        String key = userId + ":" + id;
+        String cacheValue = (String) redisTemplate.opsForValue().get(key);
+        MyAppointmentListVO myAppointmentListVO = JSON.parseObject(cacheValue, MyAppointmentListVO.class);
+        myAppointmentListVO.setVisitStatus(appointmentInfo.getVisitStatus());
+
+        //将对象转换为Json字符串
+        String myAppointmentVOListJson = JSONUtil.toJsonStr(myAppointmentListVO);
+        //key = 用户编号:预约编号
+        redisTemplate.opsForValue().set(key, myAppointmentVOListJson);
+        return true;
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean delete(Long id) {
         return appointmentInfoMapper.deleteByPrimaryKey(id) > 0;
     }
@@ -262,5 +249,83 @@ public class AppointmentInfoServiceImpl implements AppointmentInfoService {
         }
 
         return dto;
+    }
+
+    @Override
+    public MyAppointmentListVO convertMyAppointmentListVO(AppointmentInfo appointmentInfo) {
+        MyAppointmentListVO myAppointmentListVO = new MyAppointmentListVO();
+
+        //预约编号、预约状态
+        myAppointmentListVO.setId(appointmentInfo.getId());
+        myAppointmentListVO.setVisitStatus(appointmentInfo.getVisitStatus());
+
+        //查找医生名称、医院id、科室id
+        Long doctorId = appointmentInfo.getDoctorId();
+        DoctorInfo doctorInfo = doctorService.findDoctorById(doctorId);
+        myAppointmentListVO.setDoctorName(doctorInfo.getDoctorName());
+
+        //查找医院名
+        Long hospitalId = doctorInfo.getHospitalId();
+        Hospital hospital = hospitalService.findHospitalById(hospitalId);
+        myAppointmentListVO.setHospitalName(hospital.getHospitalName());
+
+        //查找科室名
+        Long officeId = doctorInfo.getOfficeId();
+        Office office = officeService.findOfficeById(officeId);
+        myAppointmentListVO.setOfficeName(office.getOfficeName());
+
+        //查找患者名称、患者手机号
+        Long patientId = appointmentInfo.getPatientId();
+        PatientInfo patientInfo = patientInfoService.findPatientInfoById(patientId);
+        myAppointmentListVO.setPatientName(patientInfo.getPatientName());
+        myAppointmentListVO.setPhone(patientInfo.getPhone());
+
+        //查找具体就诊时间
+        Long visitId = appointmentInfo.getVisitId();
+        VisitPlan visitPlan = visitPlanService.findVisitPlanById(visitId);
+        myAppointmentListVO.setTimePeriod(visitPlan.getTimePeriod());
+
+        return myAppointmentListVO;
+    }
+
+    @Override
+    public MyAppointmentVO convertMyAppointmentVO(Long id) {
+        AppointmentInfo appointmentInfo = findAppointmentById(id);
+        MyAppointmentVO myAppointmentVO = new MyAppointmentVO();
+
+        //查找预约状态、预约时间
+        myAppointmentVO.setVisitStatus(appointmentInfo.getVisitStatus());
+        myAppointmentVO.setCreateTime(appointmentInfo.getCreateTime());
+
+        //查找医生名称、医院id、科室id
+        Long doctorId = appointmentInfo.getDoctorId();
+        DoctorInfo doctorInfo = doctorService.findDoctorById(doctorId);
+        myAppointmentVO.setDoctorName(doctorInfo.getDoctorName());
+
+        //查找医院名、医院地址
+        Long hospitalId = doctorInfo.getHospitalId();
+        Hospital hospital = hospitalService.findHospitalById(hospitalId);
+        myAppointmentVO.setHospitalName(hospital.getHospitalName());
+        myAppointmentVO.setAddress(hospital.getAddress());
+
+        //查找科室名
+        Long officeId = doctorInfo.getOfficeId();
+        Office office = officeService.findOfficeById(officeId);
+        myAppointmentVO.setOfficeName(office.getOfficeName());
+
+        //查找患者名称、患者手机号、身份证号、性别
+        Long patientId = appointmentInfo.getPatientId();
+        PatientInfo patientInfo = patientInfoService.findPatientInfoById(patientId);
+        myAppointmentVO.setPatientName(patientInfo.getPatientName());
+        myAppointmentVO.setPhone(patientInfo.getPhone());
+        myAppointmentVO.setIdCard(patientInfo.getIdCard());
+        myAppointmentVO.setSex(patientInfo.getSex());
+
+        //查找具体就诊时间
+        Long visitId = appointmentInfo.getVisitId();
+        VisitPlan visitPlan = visitPlanService.findVisitPlanById(visitId);
+        myAppointmentVO.setTimePeriod(visitPlan.getTimePeriod());
+
+        return myAppointmentVO;
     }
 }

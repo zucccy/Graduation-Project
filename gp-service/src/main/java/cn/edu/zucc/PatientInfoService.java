@@ -1,8 +1,9 @@
 package cn.edu.zucc;
 
 import cn.edu.zucc.dto.PatientInfoDTO;
-import cn.edu.zucc.dto.PatientInfoUpadateDTO;
+import cn.edu.zucc.dto.PatientInfoUpdateDTO;
 import cn.edu.zucc.po.PatientInfo;
+import cn.edu.zucc.vo.MyPatientVO;
 
 import java.util.List;
 
@@ -32,22 +33,25 @@ public interface PatientInfoService {
      */
     boolean insert(Long userId, PatientInfoDTO patientInfoDTO);
 
+
     /**
      * 更新用户的患者信息（姓名、手机号），更新用户患者关系
      *
-     * @param relationId            关系编号
-     * @param patientInfoUpadateDTO 患者信息修改DTO
+     * @param userId                用户编号
+     * @param patientId             患者编号
+     * @param patientInfoUpadateDTO 患者信息修改参数
      * @return 是否成功
      */
-    boolean update(Long relationId, PatientInfoUpadateDTO patientInfoUpadateDTO);
+    boolean update(Long userId, Long patientId, PatientInfoUpdateDTO patientInfoUpadateDTO);
 
     /**
      * 删除用户患者关系
      *
-     * @param relationId 关系id
-     * @return 是否成功
+     * @param userId    用户编号
+     * @param patientId 患者编号
+     * @return boolean
      */
-    boolean deleteRelation(Long relationId);
+    boolean deleteRelation(Long userId, Long patientId);
 
     /**
      * 根据患者编号查找患者信息
@@ -73,7 +77,7 @@ public interface PatientInfoService {
      * @param userId 用户编号
      * @return java.util.List<cn.edu.zucc.po.PatientInfo>
      */
-    List<PatientInfo> findPatientList(Long userId);
+    List<MyPatientVO> findPatientList(Long userId);
 
     /**
      * 根据患者编号列表查找患者列表信息
@@ -83,13 +87,15 @@ public interface PatientInfoService {
      */
     List<PatientInfo> findPatientList(List<Long> idList);
 
+
     /**
      * 判断用户患者关系是否存在
      *
-     * @param relationId 关系编号
+     * @param userId    用户编号
+     * @param patientId 患者编号
      * @return 是否存在
      */
-    boolean countRelation(Long relationId);
+    boolean countRelation(Long userId, Long patientId);
 
     /**
      * 根据身份证号判断患者信息是否存在

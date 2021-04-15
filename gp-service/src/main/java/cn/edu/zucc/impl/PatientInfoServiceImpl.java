@@ -3,18 +3,23 @@ package cn.edu.zucc.impl;
 import cn.edu.zucc.PatientInfoService;
 import cn.edu.zucc.UserAccountInfoService;
 import cn.edu.zucc.dto.PatientInfoDTO;
-import cn.edu.zucc.dto.PatientInfoUpadateDTO;
+import cn.edu.zucc.dto.PatientInfoUpdateDTO;
+import cn.edu.zucc.exception.FormException;
+import cn.edu.zucc.exception.SourceNotFoundException;
 import cn.edu.zucc.mapper.PatientInfoMapper;
 import cn.edu.zucc.mapper.UserRelPatientMapper;
 import cn.edu.zucc.po.PatientInfo;
 import cn.edu.zucc.po.PatientInfoExample;
 import cn.edu.zucc.po.UserRelPatient;
 import cn.edu.zucc.po.UserRelPatientExample;
+import cn.edu.zucc.utils.CopyUtils;
+import cn.edu.zucc.utils.FormatUtils;
+import cn.edu.zucc.vo.MyPatientVO;
 import com.github.pagehelper.PageHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -43,6 +48,7 @@ public class PatientInfoServiceImpl implements PatientInfoService {
     @Resource
     private UserAccountInfoService userAccountInfoService;
 
+
     @Override
     public PatientInfo findPatientInfoByIdCard(String idCard) {
         PatientInfoExample example = new PatientInfoExample();
@@ -57,14 +63,17 @@ public class PatientInfoServiceImpl implements PatientInfoService {
     @Transactional(rollbackFor = Exception.class)
     //增删改操作添加@Transactional
     public boolean insert(Long userId, PatientInfoDTO patientInfoDTO) {
+        //用户不存在
+        if (!userAccountInfoService.count(userId)) {
+            throw new SourceNotFoundException("用户不存在");
+        }
         //若患者已存在（验证身份证号），则插入关系
         if (countPatientInfo(patientInfoDTO.getIdCard())) {
             PatientInfo patientInfo = findPatientInfoByIdCard(patientInfoDTO.getIdCard());
 
             UserRelPatient userRelPatient = new UserRelPatient();
-            if (null != userId) {
-                userRelPatient.setUserId(userId);
-            }
+
+            userRelPatient.setUserId(userId);
             userRelPatient.setPatientId(patientInfo.getId());
 
             return userRelPatientMapper.insertSelective(userRelPatient) > 0;
@@ -75,13 +84,23 @@ public class PatientInfoServiceImpl implements PatientInfoService {
         BeanUtils.copyProperties(patientInfoDTO, patientInfo);
         patientInfo.setCreateTime(new Date());
         patientInfo.setUpdateTime(new Date());
+
+        //校验身份证号
+        if (FormatUtils.isIdCard(patientInfoDTO.getIdCard())) {
+            patientInfo.setIdCard(patientInfoDTO.getIdCard());
+        } else {
+            throw new FormException();
+        }
+        //校验手机号
+        if (FormatUtils.isPhoneNumber(patientInfoDTO.getPhone())) {
+            patientInfo.setPhone(patientInfoDTO.getPhone());
+        } else {
+            throw new FormException();
+        }
         //若该患者插入成功
         if (patientInfoMapper.insertSelective(patientInfo) > 0) {
             UserRelPatient userRelPatient = new UserRelPatient();
-            if (null != userId) {
-                userRelPatient.setUserId(userId);
-            }
-            //insert能不能返回id待定
+            userRelPatient.setUserId(userId);
             userRelPatient.setPatientId(patientInfo.getId());
 
             return userRelPatientMapper.insertSelective(userRelPatient) > 0;
@@ -91,36 +110,48 @@ public class PatientInfoServiceImpl implements PatientInfoService {
     }
 
     @Override
-    public boolean update(Long relationId, PatientInfoUpadateDTO patientInfoUpadateDTO) {
+    @Transactional(rollbackFor = Exception.class)
+    public boolean update(Long userId, Long patientId, PatientInfoUpdateDTO patientInfoUpdateDTO) {
 
-        int count = 0;
-
-        //更新关系
-        if (!StringUtils.isEmpty(patientInfoUpadateDTO.getPatientName()) && !StringUtils.isEmpty(patientInfoUpadateDTO.getPhone())) {
-            UserRelPatient userRelPatient = new UserRelPatient();
-            BeanUtils.copyProperties(patientInfoUpadateDTO, userRelPatient);
-
-            userRelPatient.setId(relationId);
-            userRelPatient.setUpdateTime(new Date());
-
-            count = userRelPatientMapper.updateByPrimaryKeySelective(userRelPatient);
+        //判断患者名以及患者手机号是否为空
+        if (StringUtils.isBlank(patientInfoUpdateDTO.getPatientName()) || StringUtils.isBlank(patientInfoUpdateDTO.getPhone())) {
+            throw new FormException();
+        }
+        //关系存在
+        if (!countRelation(userId, patientId)) {
+            throw new SourceNotFoundException("该用户患者关系不存在");
+        }
+        if (!userAccountInfoService.count(userId)) {
+            throw new SourceNotFoundException("用户不存在");
+        }
+        if (!countPatientInfo(patientId)) {
+            throw new SourceNotFoundException("患者不存在");
+        }
+        //更新患者信息
+        PatientInfo patientInfo = findPatientInfoById(patientId);
+        patientInfo.setPatientName(patientInfoUpdateDTO.getPatientName());
+        patientInfo.setUpdateTime(new Date());
+        //校验手机号
+        if (FormatUtils.isPhoneNumber(patientInfoUpdateDTO.getPhone())) {
+            patientInfo.setPhone(patientInfoUpdateDTO.getPhone());
+        } else {
+            throw new FormException();
         }
 
-        //更新患者信息
-        PatientInfo patientInfo = new PatientInfo();
-        BeanUtils.copyProperties(patientInfoUpadateDTO, patientInfo);
-
-        patientInfo.setId(userRelPatientMapper.selectByPrimaryKey(relationId).getPatientId());
-        patientInfo.setUpdateTime(new Date());
-
-        count += patientInfoMapper.updateByPrimaryKeySelective(patientInfo);
-
-        return count > 0;
+        return patientInfoMapper.updateByPrimaryKeySelective(patientInfo) > 0;
     }
 
     @Override
-    public boolean deleteRelation(Long relationId) {
-        return userRelPatientMapper.deleteByPrimaryKey(relationId) > 0;
+    @Transactional(rollbackFor = Exception.class)
+    public boolean deleteRelation(Long userId, Long patientId) {
+        UserRelPatientExample example = new UserRelPatientExample();
+        UserRelPatientExample.Criteria criteria = example.createCriteria();
+
+        if (!countRelation(userId, patientId)) {
+            throw new SourceNotFoundException("该用户与患者关系不存在");
+        }
+        criteria.andUserIdEqualTo(userId).andPatientIdEqualTo(patientId);
+        return userRelPatientMapper.deleteByExample(example) > 0;
     }
 
     @Override
@@ -148,7 +179,7 @@ public class PatientInfoServiceImpl implements PatientInfoService {
     }
 
     @Override
-    public List<PatientInfo> findPatientList(Long userId) {
+    public List<MyPatientVO> findPatientList(Long userId) {
         UserRelPatientExample example = new UserRelPatientExample();
         UserRelPatientExample.Criteria criteria = example.createCriteria();
 
@@ -156,8 +187,9 @@ public class PatientInfoServiceImpl implements PatientInfoService {
             criteria.andUserIdEqualTo(userId);
         }
         //通过患者id列表去查找患者信息列表
-        return findPatientList(userRelPatientMapper.selectByExample(example)
-                .stream().map(UserRelPatient::getPatientId).collect(Collectors.toList()));
+        List<MyPatientVO> myPatientVOList = CopyUtils.copyList(findPatientList(userRelPatientMapper.selectByExample(example)
+                .stream().map(UserRelPatient::getPatientId).collect(Collectors.toList())), MyPatientVO.class);
+        return myPatientVOList;
     }
 
     @Override
@@ -168,9 +200,13 @@ public class PatientInfoServiceImpl implements PatientInfoService {
     }
 
     @Override
-    public boolean countRelation(Long relationId) {
+    public boolean countRelation(Long userId, Long patientId) {
         UserRelPatientExample example = new UserRelPatientExample();
-        example.createCriteria().andIdEqualTo(relationId);
+
+        if (null == userId || null == patientId) {
+            throw new FormException();
+        }
+        example.createCriteria().andUserIdEqualTo(userId).andPatientIdEqualTo(patientId);
         return userRelPatientMapper.selectCountByExample(example) > 0;
     }
 

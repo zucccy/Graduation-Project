@@ -13,7 +13,7 @@ import lombok.Data;
  */
 @ApiModel(value = "PatientInfoUpadateDTO", description = "患者信息修改参数")
 @Data
-public class PatientInfoUpadateDTO {
+public class PatientInfoUpdateDTO {
 
     /**
      * 患者名称

@@ -3,6 +3,8 @@ package cn.edu.zucc;
 import cn.edu.zucc.dto.AppointmentInfoDTO;
 import cn.edu.zucc.dto.VisitPatientInfoDTO;
 import cn.edu.zucc.po.AppointmentInfo;
+import cn.edu.zucc.vo.MyAppointmentListVO;
+import cn.edu.zucc.vo.MyAppointmentVO;
 
 import java.util.Date;
 import java.util.List;
@@ -18,19 +20,21 @@ public interface AppointmentInfoService {
     /**
      * 创建预约信息
      *
+     * @param userId             用户编号
      * @param appointmentInfoDTO 预约信息参数
-     * @return 是否成功
+     * @return boolean
      */
-    boolean insert(AppointmentInfoDTO appointmentInfoDTO);
+    boolean insert(Long userId, AppointmentInfoDTO appointmentInfoDTO);
 
     /**
      * 更新预约信息
      *
+     * @param userId      用户编号
      * @param id          预约信息编号
      * @param visitStatus 预约信息更新参数
      * @return 是否成功
      */
-    boolean update(Long id, Byte visitStatus);
+    boolean update(Long userId, Long id, Byte visitStatus);
 
     /**
      * 删除预约信息
@@ -117,4 +121,20 @@ public interface AppointmentInfoService {
      * @return java.util.List<cn.edu.zucc.po.AppointmentInfo>
      */
     List<AppointmentInfo> findAppointmentList(List<Long> visitIdList);
+
+    /**
+     * 转换获取我的预约对象
+     *
+     * @param appointmentInfo 预约信息
+     * @return cn.edu.zucc.vo.MyAppointmentVO
+     */
+    MyAppointmentListVO convertMyAppointmentListVO(AppointmentInfo appointmentInfo);
+
+    /**
+     * 获取用户此次预约的具体信息
+     *
+     * @param id 预约编号
+     * @return cn.edu.zucc.vo.MyAppointmentVO
+     */
+    MyAppointmentVO convertMyAppointmentVO(Long id);
 }

@@ -1,22 +1,29 @@
 package cn.edu.zucc.impl;
 
+import cn.edu.zucc.AppointmentInfoService;
+import cn.edu.zucc.DoctorService;
+import cn.edu.zucc.HospitalService;
+import cn.edu.zucc.OfficeService;
+import cn.edu.zucc.PatientInfoService;
 import cn.edu.zucc.UserAccountInfoService;
+import cn.edu.zucc.VisitPlanService;
 import cn.edu.zucc.dto.UpdatePasswordDTO;
 import cn.edu.zucc.dto.UserAccountInfoUpdateDTO;
 import cn.edu.zucc.dto.UserLoginDTO;
 import cn.edu.zucc.dto.UserRegisterDTO;
-import cn.edu.zucc.enums.ResultCodeEnum;
 import cn.edu.zucc.exception.ExistsException;
 import cn.edu.zucc.exception.FormException;
 import cn.edu.zucc.exception.SourceNotFoundException;
 import cn.edu.zucc.exception.WrongPasswordException;
 import cn.edu.zucc.mapper.UserAccountInfoMapper;
+import cn.edu.zucc.po.AppointmentInfo;
 import cn.edu.zucc.po.UserAccountInfo;
 import cn.edu.zucc.po.UserAccountInfoExample;
 import cn.edu.zucc.utils.CryptUtils;
 import cn.edu.zucc.utils.FormatUtils;
-import cn.edu.zucc.vo.MyAppointmentVO;
+import cn.edu.zucc.vo.MyAppointmentListVO;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +31,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -49,6 +57,24 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
     @Resource
     private RedisTemplate redisTemplate;
 
+    @Resource
+    private AppointmentInfoService appointmentInfoService;
+
+    @Resource
+    private VisitPlanService visitPlanService;
+
+    @Resource
+    private HospitalService hospitalService;
+
+    @Resource
+    private OfficeService officeService;
+
+    @Resource
+    private PatientInfoService patientInfoService;
+
+    @Resource
+    private DoctorService doctorService;
+
     @Override
     //登录
     public UserAccountInfo login(UserLoginDTO userLoginDTO) {
@@ -61,6 +87,7 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
 
     @Override
     //注册
+    @Transactional(rollbackFor = Exception.class)
     public boolean register(UserRegisterDTO userRegisterDTO) {
         UserAccountInfo userAccountInfo = new UserAccountInfo();
 
@@ -95,11 +122,12 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
 
     @Override
     //修改个人信息
+    @Transactional(rollbackFor = Exception.class)
     public boolean update(Long id, UserAccountInfoUpdateDTO userAccountInfoUpdateDTO) {
         UserAccountInfo userAccountInfo = findUserById(id);
         //用户未找到
         if (null == userAccountInfo) {
-            throw new SourceNotFoundException(ResultCodeEnum.NOT_FOUND.getMessage());
+            throw new SourceNotFoundException("用户不存在");
         }
 
         userAccountInfo.setUserName(userAccountInfoUpdateDTO.getUserName());
@@ -128,6 +156,7 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean delete(Long id) {
         if (null != id) {
             return userAccountInfoMapper.deleteByPrimaryKey(id) > 0;
@@ -161,7 +190,7 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
         }
         UserAccountInfo userAccountInfo = userAccountInfoMapper.selectOneByExample(example);
         if (null == userAccountInfo) {
-            throw new SourceNotFoundException(ResultCodeEnum.NOT_FOUND.getMessage());
+            throw new SourceNotFoundException("用户不存在");
         }
         return userAccountInfo;
     }
@@ -213,11 +242,12 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updatePassword(Long id, UpdatePasswordDTO updatePasswordDTO) {
         UserAccountInfo userAccountInfo = findUserById(id);
         //用户未找到
         if (null == userAccountInfo) {
-            throw new SourceNotFoundException(ResultCodeEnum.NOT_FOUND.getMessage());
+            throw new SourceNotFoundException("用户不存在");
         }
         //判断当前密码是否正确，正确则修改密码
         if (CryptUtils.matchAccountPassword(userAccountInfo.getPassword(), updatePasswordDTO.getRowPassword())) {
@@ -234,21 +264,34 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
     }
 
     @Override
-    public List<MyAppointmentVO> getMyAppointments(Long id) {
+    public List<MyAppointmentListVO> getMyAppointments(Long id) {
 
-        List<MyAppointmentVO> list = new ArrayList<>();
+        List<MyAppointmentListVO> list = new ArrayList<>();
         //redis里查找用户预约列表
         String pattern = id + ":*";
         Set<String> keys = stringRedisTemplate.keys(pattern);
-        if (CollectionUtil.isEmpty(keys)) {
-            return new ArrayList<>();
+        if (!CollectionUtil.isEmpty(keys)) {
+            for (String accurateKey : keys) {
+                String cacheValue = (String) redisTemplate.opsForValue().get(accurateKey);
+                MyAppointmentListVO myAppointmentListVO = JSON.parseObject(cacheValue, MyAppointmentListVO.class);
+                list.add(myAppointmentListVO);
+            }
         }
-        for (String accurateKey : keys) {
-            String cacheValue = (String) redisTemplate.opsForValue().get(accurateKey);
-            MyAppointmentVO myAppointmentVO = JSON.parseObject(cacheValue, MyAppointmentVO.class);
-            list.add(myAppointmentVO);
+        //redis里找不到，则去mysql里找，找到之后存到redis中
+        else {
+            appointmentInfoService.findAppointmentListByUserId(id, null, 1, 10)
+                    .forEach((AppointmentInfo appointmentInfo) -> {
+                        //获取我的预约对象
+                        MyAppointmentListVO myAppointmentListVO = appointmentInfoService.convertMyAppointmentListVO(appointmentInfo);
+                        list.add(myAppointmentListVO);
+                        //存到redis中
+                        //将对象转换为Json字符串
+                        String myAppointmentVOListJson = JSONUtil.toJsonStr(myAppointmentListVO);
+                        //key = 用户编号:预约编号
+                        String key = appointmentInfo.getUserId() + ":" + appointmentInfo.getId();
+                        redisTemplate.opsForValue().set(key, myAppointmentVOListJson);
+                    });
         }
-
         return list;
     }
 

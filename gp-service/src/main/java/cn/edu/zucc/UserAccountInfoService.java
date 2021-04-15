@@ -5,7 +5,7 @@ import cn.edu.zucc.dto.UserAccountInfoUpdateDTO;
 import cn.edu.zucc.dto.UserLoginDTO;
 import cn.edu.zucc.dto.UserRegisterDTO;
 import cn.edu.zucc.po.UserAccountInfo;
-import cn.edu.zucc.vo.MyAppointmentVO;
+import cn.edu.zucc.vo.MyAppointmentListVO;
 
 import java.util.List;
 
@@ -132,5 +132,5 @@ public interface UserAccountInfoService {
      * @param id 用户编号
      * @return java.util.List<cn.edu.zucc.vo.MyAppointmentVO>
      */
-    List<MyAppointmentVO> getMyAppointments(Long id);
+    List<MyAppointmentListVO> getMyAppointments(Long id);
 }

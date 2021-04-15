@@ -1,5 +1,6 @@
 package cn.edu.zucc.controller;
 
+import cn.edu.zucc.PatientInfoService;
 import cn.edu.zucc.UserAccountInfoService;
 import cn.edu.zucc.commonVO.ResponseVO;
 import cn.edu.zucc.dto.UpdatePasswordDTO;
@@ -11,7 +12,8 @@ import cn.edu.zucc.po.UserAccountInfo;
 import cn.edu.zucc.utils.ResponseBuilder;
 import cn.edu.zucc.utils.TokenProviderUtils;
 import cn.edu.zucc.utils.TokenUtils;
-import cn.edu.zucc.vo.MyAppointmentVO;
+import cn.edu.zucc.vo.MyAppointmentListVO;
+import cn.edu.zucc.vo.MyPatientVO;
 import cn.edu.zucc.vo.UserAccountInfoVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -47,6 +49,9 @@ public class UserController {
 
     @Resource
     private UserAccountInfoService userAccountInfoService;
+
+    @Resource
+    private PatientInfoService patientInfoService;
 
     @ApiOperation(value = "登录")
     @PostMapping(value = "/login")
@@ -121,10 +126,18 @@ public class UserController {
         return ResponseBuilder.success();
     }
 
-    @ApiOperation(value = "获取我的预约")
+    @ApiOperation(value = "获取我的预约集合")
     @GetMapping(value = "/getMyAppointments")
     //必须传入token（用户必须登录），才能继续操作
-    public ResponseVO<List<MyAppointmentVO>> getMyAppointments(@RequestHeader("Authorization") String token) {
+    public ResponseVO<List<MyAppointmentListVO>> getMyAppointments(@RequestHeader("Authorization") String token) {
         return ResponseBuilder.success(userAccountInfoService.getMyAppointments(TokenUtils.getUserId(token, tokenSecret)));
     }
+
+    @ApiOperation(value = "获取我的患者集合")
+    @GetMapping(value = "/getMyPatients")
+    public ResponseVO<List<MyPatientVO>> getMyPatients(@RequestHeader("Authorization") String token) {
+        return ResponseBuilder.success(patientInfoService.findPatientList(TokenUtils.getUserId(token, tokenSecret)));
+    }
+
+
 }

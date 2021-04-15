@@ -1,7 +1,9 @@
 package cn.edu.zucc.impl;
 
+import cn.edu.zucc.HospitalService;
 import cn.edu.zucc.OfficeService;
 import cn.edu.zucc.dto.OfficeInfoDTO;
+import cn.edu.zucc.exception.SourceNotFoundException;
 import cn.edu.zucc.mapper.HospitalRelOfficeMapper;
 import cn.edu.zucc.mapper.OfficeMapper;
 import cn.edu.zucc.po.HospitalRelOffice;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,29 +38,32 @@ public class OfficeServiceImpl implements OfficeService {
     @Resource
     private HospitalRelOfficeMapper hospitalRelOfficeMapper;
 
+    @Resource
+    private HospitalService hospitalService;
+
     @Override
     public Office findOfficeById(Long id) {
+        if (!count(id)) {
+            throw new SourceNotFoundException("科室不存在");
+        }
         return officeMapper.selectByPrimaryKey(id);
     }
 
     @Override
-    public List<Office> findOfficeList(Long parentId, Integer pageNum, Integer pageSize) {
+    public List<Office> findOfficeList(Long id) {
 
-        PageHelper.startPage(pageNum, pageSize);
+        if (!count(id)) {
+            throw new SourceNotFoundException("该科室不存在");
+        }
 
         OfficeExample example = new OfficeExample();
-        OfficeExample.Criteria criteria = example.createCriteria();
-
-        if (null != parentId) {
-            criteria.andParentIdEqualTo(parentId);
-        }
+        example.createCriteria().andParentIdEqualTo(id);
 
         return officeMapper.selectByExample(example);
     }
 
     @Override
-    public List<Office> findOfficeList(String officeName, Integer pageNum, Integer pageSize) {
-        PageHelper.startPage(pageNum, pageSize);
+    public List<Office> findOfficeList(String officeName) {
 
         OfficeExample example = new OfficeExample();
         OfficeExample.Criteria criteria = example.createCriteria();
@@ -111,26 +117,39 @@ public class OfficeServiceImpl implements OfficeService {
 
     @Override
     public List<Office> findOfficeListByHosId(Long hospitalId, Integer pageNum, Integer pageSize) {
+
+        if (!hospitalService.count(hospitalId)) {
+            throw new SourceNotFoundException("医院不存在");
+        }
+
         PageHelper.startPage(pageNum, pageSize);
 
         HospitalRelOfficeExample example = new HospitalRelOfficeExample();
-        HospitalRelOfficeExample.Criteria criteria = example.createCriteria();
+        example.createCriteria().andHospitalIdEqualTo(hospitalId);
 
-        if (null != hospitalId) {
-            criteria.andHospitalIdEqualTo(hospitalId);
-        }
-        //根据医院编号获取科室编号列表
-        List<Long> officeIdList = hospitalRelOfficeMapper.selectByExample(example)
-                .stream().map(HospitalRelOffice::getOfficeId).collect(Collectors.toList());
+        //开启分页
+        PageHelper.startPage(pageNum, pageSize);
+        return findOfficeList(hospitalRelOfficeMapper.selectByExample(example)
+                .stream().map(HospitalRelOffice::getOfficeId).collect(Collectors.toList()));
+    }
+
+    @Override
+    public List<Office> findOfficeListAll() {
+        return officeMapper.selectAll();
+    }
+
+    @Override
+    public List<Office> findOfficeList(List<Long> officeIdList) {
 
         //用科室编号列表获取科室信息列表
-        OfficeExample example1 = new OfficeExample();
-        OfficeExample.Criteria criteria1 = example1.createCriteria();
+        OfficeExample example = new OfficeExample();
+        OfficeExample.Criteria criteria = example.createCriteria();
 
         if (CollectionUtil.isNotEmpty(officeIdList)) {
-            criteria1.andIdIn(officeIdList);
+            criteria.andIdIn(officeIdList);
+        } else {
+            return new ArrayList<>();
         }
-
-        return officeMapper.selectByExample(example1);
+        return officeMapper.selectByExample(example);
     }
 }

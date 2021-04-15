@@ -22,24 +22,20 @@ public interface OfficeService {
     Office findOfficeById(Long id);
 
     /**
-     * 根据父编号查找科室列表
+     * 根据科室编号查找子科室列表
      *
-     * @param parentId 父编号
-     * @param pageNum  第几页
-     * @param pageSize 页大小
+     * @param id 科室编号
      * @return java.util.List<cn.edu.zucc.po.Office>
      */
-    List<Office> findOfficeList(Long parentId, Integer pageNum, Integer pageSize);
+    List<Office> findOfficeList(Long id);
 
     /**
      * 根据科室名称查找科室列表
      *
      * @param officeName 科室名称
-     * @param pageNum    第几页
-     * @param pageSize   页大小
      * @return java.util.List<cn.edu.zucc.po.Office>
      */
-    List<Office> findOfficeList(String officeName, Integer pageNum, Integer pageSize);
+    List<Office> findOfficeList(String officeName);
 
     /**
      * 添加科室
@@ -83,4 +79,20 @@ public interface OfficeService {
      * @return java.util.List<cn.edu.zucc.po.Office>
      */
     List<Office> findOfficeListByHosId(Long hospitalId, Integer pageNum, Integer pageSize);
+
+    /**
+     * 查找所有科室信息
+     *
+     * @return java.util.List<cn.edu.zucc.po.Office>
+     */
+    List<Office> findOfficeListAll();
+
+    /**
+     * 根据科室编号列表查找科室信息列表
+     *
+     * @param officeIdList 科室编号列表
+     * @return java.util.List<cn.edu.zucc.po.Office>
+     */
+    List<Office> findOfficeList(List<Long> officeIdList);
+
 }
