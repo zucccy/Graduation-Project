@@ -73,4 +73,5 @@ public class OfficeController {
         }
         return ResponseBuilder.successPageable(PageUtils.restPage(officeService.findOfficeListByHosId(hospitalId, pageNum, pageSize)));
     }
+
 }

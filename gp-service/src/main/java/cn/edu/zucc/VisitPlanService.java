@@ -1,8 +1,8 @@
 package cn.edu.zucc;
 
-import cn.edu.zucc.dto.VisitDoctorPlanDTO;
 import cn.edu.zucc.dto.VisitPlanInfoDTO;
 import cn.edu.zucc.po.VisitPlan;
+import cn.edu.zucc.vo.VisitDoctorPlanVO;
 
 import java.util.Date;
 import java.util.List;
@@ -104,8 +104,8 @@ public interface VisitPlanService {
      * @param doctorId 医生编号
      * @param start    开始日期
      * @param end      结束日期
-     * @return VisitDoctorPlanDTO
+     * @return VisitDoctorPlanVO
      */
-    VisitDoctorPlanDTO getDoctorPlan(Long doctorId, Date start, Date end);
+    VisitDoctorPlanVO getDoctorPlan(Long doctorId, Date start, Date end);
 
 }

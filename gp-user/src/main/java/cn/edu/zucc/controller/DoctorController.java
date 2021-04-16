@@ -1,19 +1,26 @@
 package cn.edu.zucc.controller;
 
 import cn.edu.zucc.DoctorService;
+import cn.edu.zucc.VisitPlanService;
+import cn.edu.zucc.commonVO.ResponsePageVO;
 import cn.edu.zucc.commonVO.ResponseVO;
 import cn.edu.zucc.exception.FormException;
+import cn.edu.zucc.utils.PageUtils;
 import cn.edu.zucc.utils.ResponseBuilder;
 import cn.edu.zucc.vo.DoctorVO;
+import cn.edu.zucc.vo.VisitDoctorPlanVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.Date;
 
 /**
  * Description: TODO
@@ -30,6 +37,9 @@ public class DoctorController {
     @Resource
     private DoctorService doctorService;
 
+    @Resource
+    private VisitPlanService visitPlanService;
+
     @ApiOperation(value = "根据医生id查找医生信息")
     @GetMapping("{id}")
     public ResponseVO<DoctorVO> findDoctorVOById(@PathVariable Long id) {
@@ -38,5 +48,51 @@ public class DoctorController {
             throw new FormException();
         }
         return ResponseBuilder.success(doctorService.findDoctorVOById(id));
+    }
+
+    @ApiOperation(value = "按照科室编号查找医生列表")
+    @GetMapping("/getDoctorsByOfficeId/{officeId}")
+    public ResponsePageVO<DoctorVO> getDoctorsByOfficeId(@PathVariable Long officeId,
+                                                         @RequestParam(defaultValue = "1") Integer pageNum,
+                                                         @RequestParam(defaultValue = "10") Integer pageSize) {
+
+        if (null == officeId) {
+            throw new FormException();
+        }
+        return ResponseBuilder.successPageable(PageUtils.restPage(doctorService.findDoctorList(officeId, pageNum, pageSize)));
+    }
+
+    @ApiOperation(value = "按照医院编号查找医生列表")
+    @GetMapping("/getDoctorsByHosId/{hospitalId}")
+    public ResponsePageVO<DoctorVO> getDoctorsByHosId(@PathVariable Long hospitalId,
+                                                      @RequestParam(defaultValue = "1") Integer pageNum,
+                                                      @RequestParam(defaultValue = "10") Integer pageSize) {
+
+        if (null == hospitalId) {
+            throw new FormException();
+        }
+        return ResponseBuilder.successPageable(PageUtils.restPage(doctorService.findDoctorListByHosId(hospitalId, pageNum, pageSize)));
+    }
+
+    @ApiOperation(value = "分页搜索医生信息 按医生名字")
+    @GetMapping("/getDoctorList")
+    public ResponsePageVO<DoctorVO> getDoctorList(@RequestParam String doctorName,
+                                                  @RequestParam(defaultValue = "1") Integer pageNum,
+                                                  @RequestParam(defaultValue = "10") Integer pageSize) {
+        if (StringUtils.isEmpty(doctorName))
+            throw new FormException();
+
+        return ResponseBuilder.successPageable(PageUtils.restPage(doctorService.findDoctorList(doctorName, pageNum, pageSize)));
+    }
+
+    @ApiOperation(value = "根据医生编号获取一段时间内出诊计划信息")
+    @GetMapping("/getDoctorPlan/{doctorId}")
+    public ResponseVO<VisitDoctorPlanVO> getDoctorPlan(@PathVariable Long doctorId,
+                                                       @RequestParam Date start,
+                                                       @RequestParam Date end) {
+        if (null == doctorId || null == start || null == end) {
+            throw new FormException();
+        }
+        return ResponseBuilder.success(visitPlanService.getDoctorPlan(doctorId, start, end));
     }
 }

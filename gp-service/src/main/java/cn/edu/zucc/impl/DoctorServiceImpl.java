@@ -4,18 +4,20 @@ import cn.edu.zucc.DoctorService;
 import cn.edu.zucc.HospitalService;
 import cn.edu.zucc.OfficeService;
 import cn.edu.zucc.dto.DoctorInfoDTO;
+import cn.edu.zucc.exception.FormException;
 import cn.edu.zucc.exception.SourceNotFoundException;
 import cn.edu.zucc.mapper.DoctorInfoMapper;
 import cn.edu.zucc.po.DoctorInfo;
 import cn.edu.zucc.po.DoctorInfoExample;
 import cn.edu.zucc.vo.DoctorVO;
+import cn.hutool.core.collection.CollectionUtil;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -50,6 +52,10 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     public DoctorVO findDoctorVOById(Long id) {
 
+        if (!count(id)) {
+            throw new SourceNotFoundException("医生不存在");
+        }
+
         DoctorVO doctorVO = new DoctorVO();
         DoctorInfo doctorInfo = findDoctorById(id);
         BeanUtils.copyProperties(doctorInfo, doctorVO);
@@ -59,17 +65,12 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
-    public List<DoctorInfo> findDoctorList(String doctorName, Integer pageNum, Integer pageSize) {
+    public List<DoctorVO> findDoctorList(String doctorName, Integer pageNum, Integer pageSize) {
+
         PageHelper.startPage(pageNum, pageSize);
 
-        DoctorInfoExample example = new DoctorInfoExample();
-        DoctorInfoExample.Criteria criteria = example.createCriteria();
-
-        if (!StringUtils.isEmpty(doctorName)) {
-            criteria.andDoctorNameLike("%" + doctorName + "%");
-        }
-
-        return doctorInfoMapper.selectByExample(example);
+        List<DoctorVO> doctorVOList = doctorInfoMapper.findDoctorList(null, null, doctorName, pageNum, pageSize);
+        return doctorVOList;
     }
 
     @Override
@@ -112,30 +113,43 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
-    public List<DoctorInfo> findDoctorList(Long officeId, Integer pageNum, Integer pageSize) {
+    public List<DoctorVO> findDoctorList(Long officeId, Integer pageNum, Integer pageSize) {
+
+        if (null == officeId) {
+            throw new FormException();
+        }
+        if (!officeService.count(officeId)) {
+            throw new SourceNotFoundException("科室不存在");
+        }
         PageHelper.startPage(pageNum, pageSize);
 
-        DoctorInfoExample example = new DoctorInfoExample();
-        DoctorInfoExample.Criteria criteria = example.createCriteria();
-
-        if (null != officeId) {
-            criteria.andOfficeIdEqualTo(officeId);
-        }
-
-        return doctorInfoMapper.selectByExample(example);
+        List<DoctorVO> doctorVOList = doctorInfoMapper.findDoctorList(officeId, null, null, pageNum, pageSize);
+        return doctorVOList;
     }
 
     @Override
-    public List<DoctorInfo> findDoctorListByHosId(Long hospitalId, Integer pageNum, Integer pageSize) {
+    public List<DoctorVO> findDoctorListByHosId(Long hospitalId, Integer pageNum, Integer pageSize) {
+
+        if (null == hospitalId) {
+            throw new FormException();
+        }
+        if (!hospitalService.count(hospitalId)) {
+            throw new SourceNotFoundException("医院不存在");
+        }
         PageHelper.startPage(pageNum, pageSize);
 
+        List<DoctorVO> doctorVOList = doctorInfoMapper.findDoctorList(null, hospitalId, null, pageNum, pageSize);
+        return doctorVOList;
+    }
+
+    @Override
+    public List<DoctorInfo> findDoctorInfoList(List<Long> doctorIdList) {
         DoctorInfoExample example = new DoctorInfoExample();
-        DoctorInfoExample.Criteria criteria = example.createCriteria();
-
-        if (null != hospitalId) {
-            criteria.andHospitalIdEqualTo(hospitalId);
+        example.createCriteria().andIdIn(doctorIdList);
+        List<DoctorInfo> doctorInfoList = doctorInfoMapper.selectByExample(example);
+        if (CollectionUtil.isEmpty(doctorInfoList)) {
+            return new ArrayList<>();
         }
-
-        return doctorInfoMapper.selectByExample(example);
+        return doctorInfoList;
     }
 }

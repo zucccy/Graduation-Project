@@ -10,6 +10,7 @@ import cn.edu.zucc.utils.ResponseBuilder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,12 +43,14 @@ public class HospitalController {
         return ResponseBuilder.success(hospitalService.findHospitalById(id));
     }
 
-    @ApiOperation(value = "分页搜索医院信息")
+    @ApiOperation(value = "分页搜索医院信息 根据医院名、地址")
     @GetMapping(value = "/list")
     public ResponsePageVO<Hospital> findHospitalList(@RequestParam(required = false) String hospitalName,
                                                      @RequestParam(required = false) String address,
                                                      @RequestParam(defaultValue = "1") Integer pageNum,
                                                      @RequestParam(defaultValue = "10") Integer pageSize) {
+        if (StringUtils.isEmpty(hospitalName) || StringUtils.isEmpty(address))
+            throw new FormException();
 
         return ResponseBuilder.successPageable(PageUtils.restPage(hospitalService.findHospitalList(hospitalName, address, pageNum, pageSize)));
     }
@@ -62,4 +65,5 @@ public class HospitalController {
         }
         return ResponseBuilder.successPageable(PageUtils.restPage(hospitalService.findHospitalList(officeId, pageNum, pageSize)));
     }
+
 }

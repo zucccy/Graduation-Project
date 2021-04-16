@@ -22,6 +22,12 @@ public interface DoctorService {
      */
     DoctorInfo findDoctorById(Long id);
 
+    /**
+     * 根据医生编号查找医生综合信息
+     *
+     * @param id 医生编号
+     * @return cn.edu.zucc.vo.DoctorVO
+     */
     DoctorVO findDoctorVOById(Long id);
 
     /**
@@ -32,7 +38,7 @@ public interface DoctorService {
      * @param pageSize   页大小
      * @return java.util.List<cn.edu.zucc.po.DoctorInfo>
      */
-    List<DoctorInfo> findDoctorList(String doctorName, Integer pageNum, Integer pageSize);
+    List<DoctorVO> findDoctorList(String doctorName, Integer pageNum, Integer pageSize);
 
     /**
      * 添加医生信息
@@ -73,17 +79,25 @@ public interface DoctorService {
      * @param officeId 科室编号
      * @param pageNum  第几页
      * @param pageSize 页大小
-     * @return java.util.List<cn.edu.zucc.po.DoctorInfo>
+     * @return java.util.List<cn.edu.zucc.vo.DoctorVO>
      */
-    List<DoctorInfo> findDoctorList(Long officeId, Integer pageNum, Integer pageSize);
+    List<DoctorVO> findDoctorList(Long officeId, Integer pageNum, Integer pageSize);
 
     /**
-     * 根据医院编号查找医生信息
+     * 根据医院编号查找医生综合信息
      *
      * @param hospitalId 医院编号
      * @param pageNum    第几页
      * @param pageSize   页大小
+     * @return java.util.List<cn.edu.zucc.vo.DoctorVO>
+     */
+    List<DoctorVO> findDoctorListByHosId(Long hospitalId, Integer pageNum, Integer pageSize);
+
+    /**
+     * 根据医生编号列表查找医生信息列表
+     *
+     * @param doctorIdList 医生编号列表
      * @return java.util.List<cn.edu.zucc.po.DoctorInfo>
      */
-    List<DoctorInfo> findDoctorListByHosId(Long hospitalId, Integer pageNum, Integer pageSize);
+    List<DoctorInfo> findDoctorInfoList(List<Long> doctorIdList);
 }

@@ -162,13 +162,16 @@ public class HospitalServiceImpl implements HospitalService {
     @Override
     public List<Hospital> findHospitalList(Long officeId, Integer pageNum, Integer pageSize) {
 
+        if (!officeService.count(officeId)) {
+            throw new SourceNotFoundException("科室不存在");
+        }
         HospitalRelOfficeExample example = new HospitalRelOfficeExample();
         example.createCriteria().andOfficeIdEqualTo(officeId);
 
         //得到医院编号列表
         List<Long> hospitalIdList = hospitalRelOfficeMapper.selectByExample(example)
                 .stream().map(HospitalRelOffice::getHospitalId).collect(Collectors.toList());
-        //得到包含该科室的医院信息列表
+        //得到包含该科室以及该父科室的医院信息列表
 
         //分页查询放在最后一个select语句前
         PageHelper.startPage(pageNum, pageSize);

@@ -2,12 +2,14 @@ package cn.edu.zucc.impl;
 
 import cn.edu.zucc.DoctorService;
 import cn.edu.zucc.VisitPlanService;
-import cn.edu.zucc.dto.DoctorInfoDTO;
-import cn.edu.zucc.dto.VisitDoctorPlanDTO;
 import cn.edu.zucc.dto.VisitPlanInfoDTO;
+import cn.edu.zucc.exception.FormException;
 import cn.edu.zucc.mapper.VisitPlanMapper;
 import cn.edu.zucc.po.VisitPlan;
 import cn.edu.zucc.po.VisitPlanExample;
+import cn.edu.zucc.vo.DoctorVO;
+import cn.edu.zucc.vo.VisitDoctorPlanVO;
+import cn.edu.zucc.vo.VisitPlanVO;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -142,43 +144,46 @@ public class VisitPlanServiceImpl implements VisitPlanService {
     }
 
     @Override
-    public VisitDoctorPlanDTO getDoctorPlan(Long doctorId, Date start, Date end) {
+    public VisitDoctorPlanVO getDoctorPlan(Long doctorId, Date start, Date end) {
 
-        VisitDoctorPlanDTO dto = new VisitDoctorPlanDTO();
+        VisitDoctorPlanVO vo = new VisitDoctorPlanVO();
 
-        DoctorInfoDTO doctorInfoDTO = new DoctorInfoDTO();
-        if (doctorService.count(doctorId)) {
-            BeanUtils.copyProperties(doctorService.findDoctorById(doctorId), doctorInfoDTO);
-        }
+        DoctorVO doctorVO = doctorService.findDoctorVOById(doctorId);
+
         //添加医生信息
-        dto.setDoctorInfoDTO(doctorInfoDTO);
+        vo.setDoctorVO(doctorVO);
 
-        dto.setVisitPlanInfoDTOList(getVisitPlanInfoDTO(doctorId, start, end));
+        vo.setVisitPlanVOList(getVisitPlanVO(doctorId, start, end));
 
-        return dto;
+        return vo;
     }
 
-    private List<VisitPlanInfoDTO> getVisitPlanInfoDTO(Long doctorId, Date start, Date end) {
+    private List<VisitPlanVO> getVisitPlanVO(Long doctorId, Date start, Date end) {
 
-        List<VisitPlanInfoDTO> list = new ArrayList<>();
+        List<VisitPlanVO> list = new ArrayList<>();
 
         VisitPlanExample example = new VisitPlanExample();
         VisitPlanExample.Criteria criteria = example.createCriteria();
 
         if (null != doctorId) {
             criteria.andDoctorIdEqualTo(doctorId);
+        } else {
+            throw new FormException();
         }
         if (null != start && null != end) {
             criteria.andVisitDayGreaterThanOrEqualTo(start);
             criteria.andVisitDayLessThanOrEqualTo(end);
+        } else {
+            throw new FormException();
         }
-        //对VisitPlan列表进行遍历，将每个VisitPlan对象转换为VisitPlanInfoDTO对象
-        visitPlanMapper.selectByExample(example).forEach((VisitPlan item) -> {
-            VisitPlanInfoDTO visitPlanInfoDTO = new VisitPlanInfoDTO();
+        List<VisitPlan> visitPlans = visitPlanMapper.selectByExample(example);
+        //对VisitPlan列表进行遍历，将每个VisitPlan对象转换为VisitPlanVO对象
+        visitPlans.forEach((VisitPlan item) -> {
+            VisitPlanVO visitPlanVO = new VisitPlanVO();
 
-            BeanUtils.copyProperties(item, visitPlanInfoDTO);
+            BeanUtils.copyProperties(item, visitPlanVO);
 
-            list.add(visitPlanInfoDTO);
+            list.add(visitPlanVO);
         });
 
         return list;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.edu.zucc.mapper.DoctorInfoMapper">
-  <resultMap id="BaseResultMap" type="cn.edu.zucc.po.DoctorInfo">
+  <resultMap id="BaseResultMap" type="cn.edu.zucc.vo.DoctorVO">
     <!--
       WARNING - @mbg.generated
     -->
@@ -9,11 +9,9 @@
     <result column="doctor_name" jdbcType="VARCHAR" property="doctorName"/>
     <result column="sex" jdbcType="TINYINT" property="sex"/>
     <result column="position" jdbcType="VARCHAR" property="position"/>
-    <result column="hospital_id" jdbcType="BIGINT" property="hospitalId"/>
-    <result column="office_id" jdbcType="BIGINT" property="officeId"/>
+    <result column="hospital_name" jdbcType="VARCHAR" property="hospitalName"/>
+    <result column="office_name" jdbcType="VARCHAR" property="officeName"/>
     <result column="description" jdbcType="VARCHAR" property="description"/>
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
-    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
   </resultMap>
   <sql id="Example_Where_Clause">
     <!--
@@ -87,4 +85,19 @@
     update_time
   </sql>
 
+  <select id="findDoctorList" resultMap="BaseResultMap">
+    SELECT doctor_info.id, doctor_name, sex, position, doctor_info.description, office_name, hospital_name
+    FROM doctor_info, office, hospital
+    WHERE doctor_info.office_id = office.id
+    AND doctor_info.hospital_id = hospital.id
+    <if test="officeId != null">
+      AND (office_id = #{officeId} OR office.parent_id = #{officeId})
+    </if>
+    <if test="hospitalId != null">
+      AND hospital_id = #{hospitalId}
+    </if>
+    <if test="doctorName != null">
+      AND doctor_name LIKE "%"#{doctorName}"%"
+    </if>
+  </select>
 </mapper>
