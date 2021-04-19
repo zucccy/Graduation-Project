@@ -17,23 +17,6 @@ import java.util.List;
  */
 public interface UserAccountInfoService {
 
-//    /**
-//     * 发送注册短信
-//     *
-//     * @param phone 手机号
-//     * @return 是否成功
-//     */
-//    boolean sendMessage(String phone);
-//
-//    /**
-//     * 校验短信验证码
-//     *
-//     * @param phone 手机号
-//     * @param code  验证码
-//     * @return 是否正确
-//     */
-//    boolean verifyCode(String phone, String code);
-
     /**
      * 用户登录
      *
