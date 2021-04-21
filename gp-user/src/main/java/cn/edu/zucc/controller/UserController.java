@@ -8,6 +8,7 @@ import cn.edu.zucc.dto.UserAccountInfoUpdateDTO;
 import cn.edu.zucc.dto.UserLoginDTO;
 import cn.edu.zucc.dto.UserRegisterDTO;
 import cn.edu.zucc.exception.FormException;
+import cn.edu.zucc.exception.SourceNotFoundException;
 import cn.edu.zucc.po.UserAccountInfo;
 import cn.edu.zucc.utils.ResponseBuilder;
 import cn.edu.zucc.utils.TokenProviderUtils;
@@ -56,7 +57,13 @@ public class UserController {
     @ApiOperation(value = "登录")
     @PostMapping(value = "/login")
     public ResponseVO<UserAccountInfoVO> login(@RequestBody UserLoginDTO userLoginDTO, HttpServletResponse response) {
-        if (null == userLoginDTO || StringUtils.isBlank(userLoginDTO.getOpenCode()) || StringUtils.isBlank(userLoginDTO.getPassword())) {
+        if (null == userLoginDTO) {
+            if (StringUtils.isBlank(userLoginDTO.getOpenCode())) {
+                throw new SourceNotFoundException("账号为空！");
+            }
+            if (StringUtils.isBlank(userLoginDTO.getPassword())) {
+                throw new SourceNotFoundException("密码为空！");
+            }
             throw new FormException();
         }
         UserAccountInfo user = userAccountInfoService.login(userLoginDTO);
@@ -75,10 +82,16 @@ public class UserController {
     @PostMapping(value = "/register")
     public ResponseVO<Void> register(@RequestBody UserRegisterDTO userRegisterDTO) {
         //帐号、密码、用户名均不能为空
-        if (null == userRegisterDTO
-                || StringUtils.isBlank(userRegisterDTO.getOpenCode())
-                || StringUtils.isBlank(userRegisterDTO.getPassword())
-                || StringUtils.isBlank(userRegisterDTO.getUserName())) {
+        if (null == userRegisterDTO) {
+            if (StringUtils.isBlank(userRegisterDTO.getOpenCode())) {
+                throw new SourceNotFoundException("账号为空！");
+            }
+            if (StringUtils.isBlank(userRegisterDTO.getPassword())) {
+                throw new SourceNotFoundException("密码为空！");
+            }
+            if (StringUtils.isBlank(userRegisterDTO.getUserName())) {
+                throw new SourceNotFoundException("用户名为空！");
+            }
             throw new FormException();
         }
         userAccountInfoService.register(userRegisterDTO);
