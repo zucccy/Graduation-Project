@@ -8,6 +8,8 @@
     <id column="id" jdbcType="BIGINT" property="id"/>
     <result column="hospital_name" jdbcType="VARCHAR" property="hospitalName"/>
     <result column="address" jdbcType="VARCHAR" property="address"/>
+    <result column="longitudes" jdbcType="DECIMAL" property="longitudes"/>
+    <result column="latitudes" jdbcType="DECIMAL" property="latitudes"/>
     <result column="phone" jdbcType="VARCHAR" property="phone"/>
     <result column="description" jdbcType="VARCHAR" property="description"/>
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
@@ -81,6 +83,7 @@
     <!--
       WARNING - @mbg.generated
     -->
-    id, hospital_name, address, phone, description, create_time, update_time
+    id, hospital_name, address, longitudes, latitudes, phone, description, create_time,
+    update_time
   </sql>
 </mapper>

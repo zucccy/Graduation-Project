@@ -11,6 +11,7 @@ import cn.edu.zucc.dto.UpdatePasswordDTO;
 import cn.edu.zucc.dto.UserAccountInfoUpdateDTO;
 import cn.edu.zucc.dto.UserLoginDTO;
 import cn.edu.zucc.dto.UserRegisterDTO;
+import cn.edu.zucc.enums.RoleTypeEnum;
 import cn.edu.zucc.exception.ExistsException;
 import cn.edu.zucc.exception.FormException;
 import cn.edu.zucc.exception.SourceNotFoundException;
@@ -78,7 +79,17 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
     @Override
     //登录
     public UserAccountInfo login(UserLoginDTO userLoginDTO) {
+        //先查找用户看是否存在
         UserAccountInfo userAccountInfo = findUserByOpenCode(userLoginDTO.getOpenCode());
+        //如果选择了医生身份登录，则要判断是否是医生
+        if (RoleTypeEnum.DOCTOR.getTypes().byteValue() == userLoginDTO.getRoleType()) {
+            if (RoleTypeEnum.DOCTOR.getTypes().byteValue() != userAccountInfo.getRoleType()) {
+                throw new SourceNotFoundException("不存在该医生");
+            }
+            return userAccountInfo;
+        }
+        //非医生身份，默认为用户身份，角色类型赋值为用户
+        userAccountInfo.setRoleType(RoleTypeEnum.USER.getTypes().byteValue());
         if (!CryptUtils.matchAccountPassword(userAccountInfo.getPassword(), userLoginDTO.getPassword())) {
             throw new WrongPasswordException();
         }

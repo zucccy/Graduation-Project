@@ -1,5 +1,6 @@
 package cn.edu.zucc.po;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -302,6 +303,126 @@ public class HospitalExample {
 
         public Criteria andAddressNotBetween(String value1, String value2) {
             addCriterion("address not between", value1, value2, "address");
+            return (Criteria) this;
+        }
+
+        public Criteria andLongitudesIsNull() {
+            addCriterion("longitudes is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLongitudesIsNotNull() {
+            addCriterion("longitudes is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLongitudesEqualTo(BigDecimal value) {
+            addCriterion("longitudes =", value, "longitudes");
+            return (Criteria) this;
+        }
+
+        public Criteria andLongitudesNotEqualTo(BigDecimal value) {
+            addCriterion("longitudes <>", value, "longitudes");
+            return (Criteria) this;
+        }
+
+        public Criteria andLongitudesGreaterThan(BigDecimal value) {
+            addCriterion("longitudes >", value, "longitudes");
+            return (Criteria) this;
+        }
+
+        public Criteria andLongitudesGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("longitudes >=", value, "longitudes");
+            return (Criteria) this;
+        }
+
+        public Criteria andLongitudesLessThan(BigDecimal value) {
+            addCriterion("longitudes <", value, "longitudes");
+            return (Criteria) this;
+        }
+
+        public Criteria andLongitudesLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("longitudes <=", value, "longitudes");
+            return (Criteria) this;
+        }
+
+        public Criteria andLongitudesIn(List<BigDecimal> values) {
+            addCriterion("longitudes in", values, "longitudes");
+            return (Criteria) this;
+        }
+
+        public Criteria andLongitudesNotIn(List<BigDecimal> values) {
+            addCriterion("longitudes not in", values, "longitudes");
+            return (Criteria) this;
+        }
+
+        public Criteria andLongitudesBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("longitudes between", value1, value2, "longitudes");
+            return (Criteria) this;
+        }
+
+        public Criteria andLongitudesNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("longitudes not between", value1, value2, "longitudes");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatitudesIsNull() {
+            addCriterion("latitudes is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatitudesIsNotNull() {
+            addCriterion("latitudes is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatitudesEqualTo(BigDecimal value) {
+            addCriterion("latitudes =", value, "latitudes");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatitudesNotEqualTo(BigDecimal value) {
+            addCriterion("latitudes <>", value, "latitudes");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatitudesGreaterThan(BigDecimal value) {
+            addCriterion("latitudes >", value, "latitudes");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatitudesGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("latitudes >=", value, "latitudes");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatitudesLessThan(BigDecimal value) {
+            addCriterion("latitudes <", value, "latitudes");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatitudesLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("latitudes <=", value, "latitudes");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatitudesIn(List<BigDecimal> values) {
+            addCriterion("latitudes in", values, "latitudes");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatitudesNotIn(List<BigDecimal> values) {
+            addCriterion("latitudes not in", values, "latitudes");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatitudesBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("latitudes between", value1, value2, "latitudes");
+            return (Criteria) this;
+        }
+
+        public Criteria andLatitudesNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("latitudes not between", value1, value2, "latitudes");
             return (Criteria) this;
         }
 

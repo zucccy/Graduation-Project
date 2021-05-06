@@ -30,4 +30,9 @@ public class UserAccountInfoVO {
      * 用户头像
      */
     private String profile;
+
+    /**
+     * 角色类型
+     */
+    private Byte roleType;
 }

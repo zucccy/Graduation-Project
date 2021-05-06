@@ -26,4 +26,9 @@ public class UserLoginDTO {
     @ApiModelProperty(value = "登录密码，md5加密")
     private String password;
 
+    /**
+     * 角色类型，1用户 2医生 3管理员，默认为1
+     */
+    @ApiModelProperty(value = "角色类型")
+    private Byte roleType;
 }

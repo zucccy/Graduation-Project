@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 
 /**
  * Description: TODO
@@ -26,6 +28,18 @@ public class HospitalInfoDTO {
      */
     @ApiModelProperty(value = "医院地址")
     private String address;
+
+    /**
+     * 医院地址经度
+     */
+    @ApiModelProperty(value = "医院地址经度")
+    private BigDecimal longitudes;
+
+    /**
+     * 医院地址纬度
+     */
+    @ApiModelProperty(value = "医院地址纬度")
+    private BigDecimal latitudes;
 
     /**
      * 医院电话，可以有多个

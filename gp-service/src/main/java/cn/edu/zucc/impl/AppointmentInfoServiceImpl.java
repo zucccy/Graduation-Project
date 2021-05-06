@@ -90,7 +90,7 @@ public class AppointmentInfoServiceImpl implements AppointmentInfoService {
         //key = 用户编号:预约编号
         String key = appointmentInfo.getUserId() + ":" + appointmentInfo.getId();
         redisTemplate.opsForValue().set(key, myAppointmentVOListJson);
-
+//        redisTemplate.opsForZSet().range("hospitalInfo", 0, 8);
         return true;
     }
 

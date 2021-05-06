@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
@@ -30,6 +31,18 @@ public class Hospital {
      */
     @Column(name = "`address`")
     private String address;
+
+    /**
+     * 医院地址经度
+     */
+    @Column(name = "`longitudes`")
+    private BigDecimal longitudes;
+
+    /**
+     * 医院地址纬度
+     */
+    @Column(name = "`latitudes`")
+    private BigDecimal latitudes;
 
     /**
      * 医院电话，可以有多个
