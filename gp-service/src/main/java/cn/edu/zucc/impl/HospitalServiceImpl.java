@@ -11,10 +11,12 @@ import cn.edu.zucc.po.Hospital;
 import cn.edu.zucc.po.HospitalExample;
 import cn.edu.zucc.po.HospitalRelOffice;
 import cn.edu.zucc.po.HospitalRelOfficeExample;
+import cn.edu.zucc.vo.HospitalNewsVO;
 import cn.hutool.core.collection.CollectionUtil;
 import com.github.pagehelper.PageHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +44,9 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Resource
     private OfficeService officeService;
+
+    @Resource
+    private RedisTemplate redisTemplate;
 
 
     @Override
@@ -190,5 +196,25 @@ public class HospitalServiceImpl implements HospitalService {
         } else {
             return new ArrayList<>();
         }
+    }
+
+    @Override
+    public List<HospitalNewsVO> findHospitalNewsList() {
+
+        List<HospitalNewsVO> hospitalNewsVOList = new ArrayList<>();
+
+        Set<String> newsListStr = redisTemplate.opsForZSet().reverseRange("hospitalNews", 0, 8);
+        if (CollectionUtil.isNotEmpty(newsListStr)) {
+            newsListStr.forEach(newsStr -> {
+                String newsTitle = StringUtils.substringBefore(newsStr, ":");
+                String newsUrl = StringUtils.substringAfter(newsStr, ":");
+                HospitalNewsVO hospitalNewsVO = new HospitalNewsVO();
+                hospitalNewsVO.setNewsTitle(newsTitle);
+                hospitalNewsVO.setNewsUrl(newsUrl);
+                hospitalNewsVOList.add(hospitalNewsVO);
+            });
+        }
+
+        return hospitalNewsVOList;
     }
 }

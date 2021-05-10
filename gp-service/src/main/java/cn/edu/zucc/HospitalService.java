@@ -3,6 +3,7 @@ package cn.edu.zucc;
 import cn.edu.zucc.dto.HospitalInfoDTO;
 import cn.edu.zucc.dto.HospitalOfficeRelDTO;
 import cn.edu.zucc.po.Hospital;
+import cn.edu.zucc.vo.HospitalNewsVO;
 
 import java.util.List;
 
@@ -108,4 +109,11 @@ public interface HospitalService {
      * @return java.util.List<cn.edu.zucc.po.Hospital>
      */
     List<Hospital> findHospitalList(List<Long> hospitalIdList);
+
+    /**
+     * 获取排名在前9的医院资讯集合
+     *
+     * @return java.util.List<cn.edu.zucc.vo.HospitalNewsVO>
+     */
+    List<HospitalNewsVO> findHospitalNewsList();
 }
