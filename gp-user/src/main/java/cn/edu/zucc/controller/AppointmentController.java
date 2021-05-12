@@ -57,7 +57,8 @@ public class AppointmentController {
 
     @ApiOperation(value = "查看我的预约详情")
     @GetMapping(value = "/getMyAppointmentInfo/{id}")
-    public ResponseVO<MyAppointmentVO> getMyAppointmentInfo(@PathVariable Long id) {
+    public ResponseVO<MyAppointmentVO> getMyAppointmentInfo(@RequestHeader("Authorization") String token,
+                                                            @PathVariable Long id) {
         if (null == id) {
             throw new FormException();
         }

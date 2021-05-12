@@ -1,8 +1,11 @@
 package cn.edu.zucc.utils;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
@@ -38,5 +41,25 @@ public class TokenProviderUtils {
             log.error(e.getMessage(), e);
         }
         return token;
+    }
+
+
+    /**
+     * 校验
+     *
+     * @param token       token
+     * @param tokenSecret 密钥
+     * @return boolean
+     */
+    public static boolean verify(String token, String tokenSecret) {
+        try {
+            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(tokenSecret)).build();
+            DecodedJWT jwt = verifier.verify(token);
+            log.debug("verify access" + jwt.getClaim("userId").asLong());
+        } catch (IllegalArgumentException | JWTVerificationException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 }
