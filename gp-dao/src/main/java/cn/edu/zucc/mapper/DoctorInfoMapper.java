@@ -12,5 +12,5 @@ public interface DoctorInfoMapper extends Mapper<DoctorInfo> {
 
     List<DoctorVO> findDoctorList(@Param("officeId") Long officeId,
                                   @Param("hospitalId") Long hospitalId,
-                                  @Param("doctorName") String doctorName, Integer pageNum, Integer pageSize);
+                                  @Param("doctorName") String doctorName);
 }

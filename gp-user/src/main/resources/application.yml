@@ -73,3 +73,6 @@ jackson:
   date-format: yyyy-MM-dd HH:mm:ss
   #时区设置
   time-zone: GMT+8
+
+server:
+  port: 8088

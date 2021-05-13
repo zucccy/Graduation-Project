@@ -49,6 +49,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
         excludePath.add("/doctor/**");
         excludePath.add("/static/**");
         excludePath.add("/assets/**");
+        excludePath.add("/swagger-resources/**");
+        excludePath.add("/swagger-ui.html/**");
+        excludePath.add("/v2/**");
+        excludePath.add("/webjars/**");
         registry.addInterceptor(loginInterceptor).addPathPatterns("/**").excludePathPatterns(excludePath);
         WebMvcConfigurer.super.addInterceptors(registry);
     }

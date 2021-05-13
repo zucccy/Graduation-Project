@@ -1,9 +1,9 @@
 package cn.edu.zucc.impl;
 
+import cn.edu.zucc.DoctorService;
 import cn.edu.zucc.HospitalService;
 import cn.edu.zucc.OfficeService;
 import cn.edu.zucc.dto.HospitalInfoDTO;
-import cn.edu.zucc.dto.HospitalOfficeRelDTO;
 import cn.edu.zucc.exception.SourceNotFoundException;
 import cn.edu.zucc.mapper.HospitalMapper;
 import cn.edu.zucc.mapper.HospitalRelOfficeMapper;
@@ -11,7 +11,10 @@ import cn.edu.zucc.po.Hospital;
 import cn.edu.zucc.po.HospitalExample;
 import cn.edu.zucc.po.HospitalRelOffice;
 import cn.edu.zucc.po.HospitalRelOfficeExample;
+import cn.edu.zucc.vo.DoctorVO;
+import cn.edu.zucc.vo.HospitalInfoVO;
 import cn.edu.zucc.vo.HospitalNewsVO;
+import cn.edu.zucc.vo.OfficeVO;
 import cn.hutool.core.collection.CollectionUtil;
 import com.github.pagehelper.PageHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -43,6 +46,9 @@ public class HospitalServiceImpl implements HospitalService {
     private HospitalRelOfficeMapper hospitalRelOfficeMapper;
 
     @Resource
+    private DoctorService doctorService;
+
+    @Resource
     private OfficeService officeService;
 
     @Resource
@@ -55,6 +61,30 @@ public class HospitalServiceImpl implements HospitalService {
             throw new SourceNotFoundException("医院不存在");
         }
         return hospitalMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public HospitalInfoVO findHospitalVOById(Long id) {
+        if (!count(id)) {
+            throw new SourceNotFoundException("医院不存在");
+        }
+        HospitalInfoVO hospitalInfoVO = new HospitalInfoVO();
+        BeanUtils.copyProperties(findHospitalById(id), hospitalInfoVO);
+        //医生列表
+        List<DoctorVO> doctorVOList = doctorService.findDoctorListByHosId(id, null, null);
+        if (CollectionUtil.isNotEmpty(doctorVOList)) {
+            hospitalInfoVO.setDoctorVOList(doctorVOList);
+        } else {
+            hospitalInfoVO.setDoctorVOList(new ArrayList<>());
+        }
+        //科室列表
+        List<OfficeVO> officeVOList = officeService.findOfficeVOList(id);
+        if (CollectionUtil.isNotEmpty(officeVOList)) {
+            hospitalInfoVO.setOfficeVOList(officeVOList);
+        } else {
+            hospitalInfoVO.setOfficeVOList(new ArrayList<>());
+        }
+        return hospitalInfoVO;
     }
 
     @Override
@@ -77,6 +107,7 @@ public class HospitalServiceImpl implements HospitalService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean insert(HospitalInfoDTO hospitalInfoDTO) {
+
         Hospital hospital = new Hospital();
 
         //将DTO的值复制到hospital实体中
@@ -104,6 +135,15 @@ public class HospitalServiceImpl implements HospitalService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean delete(Long id) {
+
+        if (!count(id)) {
+            throw new SourceNotFoundException("医院不存在");
+        }
+        //若删除时，医院含有科室信息
+        if (countOfficeRelation(id, null)) {
+            //删除该医院下所有科室
+            deleteOfficeRelation(id, null);
+        }
         return hospitalMapper.deleteByPrimaryKey(id) > 0;
     }
 
@@ -118,22 +158,23 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean insertOfficeRelation(HospitalOfficeRelDTO hospitalOfficeRelDTO) {
+    public boolean insertOfficeRelation(Long hospitalId, Long officeId) {
 
         HospitalRelOffice hospitalRelOffice = new HospitalRelOffice();
         //该医院存在
-        if (!count(hospitalOfficeRelDTO.getHospitalId())) {
+        if (!count(hospitalId)) {
             throw new SourceNotFoundException("医院不存在");
         }
         //该科室存在
-        if (officeService.count(hospitalOfficeRelDTO.getOfficeId())) {
+        if (officeService.count(officeId)) {
 
-            BeanUtils.copyProperties(hospitalOfficeRelDTO, hospitalRelOffice);
+            hospitalRelOffice.setHospitalId(hospitalId);
+            hospitalRelOffice.setOfficeId(officeId);
             hospitalRelOffice.setCreateTime(new Date());
             hospitalRelOffice.setUpdateTime(new Date());
             hospitalRelOfficeMapper.insertSelective(hospitalRelOffice);
             //若该科室有父科室，要把父科室也加入到关系中
-            Long parentId = officeService.findOfficeById(hospitalOfficeRelDTO.getOfficeId()).getParentId();
+            Long parentId = officeService.findOfficeById(officeId).getParentId();
             if (officeService.count(parentId)) {
                 hospitalRelOffice.setOfficeId(parentId);
                 hospitalRelOfficeMapper.insertSelective(hospitalRelOffice);
@@ -141,27 +182,45 @@ public class HospitalServiceImpl implements HospitalService {
         } else {
             throw new SourceNotFoundException("科室不存在");
         }
-
         return true;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteOfficeRelation(Long hospitalId, Long officeId) {
+
+        if (!countOfficeRelation(hospitalId, officeId)) {
+            throw new SourceNotFoundException("该医院不存在该科室");
+        }
+
         HospitalRelOfficeExample example = new HospitalRelOfficeExample();
 
-        example.createCriteria().andHospitalIdEqualTo(hospitalId).andOfficeIdEqualTo(officeId);
+        HospitalRelOfficeExample.Criteria criteria = example.createCriteria();
 
+        //若医院id不为空
+        if (null != hospitalId) {
+            criteria.andHospitalIdEqualTo(hospitalId);
+        }
+        //若科室id不为空
+        if (null != officeId) {
+            criteria.andOfficeIdEqualTo(officeId);
+        }
         return hospitalRelOfficeMapper.deleteByExample(example) > 0;
     }
 
     @Override
-    public boolean countOfficeRelation(HospitalOfficeRelDTO hospitalOfficeRelDTO) {
+    public boolean countOfficeRelation(Long hospitalId, Long officeId) {
         HospitalRelOfficeExample example = new HospitalRelOfficeExample();
 
-        example.createCriteria().andHospitalIdEqualTo(hospitalOfficeRelDTO.getHospitalId())
-                .andOfficeIdEqualTo(hospitalOfficeRelDTO.getOfficeId());
-
+        HospitalRelOfficeExample.Criteria criteria = example.createCriteria();
+        //若医院id不为空
+        if (null != hospitalId) {
+            criteria.andHospitalIdEqualTo(hospitalId);
+        }
+        //若科室id不为空
+        if (null != officeId) {
+            criteria.andOfficeIdEqualTo(officeId);
+        }
         return hospitalRelOfficeMapper.selectCountByExample(example) > 0;
     }
 

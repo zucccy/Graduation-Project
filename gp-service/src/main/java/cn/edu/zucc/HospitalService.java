@@ -1,8 +1,8 @@
 package cn.edu.zucc;
 
 import cn.edu.zucc.dto.HospitalInfoDTO;
-import cn.edu.zucc.dto.HospitalOfficeRelDTO;
 import cn.edu.zucc.po.Hospital;
+import cn.edu.zucc.vo.HospitalInfoVO;
 import cn.edu.zucc.vo.HospitalNewsVO;
 
 import java.util.List;
@@ -22,6 +22,14 @@ public interface HospitalService {
      * @return 单个医院信息
      */
     Hospital findHospitalById(Long id);
+
+    /**
+     * 根据医院id查找医院所有信息
+     *
+     * @param id 医院编号
+     * @return cn.edu.zucc.vo.HospitalInfoVO
+     */
+    HospitalInfoVO findHospitalVOById(Long id);
 
     /**
      * 分页搜索医院信息，可根据医院名、医院地址搜索
@@ -70,10 +78,11 @@ public interface HospitalService {
     /**
      * 添加科室到医院中
      *
-     * @param hospitalOfficeRelDTO 医院科室关系DTO
+     * @param hospitalId 医院编号
+     * @param officeId   科室编号
      * @return 是否成功
      */
-    boolean insertOfficeRelation(HospitalOfficeRelDTO hospitalOfficeRelDTO);
+    boolean insertOfficeRelation(Long hospitalId, Long officeId);
 
     /**
      * 在医院中删除科室//判断子科室
@@ -87,10 +96,11 @@ public interface HospitalService {
     /**
      * 判断科室在医院中是否存在
      *
-     * @param hospitalOfficeRelDTO 医院科室关系DTO
+     * @param hospitalId 医院编号
+     * @param officeId   科室编号
      * @return 是否存在
      */
-    boolean countOfficeRelation(HospitalOfficeRelDTO hospitalOfficeRelDTO);
+    boolean countOfficeRelation(Long hospitalId, Long officeId);
 
     /**
      * 根据科室编号查找医院列表

@@ -2,6 +2,8 @@ package cn.edu.zucc;
 
 import cn.edu.zucc.dto.OfficeInfoDTO;
 import cn.edu.zucc.po.Office;
+import cn.edu.zucc.vo.ChildOfficeVO;
+import cn.edu.zucc.vo.OfficeVO;
 
 import java.util.List;
 
@@ -27,7 +29,23 @@ public interface OfficeService {
      * @param id 科室编号
      * @return java.util.List<cn.edu.zucc.po.Office>
      */
-    List<Office> findOfficeList(Long id);
+    List<ChildOfficeVO> findChildOfficeList(Long id);
+
+    /**
+     * 根据科室编号获取科室集合
+     *
+     * @param hospitalId 医院编号
+     * @return java.util.List<cn.edu.zucc.vo.OfficeVO>
+     */
+    List<OfficeVO> findOfficeVOList(Long hospitalId);
+
+    /**
+     * 判断科室是否有子科室
+     *
+     * @param id 科室编号
+     * @return 是否存在
+     */
+    boolean countChildOffice(Long id);
 
     /**
      * 根据科室名称查找科室列表
@@ -61,6 +79,14 @@ public interface OfficeService {
      * @return 是否成功
      */
     boolean delete(Long id);
+
+    /**
+     * 级联删除所有子科室
+     *
+     * @param id 科室编号
+     * @return boolean
+     */
+    boolean deleteChild(Long id);
 
     /**
      * 判断科室信息是否存在

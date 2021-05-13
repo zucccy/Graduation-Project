@@ -3,6 +3,7 @@ package cn.edu.zucc.impl;
 import cn.edu.zucc.HospitalService;
 import cn.edu.zucc.OfficeService;
 import cn.edu.zucc.dto.OfficeInfoDTO;
+import cn.edu.zucc.exception.FormException;
 import cn.edu.zucc.exception.SourceNotFoundException;
 import cn.edu.zucc.mapper.HospitalRelOfficeMapper;
 import cn.edu.zucc.mapper.OfficeMapper;
@@ -10,8 +11,12 @@ import cn.edu.zucc.po.HospitalRelOffice;
 import cn.edu.zucc.po.HospitalRelOfficeExample;
 import cn.edu.zucc.po.Office;
 import cn.edu.zucc.po.OfficeExample;
+import cn.edu.zucc.utils.CopyUtils;
+import cn.edu.zucc.vo.ChildOfficeVO;
+import cn.edu.zucc.vo.OfficeVO;
 import cn.hutool.core.collection.CollectionUtil;
 import com.github.pagehelper.PageHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +34,7 @@ import java.util.stream.Collectors;
  * @author chenyun
  * @since 09.04.2021
  */
+@Slf4j
 @Service
 public class OfficeServiceImpl implements OfficeService {
 
@@ -50,7 +56,42 @@ public class OfficeServiceImpl implements OfficeService {
     }
 
     @Override
-    public List<Office> findOfficeList(Long id) {
+    public List<ChildOfficeVO> findChildOfficeList(Long id) {
+
+        if (!count(id)) {
+            throw new SourceNotFoundException("该科室不存在");
+        }
+
+        OfficeExample example = new OfficeExample();
+        example.createCriteria().andParentIdEqualTo(id);
+        return CopyUtils.copyList(officeMapper.selectByExample(example), ChildOfficeVO.class);
+    }
+
+    @Override
+    public List<OfficeVO> findOfficeVOList(Long hospitalId) {
+
+        if (!hospitalService.count(hospitalId)) {
+            throw new SourceNotFoundException("医院不存在");
+        }
+
+        List<Office> officeList = findOfficeListByHosId(hospitalId, null, null);
+        List<OfficeVO> officeVOList = new ArrayList<>();
+        if (CollectionUtil.isNotEmpty(officeList)) {
+            officeList.forEach(office -> {
+                OfficeVO officeVO = new OfficeVO();
+                BeanUtils.copyProperties(office, officeVO);
+                officeVOList.add(officeVO);
+            });
+            //给科室集合中的每个科室添加子科室集合
+            officeVOList.forEach(officeVO -> {
+                officeVO.setChildOfficeList(findChildOfficeList(officeVO.getId()));
+            });
+        }
+        return officeVOList;
+    }
+
+    @Override
+    public boolean countChildOffice(Long id) {
 
         if (!count(id)) {
             throw new SourceNotFoundException("该科室不存在");
@@ -59,7 +100,7 @@ public class OfficeServiceImpl implements OfficeService {
         OfficeExample example = new OfficeExample();
         example.createCriteria().andParentIdEqualTo(id);
 
-        return officeMapper.selectByExample(example);
+        return officeMapper.selectCountByExample(example) > 0;
     }
 
     @Override
@@ -91,6 +132,12 @@ public class OfficeServiceImpl implements OfficeService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean update(Long id, OfficeInfoDTO officeInfoDTO) {
+
+        //若父科室不存在
+        if (!count(officeInfoDTO.getParentId())) {
+            throw new SourceNotFoundException("父科室不存在");
+        }
+
         Office office = new Office();
 
         BeanUtils.copyProperties(officeInfoDTO, office);
@@ -104,7 +151,28 @@ public class OfficeServiceImpl implements OfficeService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean delete(Long id) {
+        //若医院有该科室信息，则不允许删除
+        if (hospitalService.countOfficeRelation(null, id)) {
+            throw new FormException();
+        }
+        //该科室有若干子科室，则级联删除子科室
+        if (countChildOffice(id)) {
+            deleteChild(id);
+        }
         return officeMapper.deleteByPrimaryKey(id) > 0;
+    }
+
+    @Override
+    public boolean deleteChild(Long id) {
+
+        if (!count(id)) {
+            throw new SourceNotFoundException("该科室不存在");
+        }
+
+        OfficeExample example = new OfficeExample();
+        example.createCriteria().andParentIdEqualTo(id);
+
+        return officeMapper.deleteByExample(example) > 0;
     }
 
     @Override
@@ -128,8 +196,11 @@ public class OfficeServiceImpl implements OfficeService {
         List<Long> officeIdList = hospitalRelOfficeMapper.selectByExample(example)
                 .stream().map(HospitalRelOffice::getOfficeId).collect(Collectors.toList());
 
-        //开启分页
-        PageHelper.startPage(pageNum, pageSize);
+        if (null != pageNum && null != pageSize) {
+            //开启分页
+            PageHelper.startPage(pageNum, pageSize);
+        }
+
         return findOfficeList(officeIdList);
     }
 

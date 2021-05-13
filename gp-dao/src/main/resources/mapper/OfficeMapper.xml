@@ -82,5 +82,4 @@
     -->
     id, parent_id, office_name, description, create_time, update_time
   </sql>
-
 </mapper>

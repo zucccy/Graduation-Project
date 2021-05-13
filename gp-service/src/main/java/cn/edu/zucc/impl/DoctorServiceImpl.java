@@ -67,9 +67,10 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     public List<DoctorVO> findDoctorList(String doctorName, Integer pageNum, Integer pageSize) {
 
-        PageHelper.startPage(pageNum, pageSize);
-
-        List<DoctorVO> doctorVOList = doctorInfoMapper.findDoctorList(null, null, doctorName, pageNum, pageSize);
+        if (null != pageNum && null != pageSize) {
+            PageHelper.startPage(pageNum, pageSize);
+        }
+        List<DoctorVO> doctorVOList = doctorInfoMapper.findDoctorList(null, null, doctorName);
         return doctorVOList;
     }
 
@@ -114,31 +115,34 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     public List<DoctorVO> findDoctorList(Long officeId, Integer pageNum, Integer pageSize) {
-
+        List<DoctorVO> doctorVOList;
         if (null == officeId) {
             throw new FormException();
         }
         if (!officeService.count(officeId)) {
             throw new SourceNotFoundException("科室不存在");
         }
-        PageHelper.startPage(pageNum, pageSize);
-
-        List<DoctorVO> doctorVOList = doctorInfoMapper.findDoctorList(officeId, null, null, pageNum, pageSize);
+        if (null != pageNum && null != pageSize) {
+            PageHelper.startPage(pageNum, pageSize);
+        }
+        doctorVOList = doctorInfoMapper.findDoctorList(officeId, null, null);
         return doctorVOList;
     }
 
     @Override
     public List<DoctorVO> findDoctorListByHosId(Long hospitalId, Integer pageNum, Integer pageSize) {
 
+        List<DoctorVO> doctorVOList;
         if (null == hospitalId) {
             throw new FormException();
         }
         if (!hospitalService.count(hospitalId)) {
             throw new SourceNotFoundException("医院不存在");
         }
-        PageHelper.startPage(pageNum, pageSize);
-
-        List<DoctorVO> doctorVOList = doctorInfoMapper.findDoctorList(null, hospitalId, null, pageNum, pageSize);
+        if (null != pageNum && null != pageSize) {
+            PageHelper.startPage(pageNum, pageSize);
+        }
+        doctorVOList = doctorInfoMapper.findDoctorList(null, hospitalId, null);
         return doctorVOList;
     }
 
