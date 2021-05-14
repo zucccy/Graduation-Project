@@ -53,6 +53,22 @@ public interface AppointmentInfoService {
     boolean count(Long id);
 
     /**
+     * 判断预约信息是否存在
+     *
+     * @param doctorId 医生编号
+     * @return 是否存在
+     */
+    boolean countByDoctorId(Long doctorId);
+
+    /**
+     * 判断预约信息是否存在
+     *
+     * @param userId 用户编号
+     * @return 是否存在
+     */
+    boolean countByUserId(Long userId);
+
+    /**
      * 根据预约编号查找预约信息
      *
      * @param id 预约信息编号

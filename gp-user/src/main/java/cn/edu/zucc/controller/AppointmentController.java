@@ -41,7 +41,7 @@ public class AppointmentController {
     private AppointmentInfoService appointmentInfoService;
 
     @ApiOperation(value = "创建预约信息")
-    @PostMapping(value = "/createAppointment")
+    @PostMapping("/createAppointment")
     public ResponseVO<Void> createAppointment(@RequestHeader("Authorization") String token,
                                               @RequestBody AppointmentInfoDTO appointmentInfoDTO) {
         //帐号、密码、用户名均不能为空
@@ -56,7 +56,7 @@ public class AppointmentController {
     }
 
     @ApiOperation(value = "查看我的预约详情")
-    @GetMapping(value = "/getMyAppointmentInfo/{id}")
+    @GetMapping("/getMyAppointmentInfo/{id}")
     public ResponseVO<MyAppointmentVO> getMyAppointmentInfo(@RequestHeader("Authorization") String token,
                                                             @PathVariable Long id) {
         if (null == id) {
@@ -66,7 +66,7 @@ public class AppointmentController {
     }
 
     @ApiOperation(value = "修改我的预约状态")
-    @PostMapping(value = "/updateVisitStatus/{id}")
+    @PostMapping("/updateVisitStatus/{id}")
     public ResponseVO<Void> updateVisitStatus(@RequestHeader("Authorization") String token,
                                               @PathVariable Long id,
                                               @RequestParam Byte visitStatus) {

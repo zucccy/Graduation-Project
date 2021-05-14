@@ -4,6 +4,7 @@ import cn.edu.zucc.DoctorService;
 import cn.edu.zucc.HospitalService;
 import cn.edu.zucc.OfficeService;
 import cn.edu.zucc.dto.HospitalInfoDTO;
+import cn.edu.zucc.exception.FormException;
 import cn.edu.zucc.exception.SourceNotFoundException;
 import cn.edu.zucc.mapper.HospitalMapper;
 import cn.edu.zucc.mapper.HospitalRelOfficeMapper;
@@ -13,12 +14,19 @@ import cn.edu.zucc.po.HospitalRelOffice;
 import cn.edu.zucc.po.HospitalRelOfficeExample;
 import cn.edu.zucc.vo.DoctorVO;
 import cn.edu.zucc.vo.HospitalInfoVO;
+import cn.edu.zucc.vo.HospitalLocalationVO;
 import cn.edu.zucc.vo.HospitalNewsVO;
 import cn.edu.zucc.vo.OfficeVO;
 import cn.hutool.core.collection.CollectionUtil;
 import com.github.pagehelper.PageHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.geo.Circle;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.GeoResult;
+import org.springframework.data.geo.GeoResults;
+import org.springframework.data.geo.Point;
+import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -273,7 +281,58 @@ public class HospitalServiceImpl implements HospitalService {
                 hospitalNewsVOList.add(hospitalNewsVO);
             });
         }
-
         return hospitalNewsVOList;
+    }
+
+    @Override
+    public boolean addHospitalNews(HospitalNewsVO hospitalNewsVO) {
+        //需要拼接字符串为title:url的形式
+        String newsStr = null;
+        if (!StringUtils.isEmpty(hospitalNewsVO.getNewsTitle()) && !StringUtils.isEmpty(hospitalNewsVO.getNewsUrl())) {
+            newsStr = hospitalNewsVO.getNewsTitle() + ":" + hospitalNewsVO.getNewsUrl();
+            redisTemplate.opsForZSet().add("hospitalNews", newsStr, 1);
+        } else {
+            throw new FormException();
+        }
+        return true;
+    }
+
+    @Override
+    public boolean newsIncrementScore(HospitalNewsVO hospitalNewsVO) {
+        //需要拼接字符串为title:url的形式
+        String newsStr = null;
+        if (!StringUtils.isEmpty(hospitalNewsVO.getNewsTitle()) && !StringUtils.isEmpty(hospitalNewsVO.getNewsUrl())) {
+            newsStr = hospitalNewsVO.getNewsTitle() + ":" + hospitalNewsVO.getNewsUrl();
+            redisTemplate.opsForZSet().incrementScore("hospitalNews", newsStr, 1);
+        } else {
+            throw new FormException();
+        }
+        return true;
+    }
+
+    @Override
+    public boolean addHospitalLocation(HospitalLocalationVO hospitalLocalationVO) {
+        Point point = new Point(hospitalLocalationVO.getLatitudes().doubleValue(), hospitalLocalationVO.getLongitudes().doubleValue());
+        return redisTemplate.opsForGeo().add("HospitalLocation", point, String.valueOf(hospitalLocalationVO.getId())) > 0;
+    }
+
+    @Override
+    public List<Hospital> findAdviceHospitalList(HospitalLocalationVO hospitalLocalationVO) {
+        Double distance = hospitalLocalationVO.getDistance();
+        List<Long> hospitalIdList = new ArrayList<>();
+        //Point(经度, 纬度) Distance(距离量, 距离单位)
+        Circle circle = new Circle(new Point(hospitalLocalationVO.getLatitudes().doubleValue(), hospitalLocalationVO.getLongitudes().doubleValue()), new Distance(distance));
+        //params: key, Circle 获取存储到redis中的distance范围内的所有医院位置信息
+        GeoResults radius = redisTemplate.opsForGeo().radius("HospitalLocation", circle);
+        List<GeoResult> contentList = radius.getContent();
+        if (CollectionUtil.isNotEmpty(contentList)) {
+            contentList.forEach(item -> {
+                RedisGeoCommands.GeoLocation content = (RedisGeoCommands.GeoLocation) item.getContent();
+                hospitalIdList.add((Long) content.getName());
+            });
+        }
+        System.out.println(hospitalIdList);
+        List<Hospital> hospitalList = findHospitalList(hospitalIdList);
+        return CollectionUtil.isNotEmpty(hospitalList) ? hospitalList : new ArrayList<>();
     }
 }

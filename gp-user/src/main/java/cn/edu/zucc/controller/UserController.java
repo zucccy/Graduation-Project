@@ -4,6 +4,7 @@ import cn.edu.zucc.PatientInfoService;
 import cn.edu.zucc.UserAccountInfoService;
 import cn.edu.zucc.commonVO.ResponseVO;
 import cn.edu.zucc.dto.UpdatePasswordDTO;
+import cn.edu.zucc.dto.UserAccountInfoDTO;
 import cn.edu.zucc.dto.UserAccountInfoUpdateDTO;
 import cn.edu.zucc.dto.UserLoginDTO;
 import cn.edu.zucc.dto.UserRegisterDTO;
@@ -22,11 +23,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
@@ -55,7 +59,7 @@ public class UserController {
     private PatientInfoService patientInfoService;
 
     @ApiOperation(value = "登录")
-    @PostMapping(value = "/login")
+    @PostMapping("/login")
     public ResponseVO<UserAccountInfoVO> login(@RequestBody UserLoginDTO userLoginDTO, HttpServletResponse response) {
         if (null == userLoginDTO) {
             if (StringUtils.isBlank(userLoginDTO.getOpenCode())) {
@@ -69,7 +73,7 @@ public class UserController {
         UserAccountInfo user = userAccountInfoService.login(userLoginDTO);
 
         //为当前用户签名
-        System.out.println(tokenSecret);
+        log.info(tokenSecret);
         response.setHeader("Authorization", TokenProviderUtils.sign(user.getId(), tokenSecret));
 
         UserAccountInfoVO userVO = new UserAccountInfoVO();
@@ -79,7 +83,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "注册")
-    @PostMapping(value = "/register")
+    @PostMapping("/register")
     public ResponseVO<Void> register(@RequestBody UserRegisterDTO userRegisterDTO) {
         //帐号、密码、用户名均不能为空
         if (null == userRegisterDTO) {
@@ -99,7 +103,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "获取用户基本资料")
-    @GetMapping(value = "/userInfo")
+    @GetMapping("/userInfo")
     //必须传入token（用户必须登录），才能继续操作
     public ResponseVO<UserAccountInfoVO> getUserInfo(@RequestHeader("Authorization") String token) {
 
@@ -111,7 +115,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "更新用户基本资料")
-    @PostMapping(value = "/updateUserInfo")
+    @PostMapping("/updateUserInfo")
     //必须传入token（用户必须登录），才能继续操作
     public ResponseVO<Void> updateUserInfo(@RequestHeader("Authorization") String token,
                                            @RequestBody UserAccountInfoUpdateDTO userAccountInfoUpdateDTO) {
@@ -140,17 +144,51 @@ public class UserController {
     }
 
     @ApiOperation(value = "获取我的预约集合")
-    @GetMapping(value = "/getMyAppointments")
+    @GetMapping("/getMyAppointments")
     //必须传入token（用户必须登录），才能继续操作
     public ResponseVO<List<MyAppointmentListVO>> getMyAppointments(@RequestHeader("Authorization") String token) {
         return ResponseBuilder.success(userAccountInfoService.getMyAppointments(TokenUtils.getUserId(token, tokenSecret)));
     }
 
     @ApiOperation(value = "获取我的患者集合")
-    @GetMapping(value = "/getMyPatients")
+    @GetMapping("/getMyPatients")
     public ResponseVO<List<MyPatientVO>> getMyPatients(@RequestHeader("Authorization") String token) {
         return ResponseBuilder.success(patientInfoService.findPatientList(TokenUtils.getUserId(token, tokenSecret)));
     }
 
+    @ApiOperation(value = "新增用户")
+    @PostMapping("/insert")
+    public ResponseVO<Boolean> insertUser(@RequestBody UserAccountInfoDTO userAccountInfoDTO) {
+        if (StringUtils.isEmpty(userAccountInfoDTO.getUserName()) || StringUtils.isEmpty(userAccountInfoDTO.getPassword())) {
+            throw new FormException();
+        }
+        return ResponseBuilder.success(userAccountInfoService.insert(userAccountInfoDTO));
+    }
 
+    @ApiOperation(value = "删除用户")
+    @DeleteMapping("/delete/{id}")
+    public ResponseVO<Boolean> deleteUser(@PathVariable Long id) {
+        if (null == id) {
+            throw new FormException();
+        }
+        return ResponseBuilder.success(userAccountInfoService.delete(id));
+    }
+
+    @ApiOperation(value = "修改用户")
+    @PostMapping("/update/{id}")
+    public ResponseVO<Boolean> updateUser(@PathVariable Long id, @RequestBody UserAccountInfoDTO userAccountInfoDTO) {
+        if (null == id || null == userAccountInfoDTO) {
+            throw new FormException();
+        }
+        return ResponseBuilder.success(userAccountInfoService.update(id, userAccountInfoDTO));
+    }
+
+    @ApiOperation(value = "禁/启用用户")
+    @PostMapping("/disable/{id}")
+    public ResponseVO<Boolean> disableAndEnableUser(@PathVariable Long id, @RequestParam("status") Integer status) {
+        if (null == id || null == status) {
+            throw new FormException();
+        }
+        return ResponseBuilder.success(userAccountInfoService.disableAndEnableUser(id, status));
+    }
 }

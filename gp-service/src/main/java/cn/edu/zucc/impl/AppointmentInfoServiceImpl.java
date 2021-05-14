@@ -132,6 +132,20 @@ public class AppointmentInfoServiceImpl implements AppointmentInfoService {
     }
 
     @Override
+    public boolean countByDoctorId(Long doctorId) {
+        AppointmentInfoExample example = new AppointmentInfoExample();
+        example.createCriteria().andDoctorIdEqualTo(doctorId);
+        return appointmentInfoMapper.selectCountByExample(example) > 0;
+    }
+
+    @Override
+    public boolean countByUserId(Long userId) {
+        AppointmentInfoExample example = new AppointmentInfoExample();
+        example.createCriteria().andUserIdEqualTo(userId);
+        return appointmentInfoMapper.selectCountByExample(example) > 0;
+    }
+
+    @Override
     public AppointmentInfo findAppointmentById(Long id) {
         return appointmentInfoMapper.selectByPrimaryKey(id);
     }

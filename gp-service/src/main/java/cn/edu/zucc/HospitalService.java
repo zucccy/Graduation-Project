@@ -3,6 +3,7 @@ package cn.edu.zucc;
 import cn.edu.zucc.dto.HospitalInfoDTO;
 import cn.edu.zucc.po.Hospital;
 import cn.edu.zucc.vo.HospitalInfoVO;
+import cn.edu.zucc.vo.HospitalLocalationVO;
 import cn.edu.zucc.vo.HospitalNewsVO;
 
 import java.util.List;
@@ -126,4 +127,36 @@ public interface HospitalService {
      * @return java.util.List<cn.edu.zucc.vo.HospitalNewsVO>
      */
     List<HospitalNewsVO> findHospitalNewsList();
+
+    /**
+     * 向Redis添加医院资讯
+     *
+     * @param hospitalNewsVO 医院资讯VO
+     * @return boolean
+     */
+    boolean addHospitalNews(HospitalNewsVO hospitalNewsVO);
+
+    /**
+     * 提高redis中资讯名为title的分数
+     *
+     * @param hospitalNewsVO 医院资讯VO
+     * @return boolean
+     */
+    boolean newsIncrementScore(HospitalNewsVO hospitalNewsVO);
+
+    /**
+     * 向Redis添加所有医院位置信息
+     *
+     * @param hospitalLocalationVO 医院位置信息VO
+     * @return boolean
+     */
+    boolean addHospitalLocation(HospitalLocalationVO hospitalLocalationVO);
+
+    /**
+     * Redis中获取推荐医院集合
+     *
+     * @param hospitalLocalationVO 医院位置信息VO
+     * @return java.util.List<cn.edu.zucc.vo.HospitalLocalationVO>
+     */
+    List<Hospital> findAdviceHospitalList(HospitalLocalationVO hospitalLocalationVO);
 }

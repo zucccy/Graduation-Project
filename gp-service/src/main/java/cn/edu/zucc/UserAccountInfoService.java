@@ -1,6 +1,7 @@
 package cn.edu.zucc;
 
 import cn.edu.zucc.dto.UpdatePasswordDTO;
+import cn.edu.zucc.dto.UserAccountInfoDTO;
 import cn.edu.zucc.dto.UserAccountInfoUpdateDTO;
 import cn.edu.zucc.dto.UserLoginDTO;
 import cn.edu.zucc.dto.UserRegisterDTO;
@@ -34,6 +35,14 @@ public interface UserAccountInfoService {
     boolean register(UserRegisterDTO userRegisterDTO);
 
     /**
+     * 管理员新增用户
+     *
+     * @param userAccountInfoDTO
+     * @return 是否成功
+     */
+    boolean insert(UserAccountInfoDTO userAccountInfoDTO);
+
+    /**
      * 修改个人信息
      *
      * @param id                       用户编号
@@ -41,6 +50,24 @@ public interface UserAccountInfoService {
      * @return 是否成功
      */
     boolean update(Long id, UserAccountInfoUpdateDTO userAccountInfoUpdateDTO);
+
+    /**
+     * 管理员修改个人信息
+     *
+     * @param id                 用户编号
+     * @param userAccountInfoDTO 个人信息参数
+     * @return 是否成功
+     */
+    boolean update(Long id, UserAccountInfoDTO userAccountInfoDTO);
+
+    /**
+     * 管理员禁用用户
+     *
+     * @param id     用户编号
+     * @param status 用户状态
+     * @return boolean
+     */
+    boolean disableAndEnableUser(Long id, Integer status);
 
     /**
      * 删除普通用户

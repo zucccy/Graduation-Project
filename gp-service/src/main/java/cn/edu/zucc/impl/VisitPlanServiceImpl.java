@@ -109,6 +109,13 @@ public class VisitPlanServiceImpl implements VisitPlanService {
     }
 
     @Override
+    public boolean countByDoctorId(Long doctorId) {
+        VisitPlanExample example = new VisitPlanExample();
+        example.createCriteria().andDoctorIdEqualTo(doctorId);
+        return visitPlanMapper.selectCountByExample(example) > 0;
+    }
+
+    @Override
     public List<VisitPlan> findVisitPlanList(List<Long> visitIdList) {
         VisitPlanExample example = new VisitPlanExample();
         example.createCriteria().andIdIn(visitIdList);

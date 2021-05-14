@@ -9,6 +9,8 @@ import cn.edu.zucc.po.Hospital;
 import cn.edu.zucc.utils.PageUtils;
 import cn.edu.zucc.utils.ResponseBuilder;
 import cn.edu.zucc.vo.HospitalInfoVO;
+import cn.edu.zucc.vo.HospitalLocalationVO;
+import cn.edu.zucc.vo.HospitalNewsVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * Description: TODO
@@ -40,7 +43,7 @@ public class HospitalController {
     private HospitalService hospitalService;
 
     @ApiOperation(value = "根据id查找医院信息")
-    @GetMapping(value = "{id}")
+    @GetMapping("{id}")
     public ResponseVO<HospitalInfoVO> findHospitalById(@PathVariable Long id) {
         if (null == id) {
             throw new FormException();
@@ -48,8 +51,8 @@ public class HospitalController {
         return ResponseBuilder.success(hospitalService.findHospitalVOById(id));
     }
 
-    @ApiOperation(value = "分页搜索医院信息 根据医院名、地址")
-    @GetMapping(value = "/list")
+    @ApiOperation(value = "分页搜索医院信息 根据医院名、地址模糊查询")
+    @GetMapping("/list")
     public ResponsePageVO<Hospital> findHospitalList(@RequestParam(required = false) String hospitalName,
                                                      @RequestParam(required = false) String address,
                                                      @RequestParam(defaultValue = "1") Integer pageNum,
@@ -61,7 +64,7 @@ public class HospitalController {
     }
 
     @ApiOperation(value = "根据科室编号查找医院列表")
-    @GetMapping(value = "/getHospitals/{officeId}")
+    @GetMapping("/getHospitals/{officeId}")
     public ResponsePageVO<Hospital> getHospitalsByOfficeId(@PathVariable Long officeId,
                                                            @RequestParam(defaultValue = "1") Integer pageNum,
                                                            @RequestParam(defaultValue = "10") Integer pageSize) {
@@ -74,7 +77,8 @@ public class HospitalController {
     @ApiOperation(value = "添加医院")
     @PostMapping("/insert")
     public ResponseVO<Boolean> insertHospital(@RequestBody HospitalInfoDTO hospitalInfoDTO) {
-        if (StringUtils.isEmpty(hospitalInfoDTO.getHospitalName())
+        if (null == hospitalInfoDTO
+                || StringUtils.isEmpty(hospitalInfoDTO.getHospitalName())
                 || StringUtils.isEmpty(hospitalInfoDTO.getAddress())
                 || StringUtils.isEmpty(hospitalInfoDTO.getPhone())
                 || null == hospitalInfoDTO.getLatitudes()
@@ -96,7 +100,7 @@ public class HospitalController {
     @ApiOperation(value = "修改医院")
     @PostMapping("/update/{id}")
     public ResponseVO<Boolean> updateHospital(@PathVariable Long id, @RequestBody HospitalInfoDTO hospitalInfoDTO) {
-        if (null == id) {
+        if (null == id || null == hospitalInfoDTO) {
             throw new FormException();
         }
         return ResponseBuilder.success(hospitalService.update(id, hospitalInfoDTO));
@@ -118,5 +122,53 @@ public class HospitalController {
             throw new FormException();
         }
         return ResponseBuilder.success(hospitalService.insertOfficeRelation(hospitalId, officeId));
+    }
+
+    @ApiOperation(value = "获取医院资讯集合")
+    @GetMapping("/getHospitalNews")
+    public ResponseVO<List<HospitalNewsVO>> getHospitalNewsList() {
+        return ResponseBuilder.success(hospitalService.findHospitalNewsList());
+    }
+
+    @ApiOperation(value = "添加医院资讯")
+    @PostMapping("/addHospitalNews")
+    public ResponseVO<Boolean> addHospitalNews(@RequestBody HospitalNewsVO hospitalNewsVO) {
+        if (null == hospitalNewsVO
+                || StringUtils.isEmpty(hospitalNewsVO.getNewsTitle())
+                || StringUtils.isEmpty(hospitalNewsVO.getNewsUrl())) {
+            throw new FormException();
+        }
+        return ResponseBuilder.success(hospitalService.addHospitalNews(hospitalNewsVO));
+    }
+
+    @ApiOperation(value = "根据用户点击提高医院资讯的分数")
+    @PostMapping("/newsIncrementScore")
+    public ResponseVO<Boolean> newsIncrementScore(@RequestBody HospitalNewsVO hospitalNewsVO) {
+        if (null == hospitalNewsVO
+                || StringUtils.isEmpty(hospitalNewsVO.getNewsTitle())
+                || StringUtils.isEmpty(hospitalNewsVO.getNewsUrl())) {
+            throw new FormException();
+        }
+        return ResponseBuilder.success(hospitalService.newsIncrementScore(hospitalNewsVO));
+    }
+
+    @ApiOperation(value = "添加医院位置")
+    @PostMapping("/addHospitalLocation")
+    public ResponseVO<Boolean> addHospitalLocation(@RequestBody HospitalLocalationVO hospitalLocalationVO) {
+        if (null == hospitalLocalationVO
+                || StringUtils.isEmpty(hospitalLocalationVO.getHospitalName())
+                || StringUtils.isEmpty(hospitalLocalationVO.getAddress())
+                || null == hospitalLocalationVO.getLatitudes()
+                || null == hospitalLocalationVO.getLongitudes()
+                || null == hospitalLocalationVO.getId()) {
+            throw new FormException();
+        }
+        return ResponseBuilder.success(hospitalService.addHospitalLocation(hospitalLocalationVO));
+    }
+
+    @ApiOperation(value = "获取推荐医院集合")
+    @PostMapping("/getAdviceHospitalList")
+    public ResponseVO<List<Hospital>> getAdviceHospitalList(@RequestBody HospitalLocalationVO hospitalLocalationVO) {
+        return ResponseBuilder.success(hospitalService.findAdviceHospitalList(hospitalLocalationVO));
     }
 }

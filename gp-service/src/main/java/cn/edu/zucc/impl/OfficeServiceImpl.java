@@ -83,9 +83,7 @@ public class OfficeServiceImpl implements OfficeService {
                 officeVOList.add(officeVO);
             });
             //给科室集合中的每个科室添加子科室集合
-            officeVOList.forEach(officeVO -> {
-                officeVO.setChildOfficeList(findChildOfficeList(officeVO.getId()));
-            });
+            officeVOList.forEach(officeVO -> officeVO.setChildOfficeList(findChildOfficeList(officeVO.getId())));
         }
         return officeVOList;
     }

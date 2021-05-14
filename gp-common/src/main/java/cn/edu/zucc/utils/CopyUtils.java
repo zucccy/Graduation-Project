@@ -1,11 +1,11 @@
 package cn.edu.zucc.utils;
 
 
-import com.google.common.collect.Lists;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Description: 复制集合和数组
@@ -34,6 +34,6 @@ public class CopyUtils {
         if (CollectionUtils.isEmpty(sourceList)) {
             return null;
         }
-        return Lists.transform(sourceList, data -> convert(data, clazz));
+        return sourceList.stream().map(data -> convert(data, clazz)).collect(Collectors.toList());
     }
 }

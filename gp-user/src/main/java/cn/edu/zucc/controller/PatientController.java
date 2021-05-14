@@ -41,7 +41,7 @@ public class PatientController {
     private PatientInfoService patientInfoService;
 
     @ApiOperation(value = "创建患者信息")
-    @PostMapping(value = "/createPatient")
+    @PostMapping("/createPatient")
     public ResponseVO<Void> createPatient(@RequestHeader("Authorization") String token,
                                           @RequestBody PatientInfoDTO patientInfoDTO) {
         //帐号、密码、用户名均不能为空
@@ -59,7 +59,7 @@ public class PatientController {
     }
 
     @ApiOperation(value = "删除我的患者")
-    @DeleteMapping(value = "/deleteMyPatient/{patientId}")
+    @DeleteMapping("/deleteMyPatient/{patientId}")
     public ResponseVO<Void> deleteMyPatient(@RequestHeader("Authorization") String token,
                                             @PathVariable Long patientId) {
         if (null == patientId) {
@@ -70,11 +70,11 @@ public class PatientController {
     }
 
     @ApiOperation(value = "修改我的患者")
-    @PostMapping(value = "/updateMyPatient/{patientId}")
+    @PostMapping("/updateMyPatient/{patientId}")
     public ResponseVO<Void> updateMyPatient(@RequestHeader("Authorization") String token,
                                             @PathVariable Long patientId,
                                             @RequestBody PatientInfoUpdateDTO patientInfoUpdateDTO) {
-        if (null == patientId) {
+        if (null == patientId || null == patientInfoUpdateDTO) {
             throw new FormException();
         }
         patientInfoService.update(TokenUtils.getUserId(token, tokenSecret), patientId, patientInfoUpdateDTO);

@@ -83,7 +83,9 @@ public class OfficeController {
     @ApiOperation(value = "添加科室")
     @PostMapping("/insert")
     public ResponseVO<Boolean> insertOffice(@RequestBody OfficeInfoDTO officeInfoDTO) {
-        if (StringUtils.isEmpty(officeInfoDTO.getOfficeName()) || null == officeInfoDTO.getParentId()) {
+        if (StringUtils.isEmpty(officeInfoDTO.getOfficeName())
+                || null == officeInfoDTO.getParentId()
+                || null == officeInfoDTO) {
             throw new FormException();
         }
         return ResponseBuilder.success(officeService.insert(officeInfoDTO));
@@ -101,7 +103,9 @@ public class OfficeController {
     @ApiOperation(value = "修改科室")
     @PostMapping("/update/{id}")
     public ResponseVO<Boolean> updateOffice(@PathVariable Long id, @RequestBody OfficeInfoDTO officeInfoDTO) {
-        if (StringUtils.isEmpty(officeInfoDTO.getOfficeName()) || null == officeInfoDTO.getParentId()) {
+        if (StringUtils.isEmpty(officeInfoDTO.getOfficeName())
+                || null == officeInfoDTO.getParentId()
+                || null == officeInfoDTO) {
             throw new FormException();
         }
         return ResponseBuilder.success(officeService.update(id, officeInfoDTO));

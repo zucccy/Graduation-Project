@@ -44,4 +44,10 @@ public class UserAccountInfoDTO {
      */
     @ApiModelProperty(value = "用户头像")
     private String profile;
+
+    /**
+     * 用户角色类型 1用户 2医生 3管理员，默认为1
+     */
+    @ApiModelProperty(value = "用户角色类型")
+    private Byte roleType;
 }

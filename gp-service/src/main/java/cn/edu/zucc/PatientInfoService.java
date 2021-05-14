@@ -98,6 +98,14 @@ public interface PatientInfoService {
     boolean countRelation(Long userId, Long patientId);
 
     /**
+     * 判断用户是否含有患者
+     *
+     * @param userId 用户编号
+     * @return 是否存在
+     */
+    boolean countRelation(Long userId);
+
+    /**
      * 根据身份证号判断患者信息是否存在
      *
      * @param idCard 身份证号

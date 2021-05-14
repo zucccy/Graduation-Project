@@ -8,9 +8,11 @@ import cn.edu.zucc.PatientInfoService;
 import cn.edu.zucc.UserAccountInfoService;
 import cn.edu.zucc.VisitPlanService;
 import cn.edu.zucc.dto.UpdatePasswordDTO;
+import cn.edu.zucc.dto.UserAccountInfoDTO;
 import cn.edu.zucc.dto.UserAccountInfoUpdateDTO;
 import cn.edu.zucc.dto.UserLoginDTO;
 import cn.edu.zucc.dto.UserRegisterDTO;
+import cn.edu.zucc.enums.CommonStatusEnum;
 import cn.edu.zucc.enums.RoleTypeEnum;
 import cn.edu.zucc.exception.ExistsException;
 import cn.edu.zucc.exception.FormException;
@@ -132,6 +134,25 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean insert(UserAccountInfoDTO userAccountInfoDTO) {
+        UserAccountInfo userAccountInfo = new UserAccountInfo();
+
+        if (!userAccountInfoDTO.getRoleType().equals(Byte.parseByte(String.valueOf(RoleTypeEnum.USER.getTypes())))
+                || !userAccountInfoDTO.getRoleType().equals(Byte.parseByte(String.valueOf(RoleTypeEnum.DOCTOR.getTypes())))) {
+            throw new FormException("角色类型错误，只能添加用户或医生角色");
+        }
+
+        BeanUtils.copyProperties(userAccountInfoDTO, userAccountInfo);
+        //密码加密
+        userAccountInfo.setPassword(CryptUtils.cryptAccountPassword(userAccountInfoDTO.getPassword()));
+        userAccountInfo.setCreateTime(new Date());
+        userAccountInfo.setUpdateTime(new Date());
+
+        return userAccountInfoMapper.insertSelective(userAccountInfo) > 0;
+    }
+
+    @Override
     //修改个人信息
     @Transactional(rollbackFor = Exception.class)
     public boolean update(Long id, UserAccountInfoUpdateDTO userAccountInfoUpdateDTO) {
@@ -167,22 +188,74 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
     }
 
     @Override
+    public boolean update(Long id, UserAccountInfoDTO userAccountInfoDTO) {
+        UserAccountInfo userAccountInfo = findUserById(id);
+        //用户未找到
+        if (null == userAccountInfo) {
+            throw new SourceNotFoundException("用户不存在");
+        } else if (userAccountInfo.getRoleType().equals(Byte.parseByte(String.valueOf(RoleTypeEnum.ADMIN.getTypes())))) {
+            throw new FormException("无法修改管理员");
+        }
+
+        if (!userAccountInfoDTO.getRoleType().equals(Byte.parseByte(String.valueOf(RoleTypeEnum.USER.getTypes())))
+                || !userAccountInfoDTO.getRoleType().equals(Byte.parseByte(String.valueOf(RoleTypeEnum.DOCTOR.getTypes())))) {
+            throw new FormException("角色类型错误，只能修改用户或医生角色");
+        }
+        BeanUtils.copyProperties(userAccountInfoDTO, userAccountInfo);
+
+        userAccountInfo.setId(id);
+        userAccountInfo.setUpdateTime(new Date());
+        userAccountInfo.setPassword(CryptUtils.cryptAccountPassword(userAccountInfoDTO.getPassword()));
+
+        return userAccountInfoMapper.updateByPrimaryKeySelective(userAccountInfo) > 0;
+    }
+
+    @Override
+    public boolean disableAndEnableUser(Long id, Integer status) {
+        UserAccountInfo userAccountInfo = findUserById(id);
+        //用户未找到
+        if (null == userAccountInfo) {
+            throw new SourceNotFoundException("用户不存在");
+        }
+        //禁用
+        if (status.equals(CommonStatusEnum.NO.getCode())) {
+            if (userAccountInfo.getStatus().equals(Byte.parseByte(String.valueOf(CommonStatusEnum.NO.getCode())))) {
+                throw new FormException("该用户已禁用");
+            }
+            userAccountInfo.setStatus(Byte.parseByte(String.valueOf(CommonStatusEnum.NO.getCode())));
+        }
+        //启用
+        else if (status.equals(CommonStatusEnum.YES.getCode())) {
+            if (userAccountInfo.getStatus().equals(Byte.parseByte(String.valueOf(CommonStatusEnum.YES.getCode())))) {
+                throw new FormException("该用户已启用");
+            }
+            userAccountInfo.setStatus(Byte.parseByte(String.valueOf(CommonStatusEnum.YES.getCode())));
+        }
+        return userAccountInfoMapper.updateByPrimaryKeySelective(userAccountInfo) > 0;
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean delete(Long id) {
-        if (null != id) {
-            return userAccountInfoMapper.deleteByPrimaryKey(id) > 0;
-        } else {
-            throw new FormException();
+        if (!count(id)) {
+            throw new SourceNotFoundException("用户不存在");
         }
+        if (appointmentInfoService.countByUserId(id) || patientInfoService.countRelation(id)) {
+            throw new FormException("该用户存在预约信息或者患者信息，不能删除");
+        }
+        return userAccountInfoMapper.deleteByPrimaryKey(id) > 0;
     }
 
     @Override
     public UserAccountInfo findUserById(Long id) {
-        if (null != id) {
-            return userAccountInfoMapper.selectByPrimaryKey(id);
-        } else {
+        if (null == id) {
             throw new FormException();
         }
+        UserAccountInfo userAccountInfo = userAccountInfoMapper.selectByPrimaryKey(id);
+        if (null == userAccountInfo) {
+            throw new SourceNotFoundException("用户不存在");
+        }
+        return userAccountInfo;
     }
 
     @Override

@@ -211,6 +211,17 @@ public class PatientInfoServiceImpl implements PatientInfoService {
     }
 
     @Override
+    public boolean countRelation(Long userId) {
+        UserRelPatientExample example = new UserRelPatientExample();
+
+        if (null == userId) {
+            throw new FormException();
+        }
+        example.createCriteria().andUserIdEqualTo(userId);
+        return userRelPatientMapper.selectCountByExample(example) > 0;
+    }
+
+    @Override
     public boolean countPatientInfo(String idCard) {
         PatientInfoExample example = new PatientInfoExample();
 

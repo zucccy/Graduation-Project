@@ -1,8 +1,10 @@
 package cn.edu.zucc.impl;
 
+import cn.edu.zucc.AppointmentInfoService;
 import cn.edu.zucc.DoctorService;
 import cn.edu.zucc.HospitalService;
 import cn.edu.zucc.OfficeService;
+import cn.edu.zucc.VisitPlanService;
 import cn.edu.zucc.dto.DoctorInfoDTO;
 import cn.edu.zucc.exception.FormException;
 import cn.edu.zucc.exception.SourceNotFoundException;
@@ -38,6 +40,12 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Resource
     HospitalService hospitalService;
+
+    @Resource
+    AppointmentInfoService appointmentInfoService;
+
+    @Resource
+    VisitPlanService visitPlanService;
 
     @Override
     public DoctorInfo findDoctorById(Long id) {
@@ -103,6 +111,12 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean delete(Long id) {
+        if (!count(id)) {
+            throw new SourceNotFoundException("医生不存在");
+        }
+        if (appointmentInfoService.countByDoctorId(id) || visitPlanService.countByDoctorId(id)) {
+            throw new FormException("该医生有预约信息或出诊计划，不能删除");
+        }
         return doctorInfoMapper.deleteByPrimaryKey(id) > 0;
     }
 

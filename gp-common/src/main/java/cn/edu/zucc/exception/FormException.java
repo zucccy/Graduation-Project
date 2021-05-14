@@ -10,6 +10,10 @@ import cn.edu.zucc.enums.ResultCodeEnum;
  */
 public class FormException extends BaseException {
 
+    public FormException(String msg) {
+        super(msg, ResultCodeEnum.REQUEST_INFO_ERROR.getCode());
+    }
+
     public FormException() {
         super(ResultCodeEnum.REQUEST_INFO_ERROR.getMessage(), ResultCodeEnum.REQUEST_INFO_ERROR.getCode());
     }

@@ -72,6 +72,14 @@ public interface VisitPlanService {
     boolean count(Long id);
 
     /**
+     * 判断出诊计划是否存在
+     *
+     * @param doctorId 医生编号
+     * @return 是否存在
+     */
+    boolean countByDoctorId(Long doctorId);
+
+    /**
      * 根据出诊编号列表获取出诊计划信息列表
      *
      * @param visitIdList 出诊编号列表
