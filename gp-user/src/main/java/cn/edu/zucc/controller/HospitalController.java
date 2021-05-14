@@ -8,6 +8,7 @@ import cn.edu.zucc.exception.FormException;
 import cn.edu.zucc.po.Hospital;
 import cn.edu.zucc.utils.PageUtils;
 import cn.edu.zucc.utils.ResponseBuilder;
+import cn.edu.zucc.vo.AddressVO;
 import cn.edu.zucc.vo.HospitalInfoVO;
 import cn.edu.zucc.vo.HospitalLocalationVO;
 import cn.edu.zucc.vo.HospitalNewsVO;
@@ -156,10 +157,8 @@ public class HospitalController {
     @PostMapping("/addHospitalLocation")
     public ResponseVO<Boolean> addHospitalLocation(@RequestBody HospitalLocalationVO hospitalLocalationVO) {
         if (null == hospitalLocalationVO
-                || StringUtils.isEmpty(hospitalLocalationVO.getHospitalName())
-                || StringUtils.isEmpty(hospitalLocalationVO.getAddress())
-                || null == hospitalLocalationVO.getLatitudes()
                 || null == hospitalLocalationVO.getLongitudes()
+                || null == hospitalLocalationVO.getLatitudes()
                 || null == hospitalLocalationVO.getId()) {
             throw new FormException();
         }
@@ -168,7 +167,13 @@ public class HospitalController {
 
     @ApiOperation(value = "获取推荐医院集合")
     @PostMapping("/getAdviceHospitalList")
-    public ResponseVO<List<Hospital>> getAdviceHospitalList(@RequestBody HospitalLocalationVO hospitalLocalationVO) {
-        return ResponseBuilder.success(hospitalService.findAdviceHospitalList(hospitalLocalationVO));
+    public ResponseVO<List<Hospital>> getAdviceHospitalList(@RequestBody AddressVO addressVO) {
+        if (null == addressVO
+                || null == addressVO.getDistance()
+                || null == addressVO.getLongitudes()
+                || null == addressVO.getLatitudes()) {
+            throw new FormException();
+        }
+        return ResponseBuilder.success(hospitalService.findAdviceHospitalList(addressVO));
     }
 }

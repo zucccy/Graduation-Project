@@ -2,6 +2,7 @@ package cn.edu.zucc;
 
 import cn.edu.zucc.dto.HospitalInfoDTO;
 import cn.edu.zucc.po.Hospital;
+import cn.edu.zucc.vo.AddressVO;
 import cn.edu.zucc.vo.HospitalInfoVO;
 import cn.edu.zucc.vo.HospitalLocalationVO;
 import cn.edu.zucc.vo.HospitalNewsVO;
@@ -155,8 +156,8 @@ public interface HospitalService {
     /**
      * Redis中获取推荐医院集合
      *
-     * @param hospitalLocalationVO 医院位置信息VO
+     * @param addressVO 位置信息VO
      * @return java.util.List<cn.edu.zucc.vo.HospitalLocalationVO>
      */
-    List<Hospital> findAdviceHospitalList(HospitalLocalationVO hospitalLocalationVO);
+    List<Hospital> findAdviceHospitalList(AddressVO addressVO);
 }

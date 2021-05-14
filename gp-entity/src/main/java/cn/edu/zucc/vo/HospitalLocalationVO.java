@@ -21,18 +21,6 @@ public class HospitalLocalationVO {
     private Long id;
 
     /**
-     * 医院名称
-     */
-    @ApiModelProperty(value = "医院名称")
-    private String hospitalName;
-
-    /**
-     * 医院地址
-     */
-    @ApiModelProperty(value = "医院地址")
-    private String address;
-
-    /**
      * 医院地址经度
      */
     @ApiModelProperty(value = "医院地址经度")
@@ -43,10 +31,4 @@ public class HospitalLocalationVO {
      */
     @ApiModelProperty(value = "医院地址纬度")
     private BigDecimal latitudes;
-
-    /**
-     * 距离
-     */
-    @ApiModelProperty(value = "距离")
-    private Double distance;
 }

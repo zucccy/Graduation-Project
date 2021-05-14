@@ -12,6 +12,7 @@ import cn.edu.zucc.po.Hospital;
 import cn.edu.zucc.po.HospitalExample;
 import cn.edu.zucc.po.HospitalRelOffice;
 import cn.edu.zucc.po.HospitalRelOfficeExample;
+import cn.edu.zucc.vo.AddressVO;
 import cn.edu.zucc.vo.DoctorVO;
 import cn.edu.zucc.vo.HospitalInfoVO;
 import cn.edu.zucc.vo.HospitalLocalationVO;
@@ -25,6 +26,7 @@ import org.springframework.data.geo.Circle;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.GeoResult;
 import org.springframework.data.geo.GeoResults;
+import org.springframework.data.geo.Metrics;
 import org.springframework.data.geo.Point;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -312,23 +314,23 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Override
     public boolean addHospitalLocation(HospitalLocalationVO hospitalLocalationVO) {
-        Point point = new Point(hospitalLocalationVO.getLatitudes().doubleValue(), hospitalLocalationVO.getLongitudes().doubleValue());
+        Point point = new Point(hospitalLocalationVO.getLongitudes().doubleValue(), hospitalLocalationVO.getLatitudes().doubleValue());
         return redisTemplate.opsForGeo().add("HospitalLocation", point, String.valueOf(hospitalLocalationVO.getId())) > 0;
     }
 
     @Override
-    public List<Hospital> findAdviceHospitalList(HospitalLocalationVO hospitalLocalationVO) {
-        Double distance = hospitalLocalationVO.getDistance();
+    public List<Hospital> findAdviceHospitalList(AddressVO addressVO) {
+        Double distance = addressVO.getDistance();
         List<Long> hospitalIdList = new ArrayList<>();
         //Point(经度, 纬度) Distance(距离量, 距离单位)
-        Circle circle = new Circle(new Point(hospitalLocalationVO.getLatitudes().doubleValue(), hospitalLocalationVO.getLongitudes().doubleValue()), new Distance(distance));
+        Circle circle = new Circle(new Point(addressVO.getLongitudes().doubleValue(), addressVO.getLatitudes().doubleValue()), new Distance(distance, Metrics.KILOMETERS));
         //params: key, Circle 获取存储到redis中的distance范围内的所有医院位置信息
         GeoResults radius = redisTemplate.opsForGeo().radius("HospitalLocation", circle);
         List<GeoResult> contentList = radius.getContent();
         if (CollectionUtil.isNotEmpty(contentList)) {
             contentList.forEach(item -> {
                 RedisGeoCommands.GeoLocation content = (RedisGeoCommands.GeoLocation) item.getContent();
-                hospitalIdList.add((Long) content.getName());
+                hospitalIdList.add(Long.valueOf((String) content.getName()));
             });
         }
         System.out.println(hospitalIdList);
