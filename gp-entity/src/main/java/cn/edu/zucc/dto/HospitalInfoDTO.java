@@ -52,4 +52,10 @@ public class HospitalInfoDTO {
      */
     @ApiModelProperty(value = "医院描述")
     private String description;
+
+    /**
+     * 医院图片
+     */
+    @ApiModelProperty(value = "医院图片")
+    private String src;
 }

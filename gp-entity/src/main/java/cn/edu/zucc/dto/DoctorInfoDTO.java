@@ -49,4 +49,10 @@ public class DoctorInfoDTO {
      */
     @ApiModelProperty(value = "医生描述")
     private String description;
+
+    /**
+     * 医生图片
+     */
+    @ApiModelProperty(value = "医生图片")
+    private String src;
 }

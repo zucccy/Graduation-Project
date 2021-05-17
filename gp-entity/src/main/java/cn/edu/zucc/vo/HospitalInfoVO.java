@@ -58,6 +58,12 @@ public class HospitalInfoVO {
     private String description;
 
     /**
+     * 医院图片
+     */
+    @ApiModelProperty(value = "医院图片")
+    private String src;
+
+    /**
      * 医生列表
      */
     @ApiModelProperty(value = "医生列表")

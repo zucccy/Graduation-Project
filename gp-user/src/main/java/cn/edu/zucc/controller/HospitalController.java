@@ -58,8 +58,6 @@ public class HospitalController {
                                                      @RequestParam(required = false) String address,
                                                      @RequestParam(defaultValue = "1") Integer pageNum,
                                                      @RequestParam(defaultValue = "10") Integer pageSize) {
-        if (StringUtils.isEmpty(hospitalName) || StringUtils.isEmpty(address))
-            throw new FormException();
 
         return ResponseBuilder.successPageable(PageUtils.restPage(hospitalService.findHospitalList(hospitalName, address, pageNum, pageSize)));
     }

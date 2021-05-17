@@ -26,7 +26,7 @@ public class ExceptionHandling {
      * @return -
      */
     @ExceptionHandler(Throwable.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.OK)
     public ResponseVO<Void> sendErrorResponse(Throwable e) {
         log.error("unknowing exception", e);
         return ResponseBuilder.buildResponse(ResultCodeEnum.FAILED.getCode(), e.getMessage(), null);
@@ -39,7 +39,7 @@ public class ExceptionHandling {
      * @return -
      */
     @ExceptionHandler(BaseException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.OK)
     public ResponseVO<Void> sendCustomErrResponse(BaseException e) {
         return ResponseBuilder.buildErrorResponse(e);
     }

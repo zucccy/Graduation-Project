@@ -57,6 +57,12 @@ public class Hospital {
     private String description;
 
     /**
+     * 医院图片
+     */
+    @Column(name = "`src`")
+    private String src;
+
+    /**
      * 创建时间
      */
     @Column(name = "`create_time`")

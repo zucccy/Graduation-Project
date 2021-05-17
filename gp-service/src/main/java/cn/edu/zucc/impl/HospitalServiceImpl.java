@@ -100,8 +100,6 @@ public class HospitalServiceImpl implements HospitalService {
     @Override
     public List<Hospital> findHospitalList(String hospitalName, String address, Integer pageNum, Integer pageSize) {
 
-        PageHelper.startPage(pageNum, pageSize);
-
         HospitalExample example = new HospitalExample();
         HospitalExample.Criteria criteria = example.createCriteria();
 
@@ -111,6 +109,7 @@ public class HospitalServiceImpl implements HospitalService {
         if (!StringUtils.isBlank(address)) {
             criteria.andAddressLike("%" + address + "%");
         }
+        PageHelper.startPage(pageNum, pageSize);
         return hospitalMapper.selectByExample(example);
     }
 
