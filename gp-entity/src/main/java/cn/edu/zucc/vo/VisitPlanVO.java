@@ -1,5 +1,6 @@
 package cn.edu.zucc.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -47,6 +48,7 @@ public class VisitPlanVO {
     /**
      * 出诊日期
      */
+    @JsonFormat(pattern = "MM-dd", timezone = "GMT+8")
     @ApiModelProperty(value = "出诊日期")
     private Date visitDay;
 
@@ -55,4 +57,10 @@ public class VisitPlanVO {
      */
     @ApiModelProperty(value = "出诊具体时间")
     private String timePeriod;
+
+    /**
+     * 出诊编号
+     */
+    @ApiModelProperty(value = "出诊编号")
+    private Long id;
 }

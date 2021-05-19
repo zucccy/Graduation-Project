@@ -3,20 +3,27 @@ package cn.edu.zucc.impl;
 import cn.edu.zucc.DoctorService;
 import cn.edu.zucc.VisitPlanService;
 import cn.edu.zucc.dto.VisitPlanInfoDTO;
+import cn.edu.zucc.enums.VisitPeriodEnum;
 import cn.edu.zucc.exception.FormException;
+import cn.edu.zucc.exception.SourceNotFoundException;
 import cn.edu.zucc.mapper.VisitPlanMapper;
 import cn.edu.zucc.po.VisitPlan;
 import cn.edu.zucc.po.VisitPlanExample;
 import cn.edu.zucc.vo.DoctorVO;
 import cn.edu.zucc.vo.VisitDoctorPlanVO;
 import cn.edu.zucc.vo.VisitPlanVO;
+import cn.edu.zucc.vo.VisitPlanVOList;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -70,6 +77,9 @@ public class VisitPlanServiceImpl implements VisitPlanService {
 
     @Override
     public VisitPlan findVisitPlanById(Long id) {
+        if (!count(id)) {
+            throw new SourceNotFoundException("出诊计划不存在");
+        }
         return visitPlanMapper.selectByPrimaryKey(id);
     }
 
@@ -151,24 +161,43 @@ public class VisitPlanServiceImpl implements VisitPlanService {
     }
 
     @Override
-    public VisitDoctorPlanVO getDoctorPlan(Long doctorId, Date start, Date end) {
+    public VisitDoctorPlanVO getDoctorPlan(Long doctorId) {
 
         VisitDoctorPlanVO vo = new VisitDoctorPlanVO();
-
+        if (!doctorService.count(doctorId)) {
+            throw new SourceNotFoundException("医生不存在");
+        }
         DoctorVO doctorVO = doctorService.findDoctorVOById(doctorId);
 
         //添加医生信息
         vo.setDoctorVO(doctorVO);
 
-        vo.setVisitPlanVOList(getVisitPlanVO(doctorId, start, end));
+        vo.setVisitPlanVOList(getVisitPlanVOList(doctorId));
 
         return vo;
     }
 
-    private List<VisitPlanVO> getVisitPlanVO(Long doctorId, Date start, Date end) {
+    private VisitPlanVOList getVisitPlanVOList(Long doctorId) {
 
-        List<VisitPlanVO> list = new ArrayList<>();
-
+        VisitPlanVOList visitPlanVOList = new VisitPlanVOList();
+        List<VisitPlanVO> visitPlanVOAmList = new ArrayList<>(7);
+        List<VisitPlanVO> visitPlanVOPmList = new ArrayList<>(7);
+        List<VisitPlanVO> visitPlanVOEveList = new ArrayList<>(7);
+        for (int i = 0; i < 7; i++) {
+            Date myDate = Date.from(LocalDate.now().plusDays(i).atStartOfDay(ZoneOffset.ofHours(8)).toInstant());
+            VisitPlanVO visitPlanAmVO = new VisitPlanVO();
+            VisitPlanVO visitPlanPmVO = new VisitPlanVO();
+            VisitPlanVO visitPlanEveVO = new VisitPlanVO();
+            visitPlanAmVO.setVisitPeriod(Byte.parseByte("1"));
+            visitPlanPmVO.setVisitPeriod(Byte.parseByte("2"));
+            visitPlanEveVO.setVisitPeriod(Byte.parseByte("3"));
+            visitPlanAmVO.setVisitDay(myDate);
+            visitPlanPmVO.setVisitDay(myDate);
+            visitPlanEveVO.setVisitDay(myDate);
+            visitPlanVOAmList.add(visitPlanAmVO);
+            visitPlanVOPmList.add(visitPlanPmVO);
+            visitPlanVOEveList.add(visitPlanEveVO);
+        }
         VisitPlanExample example = new VisitPlanExample();
         VisitPlanExample.Criteria criteria = example.createCriteria();
 
@@ -177,22 +206,42 @@ public class VisitPlanServiceImpl implements VisitPlanService {
         } else {
             throw new FormException();
         }
-        if (null != start && null != end) {
-            criteria.andVisitDayGreaterThanOrEqualTo(start);
-            criteria.andVisitDayLessThanOrEqualTo(end);
-        } else {
-            throw new FormException();
-        }
+        criteria.andVisitDayGreaterThanOrEqualTo(Date.from(LocalDate.now().atStartOfDay(ZoneOffset.ofHours(8)).toInstant()));
+        criteria.andVisitDayLessThanOrEqualTo(Date.from(LocalDate.now().plus(1, ChronoUnit.WEEKS).atStartOfDay(ZoneOffset.ofHours(8)).toInstant()));
         List<VisitPlan> visitPlans = visitPlanMapper.selectByExample(example);
         //对VisitPlan列表进行遍历，将每个VisitPlan对象转换为VisitPlanVO对象
         visitPlans.forEach((VisitPlan item) -> {
             VisitPlanVO visitPlanVO = new VisitPlanVO();
-
             BeanUtils.copyProperties(item, visitPlanVO);
-
-            list.add(visitPlanVO);
+            //若为早上，则覆盖早上集合元素
+            if (visitPlanVO.getVisitPeriod() == Byte.parseByte(String.valueOf(VisitPeriodEnum.MORNING.getTypes()))) {
+                visitPlanVOAmList.forEach(index -> {
+                    if (index.getVisitDay().equals(visitPlanVO.getVisitDay())) {
+                        Collections.replaceAll(visitPlanVOAmList, index, visitPlanVO);
+                    }
+                });
+            }
+            //若为下午，则覆盖下午集合元素
+            else if (visitPlanVO.getVisitPeriod() == Byte.parseByte(String.valueOf(VisitPeriodEnum.AFTERNOON.getTypes()))) {
+                visitPlanVOPmList.forEach(index -> {
+                    if (index.getVisitDay().equals(visitPlanVO.getVisitDay())) {
+                        Collections.replaceAll(visitPlanVOPmList, index, visitPlanVO);
+                    }
+                });
+            }
+            //若为晚上，则覆盖晚上集合元素
+            else if (visitPlanVO.getVisitPeriod() == Byte.parseByte(String.valueOf(VisitPeriodEnum.NIGHT.getTypes()))) {
+                visitPlanVOEveList.forEach(index -> {
+                    if (index.getVisitDay().equals(visitPlanVO.getVisitDay())) {
+                        Collections.replaceAll(visitPlanVOEveList, index, visitPlanVO);
+                    }
+                });
+            }
         });
-
-        return list;
+        visitPlanVOList.setVisitPlanVOAmList(visitPlanVOAmList);
+        visitPlanVOList.setVisitPlanVOPmList(visitPlanVOPmList);
+        visitPlanVOList.setVisitPlanVOEveList(visitPlanVOEveList);
+        return visitPlanVOList;
     }
+
 }

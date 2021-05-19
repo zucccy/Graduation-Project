@@ -3,6 +3,7 @@ package cn.edu.zucc;
 import cn.edu.zucc.dto.DoctorInfoDTO;
 import cn.edu.zucc.po.DoctorInfo;
 import cn.edu.zucc.vo.DoctorVO;
+import cn.edu.zucc.vo.MyAppointmentListVO;
 
 import java.util.List;
 
@@ -81,7 +82,7 @@ public interface DoctorService {
      * @param pageSize 页大小
      * @return java.util.List<cn.edu.zucc.vo.DoctorVO>
      */
-    List<DoctorVO> findDoctorList(Long officeId, Integer pageNum, Integer pageSize);
+    List<DoctorVO> findDoctorList(Long officeId, Long id, Integer pageNum, Integer pageSize);
 
     /**
      * 根据医院编号查找医生综合信息
@@ -100,4 +101,12 @@ public interface DoctorService {
      * @return java.util.List<cn.edu.zucc.po.DoctorInfo>
      */
     List<DoctorInfo> findDoctorInfoList(List<Long> doctorIdList);
+
+    /**
+     * 根据医生编号获取预约集合
+     *
+     * @param doctorId 医生编号
+     * @return java.util.List<cn.edu.zucc.vo.MyAppointmentListVO>
+     */
+    List<MyAppointmentListVO> getAppointmentListByDoctorId(Long doctorId);
 }

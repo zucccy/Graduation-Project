@@ -224,7 +224,6 @@ public class AppointmentInfoServiceImpl implements AppointmentInfoService {
 
     @Override
     public List<VisitPatientInfoDTO> visitPatientInfoList(Long doctorId, Byte visitPeriod, Date visitDay, Integer pageNum, Integer pageSize) {
-        PageHelper.startPage(pageNum, pageSize);
 
         AppointmentInfoExample example = new AppointmentInfoExample();
         AppointmentInfoExample.Criteria criteria = example.createCriteria();
@@ -233,6 +232,7 @@ public class AppointmentInfoServiceImpl implements AppointmentInfoService {
         List<Long> visitIdList = visitPlanService.getByTimeAndDate(doctorId, visitPeriod, visitDay)
                 .stream().map(VisitPlan::getId).collect(Collectors.toList());
         //得到预约信息列表
+        PageHelper.startPage(pageNum, pageSize);
         List<AppointmentInfo> list = findAppointmentList(visitIdList);
 
         return list.stream()

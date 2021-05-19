@@ -88,7 +88,8 @@
     update_time
   </sql>
   <select id="findDoctorList" resultMap="BaseResultMap">
-    SELECT doctor_info.id, doctor_name, sex, position, doctor_info.description, office_name, hospital_name
+    SELECT doctor_info.id, doctor_name, sex, position, doctor_info.description, doctor_info.src, office_name,
+    hospital_name, doctor_info.office_id, doctor_info.hospital_id
     FROM doctor_info, office, hospital
     WHERE doctor_info.office_id = office.id
     AND doctor_info.hospital_id = hospital.id
@@ -97,6 +98,9 @@
     </if>
     <if test="hospitalId != null">
       AND hospital_id = #{hospitalId}
+    </if>
+    <if test="id != null">
+      AND doctor_info.id != #{id}
     </if>
     <if test="doctorName != null">
       AND doctor_name LIKE "%"#{doctorName}"%"

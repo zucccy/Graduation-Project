@@ -3,6 +3,7 @@ package cn.edu.zucc.controller;
 import cn.edu.zucc.AppointmentInfoService;
 import cn.edu.zucc.commonVO.ResponseVO;
 import cn.edu.zucc.dto.AppointmentInfoDTO;
+import cn.edu.zucc.dto.UpdateVisitStatusDTO;
 import cn.edu.zucc.exception.FormException;
 import cn.edu.zucc.utils.ResponseBuilder;
 import cn.edu.zucc.utils.TokenUtils;
@@ -12,7 +13,6 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -44,7 +44,7 @@ public class AppointmentController {
     @PostMapping("/createAppointment")
     public ResponseVO<Void> createAppointment(@RequestHeader("Authorization") String token,
                                               @RequestBody AppointmentInfoDTO appointmentInfoDTO) {
-        //帐号、密码、用户名均不能为空
+
         if (null == appointmentInfoDTO
                 || null == appointmentInfoDTO.getDoctorId()
                 || null == appointmentInfoDTO.getVisitId()
@@ -56,9 +56,9 @@ public class AppointmentController {
     }
 
     @ApiOperation(value = "查看我的预约详情")
-    @GetMapping("/getMyAppointmentInfo/{id}")
+    @GetMapping("/getMyAppointmentInfo/")
     public ResponseVO<MyAppointmentVO> getMyAppointmentInfo(@RequestHeader("Authorization") String token,
-                                                            @PathVariable Long id) {
+                                                            @RequestParam Long id) {
         if (null == id) {
             throw new FormException();
         }
@@ -66,14 +66,17 @@ public class AppointmentController {
     }
 
     @ApiOperation(value = "修改我的预约状态")
-    @PostMapping("/updateVisitStatus/{id}")
+    @PostMapping("/updateVisitStatus/")
     public ResponseVO<Void> updateVisitStatus(@RequestHeader("Authorization") String token,
-                                              @PathVariable Long id,
-                                              @RequestParam Byte visitStatus) {
-        if (null == id || null == visitStatus) {
+                                              @RequestBody UpdateVisitStatusDTO updateVisitStatusDTO) {
+        if (null == updateVisitStatusDTO.getId()
+                || null == updateVisitStatusDTO.getVisitStatus()
+                || null == updateVisitStatusDTO) {
             throw new FormException();
         }
-        appointmentInfoService.update(TokenUtils.getUserId(token, tokenSecret), id, visitStatus);
+        appointmentInfoService.update(TokenUtils.getUserId(token, tokenSecret),
+                updateVisitStatusDTO.getId(),
+                updateVisitStatusDTO.getVisitStatus());
         return ResponseBuilder.success();
     }
 

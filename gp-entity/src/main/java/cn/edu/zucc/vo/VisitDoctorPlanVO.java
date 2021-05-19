@@ -3,8 +3,6 @@ package cn.edu.zucc.vo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.List;
-
 /**
  * Description: TODO
  *
@@ -17,6 +15,6 @@ public class VisitDoctorPlanVO {
     @ApiModelProperty("医生信息")
     DoctorVO doctorVO;
 
-    @ApiModelProperty("医生出诊计划列表")
-    List<VisitPlanVO> visitPlanVOList;
+    @ApiModelProperty("医生出诊列表")
+    VisitPlanVOList visitPlanVOList;
 }

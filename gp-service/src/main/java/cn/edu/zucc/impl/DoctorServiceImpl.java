@@ -9,9 +9,11 @@ import cn.edu.zucc.dto.DoctorInfoDTO;
 import cn.edu.zucc.exception.FormException;
 import cn.edu.zucc.exception.SourceNotFoundException;
 import cn.edu.zucc.mapper.DoctorInfoMapper;
+import cn.edu.zucc.po.AppointmentInfo;
 import cn.edu.zucc.po.DoctorInfo;
 import cn.edu.zucc.po.DoctorInfoExample;
 import cn.edu.zucc.vo.DoctorVO;
+import cn.edu.zucc.vo.MyAppointmentListVO;
 import cn.hutool.core.collection.CollectionUtil;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.BeanUtils;
@@ -78,7 +80,7 @@ public class DoctorServiceImpl implements DoctorService {
         if (null != pageNum && null != pageSize) {
             PageHelper.startPage(pageNum, pageSize);
         }
-        List<DoctorVO> doctorVOList = doctorInfoMapper.findDoctorList(null, null, doctorName);
+        List<DoctorVO> doctorVOList = doctorInfoMapper.findDoctorList(null, null, null, doctorName);
         return doctorVOList;
     }
 
@@ -128,7 +130,7 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
-    public List<DoctorVO> findDoctorList(Long officeId, Integer pageNum, Integer pageSize) {
+    public List<DoctorVO> findDoctorList(Long officeId, Long id, Integer pageNum, Integer pageSize) {
         List<DoctorVO> doctorVOList;
         if (null == officeId) {
             throw new FormException();
@@ -139,7 +141,7 @@ public class DoctorServiceImpl implements DoctorService {
         if (null != pageNum && null != pageSize) {
             PageHelper.startPage(pageNum, pageSize);
         }
-        doctorVOList = doctorInfoMapper.findDoctorList(officeId, null, null);
+        doctorVOList = doctorInfoMapper.findDoctorList(officeId, id, null, null);
         return doctorVOList;
     }
 
@@ -156,7 +158,7 @@ public class DoctorServiceImpl implements DoctorService {
         if (null != pageNum && null != pageSize) {
             PageHelper.startPage(pageNum, pageSize);
         }
-        doctorVOList = doctorInfoMapper.findDoctorList(null, hospitalId, null);
+        doctorVOList = doctorInfoMapper.findDoctorList(null, null, hospitalId, null);
         return doctorVOList;
     }
 
@@ -169,5 +171,21 @@ public class DoctorServiceImpl implements DoctorService {
             return new ArrayList<>();
         }
         return doctorInfoList;
+    }
+
+    @Override
+    public List<MyAppointmentListVO> getAppointmentListByDoctorId(Long doctorId) {
+        if (!count(doctorId)) {
+            throw new SourceNotFoundException("医生不存在");
+        }
+        List<AppointmentInfo> appointmentInfoList = appointmentInfoService.findAppointmentListByDoctorId(doctorId, null, 1, 10);
+        List<MyAppointmentListVO> myAppointmentListVOList = new ArrayList<>();
+        //该集合不为空，则进行转换
+        if (CollectionUtil.isNotEmpty(appointmentInfoList)) {
+            appointmentInfoList.forEach(item -> {
+                myAppointmentListVOList.add(appointmentInfoService.convertMyAppointmentListVO(item));
+            });
+        }
+        return myAppointmentListVOList;
     }
 }

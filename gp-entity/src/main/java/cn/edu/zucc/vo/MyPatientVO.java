@@ -57,4 +57,10 @@ public class MyPatientVO {
      */
     @ApiModelProperty(value = "病情描述")
     private String description;
+
+    /**
+     * 患者状态 0未选中，1选中
+     */
+    @ApiModelProperty(value = "患者状态")
+    private boolean status = false;
 }

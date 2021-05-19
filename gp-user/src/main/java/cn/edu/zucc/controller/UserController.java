@@ -25,7 +25,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -75,7 +74,7 @@ public class UserController {
         //为当前用户签名
         log.info(tokenSecret);
         response.setHeader("Authorization", TokenProviderUtils.sign(user.getId(), tokenSecret));
-
+        response.addHeader("Access-Control-Expose-Headers", "Authorization");
         UserAccountInfoVO userVO = new UserAccountInfoVO();
         BeanUtils.copyProperties(user, userVO);
 
@@ -166,8 +165,8 @@ public class UserController {
     }
 
     @ApiOperation(value = "删除用户")
-    @DeleteMapping("/delete/{id}")
-    public ResponseVO<Boolean> deleteUser(@PathVariable Long id) {
+    @DeleteMapping("/delete/")
+    public ResponseVO<Boolean> deleteUser(@RequestParam Long id) {
         if (null == id) {
             throw new FormException();
         }
@@ -175,8 +174,8 @@ public class UserController {
     }
 
     @ApiOperation(value = "修改用户")
-    @PostMapping("/update/{id}")
-    public ResponseVO<Boolean> updateUser(@PathVariable Long id, @RequestBody UserAccountInfoDTO userAccountInfoDTO) {
+    @PostMapping("/update/")
+    public ResponseVO<Boolean> updateUser(@RequestParam Long id, @RequestBody UserAccountInfoDTO userAccountInfoDTO) {
         if (null == id || null == userAccountInfoDTO) {
             throw new FormException();
         }
@@ -184,8 +183,8 @@ public class UserController {
     }
 
     @ApiOperation(value = "禁/启用用户")
-    @PostMapping("/disable/{id}")
-    public ResponseVO<Boolean> disableAndEnableUser(@PathVariable Long id, @RequestParam("status") Integer status) {
+    @PostMapping("/disable/")
+    public ResponseVO<Boolean> disableAndEnableUser(@RequestParam Long id, @RequestParam("status") Integer status) {
         if (null == id || null == status) {
             throw new FormException();
         }

@@ -11,6 +11,7 @@ import java.util.List;
 public interface DoctorInfoMapper extends Mapper<DoctorInfo> {
 
     List<DoctorVO> findDoctorList(@Param("officeId") Long officeId,
+                                  @Param("id") Long id,
                                   @Param("hospitalId") Long hospitalId,
                                   @Param("doctorName") String doctorName);
 }

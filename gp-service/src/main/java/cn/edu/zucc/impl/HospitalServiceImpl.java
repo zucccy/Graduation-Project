@@ -185,8 +185,11 @@ public class HospitalServiceImpl implements HospitalService {
             //若该科室有父科室，要把父科室也加入到关系中
             Long parentId = officeService.findOfficeById(officeId).getParentId();
             if (officeService.count(parentId)) {
-                hospitalRelOffice.setOfficeId(parentId);
-                hospitalRelOfficeMapper.insertSelective(hospitalRelOffice);
+                //父科室不存在
+                if (!countOfficeRelation(hospitalId, parentId)) {
+                    hospitalRelOffice.setOfficeId(parentId);
+                    hospitalRelOfficeMapper.insertSelective(hospitalRelOffice);
+                }
             }
         } else {
             throw new SourceNotFoundException("科室不存在");

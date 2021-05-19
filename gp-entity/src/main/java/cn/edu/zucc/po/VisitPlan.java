@@ -1,5 +1,6 @@
 package cn.edu.zucc.po;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -53,6 +54,7 @@ public class VisitPlan {
      * 出诊日期
      */
     @Column(name = "`visit_day`")
+    @JsonFormat(pattern = "MM-dd", timezone = "GMT+8")
     private Date visitDay;
 
     /**

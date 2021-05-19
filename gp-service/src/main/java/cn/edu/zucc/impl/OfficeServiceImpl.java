@@ -80,10 +80,17 @@ public class OfficeServiceImpl implements OfficeService {
             officeList.forEach(office -> {
                 OfficeVO officeVO = new OfficeVO();
                 BeanUtils.copyProperties(office, officeVO);
-                officeVOList.add(officeVO);
+                if (officeVO.getId() < 8) {
+                    officeVOList.add(officeVO);
+                }
             });
             //给科室集合中的每个科室添加子科室集合
-            officeVOList.forEach(officeVO -> officeVO.setChildOfficeList(findChildOfficeList(officeVO.getId())));
+            officeVOList.forEach(officeVO -> {
+                List<ChildOfficeVO> childOfficeVOList = findChildOfficeList(officeVO.getId());
+                if (CollectionUtil.isNotEmpty(childOfficeVOList)) {
+                    officeVO.setChildOfficeList(childOfficeVOList);
+                }
+            });
         }
         return officeVOList;
     }
@@ -203,8 +210,26 @@ public class OfficeServiceImpl implements OfficeService {
     }
 
     @Override
-    public List<Office> findOfficeListAll() {
-        return officeMapper.selectAll();
+    public List<OfficeVO> findOfficeListAll() {
+        List<Office> officeList = officeMapper.selectAll();
+        List<OfficeVO> officeVOList = new ArrayList<>();
+        if (CollectionUtil.isNotEmpty(officeList)) {
+            officeList.forEach(office -> {
+                OfficeVO officeVO = new OfficeVO();
+                BeanUtils.copyProperties(office, officeVO);
+                if (officeVO.getId() < 8) {
+                    officeVOList.add(officeVO);
+                }
+            });
+            //给科室集合中的每个科室添加子科室集合
+            officeVOList.forEach(officeVO -> {
+                List<ChildOfficeVO> childOfficeVOList = findChildOfficeList(officeVO.getId());
+                if (CollectionUtil.isNotEmpty(childOfficeVOList)) {
+                    officeVO.setChildOfficeList(childOfficeVOList);
+                }
+            });
+        }
+        return officeVOList;
     }
 
     @Override

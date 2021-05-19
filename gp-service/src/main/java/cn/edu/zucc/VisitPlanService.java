@@ -44,7 +44,7 @@ public interface VisitPlanService {
      * 根据出诊编号查找出诊信息
      *
      * @param id 出诊编号
-     * @return cn.edu.zucc.po.VisitPlan
+     * @return cn.edu.zucc.vo.VisitPlanVO
      */
     VisitPlan findVisitPlanById(Long id);
 
@@ -110,10 +110,8 @@ public interface VisitPlanService {
      * 获取一段时间内医生出诊计划
      *
      * @param doctorId 医生编号
-     * @param start    开始日期
-     * @param end      结束日期
      * @return VisitDoctorPlanVO
      */
-    VisitDoctorPlanVO getDoctorPlan(Long doctorId, Date start, Date end);
+    VisitDoctorPlanVO getDoctorPlan(Long doctorId);
 
 }

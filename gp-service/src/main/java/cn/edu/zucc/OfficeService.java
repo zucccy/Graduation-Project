@@ -111,7 +111,7 @@ public interface OfficeService {
      *
      * @return java.util.List<cn.edu.zucc.po.Office>
      */
-    List<Office> findOfficeListAll();
+    List<OfficeVO> findOfficeListAll();
 
     /**
      * 根据科室编号列表查找科室信息列表

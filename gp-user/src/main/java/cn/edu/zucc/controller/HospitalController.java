@@ -44,8 +44,8 @@ public class HospitalController {
     private HospitalService hospitalService;
 
     @ApiOperation(value = "根据id查找医院信息")
-    @GetMapping("{id}")
-    public ResponseVO<HospitalInfoVO> findHospitalById(@PathVariable Long id) {
+    @GetMapping("/id")
+    public ResponseVO<HospitalInfoVO> findHospitalById(@RequestParam Long id) {
         if (null == id) {
             throw new FormException();
         }
@@ -63,8 +63,8 @@ public class HospitalController {
     }
 
     @ApiOperation(value = "根据科室编号查找医院列表")
-    @GetMapping("/getHospitals/{officeId}")
-    public ResponsePageVO<Hospital> getHospitalsByOfficeId(@PathVariable Long officeId,
+    @GetMapping("/getHospitals/")
+    public ResponsePageVO<Hospital> getHospitalsByOfficeId(@RequestParam Long officeId,
                                                            @RequestParam(defaultValue = "1") Integer pageNum,
                                                            @RequestParam(defaultValue = "10") Integer pageSize) {
         if (null == officeId) {
@@ -88,8 +88,8 @@ public class HospitalController {
     }
 
     @ApiOperation(value = "删除医院")
-    @DeleteMapping("/delete/{id}")
-    public ResponseVO<Boolean> deleteHospital(@PathVariable Long id) {
+    @DeleteMapping("/delete/")
+    public ResponseVO<Boolean> deleteHospital(@RequestParam Long id) {
         if (null == id) {
             throw new FormException();
         }
@@ -97,8 +97,8 @@ public class HospitalController {
     }
 
     @ApiOperation(value = "修改医院")
-    @PostMapping("/update/{id}")
-    public ResponseVO<Boolean> updateHospital(@PathVariable Long id, @RequestBody HospitalInfoDTO hospitalInfoDTO) {
+    @PostMapping("/update/")
+    public ResponseVO<Boolean> updateHospital(@RequestParam Long id, @RequestBody HospitalInfoDTO hospitalInfoDTO) {
         if (null == id || null == hospitalInfoDTO) {
             throw new FormException();
         }
@@ -106,8 +106,8 @@ public class HospitalController {
     }
 
     @ApiOperation(value = "删除医院下的指定科室")
-    @DeleteMapping("{hospitalId}/deleteOffice/{officeId}")
-    public ResponseVO<Boolean> deleteOfficeInHospital(@PathVariable Long hospitalId, @PathVariable Long officeId) {
+    @DeleteMapping("{hospitalId}/deleteOffice/")
+    public ResponseVO<Boolean> deleteOfficeInHospital(@RequestParam Long hospitalId, @PathVariable Long officeId) {
         if (null == hospitalId || null == officeId) {
             throw new FormException();
         }
@@ -115,8 +115,8 @@ public class HospitalController {
     }
 
     @ApiOperation(value = "医院中添加指定科室")
-    @PostMapping("{hospitalId}/addOffice/{officeId}")
-    public ResponseVO<Boolean> addOfficeToHospital(@PathVariable Long hospitalId, @PathVariable Long officeId) {
+    @PostMapping("{hospitalId}/addOffice/")
+    public ResponseVO<Boolean> addOfficeToHospital(@RequestParam Long hospitalId, @PathVariable Long officeId) {
         if (null == hospitalId || null == officeId) {
             throw new FormException();
         }

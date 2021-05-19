@@ -49,10 +49,22 @@ public class DoctorVO {
     private String officeName;
 
     /**
+     * 科室编号
+     */
+    @ApiModelProperty(value = "科室编号")
+    private Long officeId;
+
+    /**
      * 医院名称
      */
     @ApiModelProperty(value = "医院名称")
     private String hospitalName;
+
+    /**
+     * 医院编号
+     */
+    @ApiModelProperty(value = "医院编号")
+    private Long hospitalId;
 
     /**
      * 医院图片

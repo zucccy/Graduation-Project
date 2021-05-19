@@ -9,13 +9,13 @@ import cn.edu.zucc.po.Office;
 import cn.edu.zucc.utils.PageUtils;
 import cn.edu.zucc.utils.ResponseBuilder;
 import cn.edu.zucc.vo.ChildOfficeVO;
+import cn.edu.zucc.vo.OfficeVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,8 +42,8 @@ public class OfficeController {
     private OfficeService officeService;
 
     @ApiOperation(value = "根据科室id查找科室信息")
-    @GetMapping("{id}")
-    public ResponseVO<Office> findOfficeById(@PathVariable Long id) {
+    @GetMapping("/id")
+    public ResponseVO<Office> findOfficeById(@RequestParam Long id) {
 
         if (null == id) {
             throw new FormException();
@@ -53,14 +53,13 @@ public class OfficeController {
 
     @ApiOperation(value = "获取所有科室名称")
     @GetMapping("/getOfficeNameAll")
-    public ResponseVO<List<String>> getOfficeNameAll() {
-        return ResponseBuilder.success(officeService.findOfficeListAll()
-                .stream().map(Office::getOfficeName).collect(Collectors.toList()));
+    public ResponseVO<List<OfficeVO>> getOfficeNameAll() {
+        return ResponseBuilder.success(officeService.findOfficeListAll());
     }
 
     @ApiOperation(value = "根据科室编号获取所有子科室名称")
-    @GetMapping("/getChildOfficeName/{id}")
-    public ResponseVO<List<String>> getChildOfficeName(@PathVariable Long id) {
+    @GetMapping("/getChildOfficeName/")
+    public ResponseVO<List<String>> getChildOfficeName(@RequestParam Long id) {
 
         if (null == id) {
             throw new FormException();
@@ -70,8 +69,8 @@ public class OfficeController {
     }
 
     @ApiOperation(value = "根据医院编号查找医院中所有科室信息")
-    @GetMapping("/getOfficeListByHosId/{hospitalId}")
-    public ResponsePageVO<Office> getOfficeListByHosId(@PathVariable Long hospitalId,
+    @GetMapping("/getOfficeListByHosId/")
+    public ResponsePageVO<Office> getOfficeListByHosId(@RequestParam Long hospitalId,
                                                        @RequestParam(defaultValue = "1") Integer pageNum,
                                                        @RequestParam(defaultValue = "10") Integer pageSize) {
         if (null == hospitalId) {
@@ -92,8 +91,8 @@ public class OfficeController {
     }
 
     @ApiOperation(value = "删除科室")
-    @DeleteMapping("/delete/{id}")
-    public ResponseVO<Boolean> deleteOffice(@PathVariable Long id) {
+    @DeleteMapping("/delete/")
+    public ResponseVO<Boolean> deleteOffice(@RequestParam Long id) {
         if (null == id) {
             throw new FormException();
         }
@@ -101,8 +100,8 @@ public class OfficeController {
     }
 
     @ApiOperation(value = "修改科室")
-    @PostMapping("/update/{id}")
-    public ResponseVO<Boolean> updateOffice(@PathVariable Long id, @RequestBody OfficeInfoDTO officeInfoDTO) {
+    @PostMapping("/update/")
+    public ResponseVO<Boolean> updateOffice(@RequestParam Long id, @RequestBody OfficeInfoDTO officeInfoDTO) {
         if (StringUtils.isEmpty(officeInfoDTO.getOfficeName())
                 || null == officeInfoDTO.getParentId()
                 || null == officeInfoDTO) {

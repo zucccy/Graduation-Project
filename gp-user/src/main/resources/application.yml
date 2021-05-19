@@ -70,7 +70,7 @@ jwt:
 # Json配置
 jackson:
   # 日期格式化
-  date-format: yyyy-MM-dd HH:mm:ss
+  date-format: yyyy-MM-dd
   #时区设置
   time-zone: GMT+8
 
