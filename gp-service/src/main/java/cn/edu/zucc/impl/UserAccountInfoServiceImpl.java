@@ -111,7 +111,7 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
         if (FormatUtils.isEmail(openCode)) {
             //若已存在
             if (countByEmail(openCode)) {
-                throw new ExistsException();
+                throw new ExistsException("用户已存在");
             }
             userAccountInfo.setEmail(openCode);
         }
@@ -119,11 +119,11 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
         else if (FormatUtils.isPhoneNumber(openCode)) {
             //若已存在
             if (countByPhone(openCode)) {
-                throw new ExistsException();
+                throw new ExistsException("用户已存在");
             }
             userAccountInfo.setPhone(openCode);
         } else {
-            throw new FormException();
+            throw new FormException("邮箱或者手机号不规范！");
         }
         //密码加密
         userAccountInfo.setPassword(CryptUtils.cryptAccountPassword(userRegisterDTO.getPassword()));

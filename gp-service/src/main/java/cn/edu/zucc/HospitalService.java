@@ -159,5 +159,5 @@ public interface HospitalService {
      * @param addressVO 位置信息VO
      * @return java.util.List<cn.edu.zucc.vo.HospitalLocalationVO>
      */
-    List<Hospital> findAdviceHospitalList(AddressVO addressVO);
+    List<HospitalInfoVO> findAdviceHospitalList(AddressVO addressVO);
 }

@@ -9,6 +9,7 @@ import cn.edu.zucc.VisitPlanService;
 import cn.edu.zucc.dto.AppointmentInfoDTO;
 import cn.edu.zucc.dto.VisitPatientInfoDTO;
 import cn.edu.zucc.enums.AppointmentEnum;
+import cn.edu.zucc.exception.SourceNotFoundException;
 import cn.edu.zucc.mapper.AppointmentInfoMapper;
 import cn.edu.zucc.mapper.PatientInfoMapper;
 import cn.edu.zucc.mapper.VisitPlanMapper;
@@ -119,6 +120,28 @@ public class AppointmentInfoServiceImpl implements AppointmentInfoService {
     }
 
     @Override
+    public boolean updateByDoctorId(Long id, Byte visitStatus) {
+
+        AppointmentInfo appointmentInfo = findAppointmentById(id);
+        appointmentInfo.setVisitStatus(visitStatus);
+        appointmentInfo.setUpdateTime(new Date());
+        appointmentInfoMapper.updateByPrimaryKeySelective(appointmentInfo);
+
+
+        //修改redis
+        String key = appointmentInfo.getUserId() + ":" + id;
+        String cacheValue = (String) redisTemplate.opsForValue().get(key);
+        MyAppointmentListVO myAppointmentListVO = JSON.parseObject(cacheValue, MyAppointmentListVO.class);
+        myAppointmentListVO.setVisitStatus(appointmentInfo.getVisitStatus());
+
+        //将对象转换为Json字符串
+        String myAppointmentVOListJson = JSONUtil.toJsonStr(myAppointmentListVO);
+        //key = 用户编号:预约编号
+        redisTemplate.opsForValue().set(key, myAppointmentVOListJson);
+        return true;
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean delete(Long id) {
         return appointmentInfoMapper.deleteByPrimaryKey(id) > 0;
@@ -147,6 +170,9 @@ public class AppointmentInfoServiceImpl implements AppointmentInfoService {
 
     @Override
     public AppointmentInfo findAppointmentById(Long id) {
+        if (!count(id)) {
+            throw new SourceNotFoundException("预约信息不存在");
+        }
         return appointmentInfoMapper.selectByPrimaryKey(id);
     }
 
@@ -283,11 +309,13 @@ public class AppointmentInfoServiceImpl implements AppointmentInfoService {
         Long hospitalId = doctorInfo.getHospitalId();
         Hospital hospital = hospitalService.findHospitalById(hospitalId);
         myAppointmentListVO.setHospitalName(hospital.getHospitalName());
+        myAppointmentListVO.setHospitalId(hospitalId);
 
         //查找科室名
         Long officeId = doctorInfo.getOfficeId();
         Office office = officeService.findOfficeById(officeId);
         myAppointmentListVO.setOfficeName(office.getOfficeName());
+        myAppointmentListVO.setOfficeId(officeId);
 
         //查找患者名称、患者手机号
         Long patientId = appointmentInfo.getPatientId();
@@ -321,12 +349,14 @@ public class AppointmentInfoServiceImpl implements AppointmentInfoService {
         Long hospitalId = doctorInfo.getHospitalId();
         Hospital hospital = hospitalService.findHospitalById(hospitalId);
         myAppointmentVO.setHospitalName(hospital.getHospitalName());
+        myAppointmentVO.setHospitalId(hospitalId);
         myAppointmentVO.setAddress(hospital.getAddress());
 
         //查找科室名
         Long officeId = doctorInfo.getOfficeId();
         Office office = officeService.findOfficeById(officeId);
         myAppointmentVO.setOfficeName(office.getOfficeName());
+        myAppointmentVO.setOfficeId(officeId);
 
         //查找患者名称、患者手机号、身份证号、性别
         Long patientId = appointmentInfo.getPatientId();

@@ -81,7 +81,11 @@ public class DoctorServiceImpl implements DoctorService {
             PageHelper.startPage(pageNum, pageSize);
         }
         List<DoctorVO> doctorVOList = doctorInfoMapper.findDoctorList(null, null, null, doctorName);
-        return doctorVOList;
+        if (CollectionUtil.isNotEmpty(doctorVOList)) {
+            return doctorVOList;
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     @Override
@@ -130,19 +134,35 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
-    public List<DoctorVO> findDoctorList(Long officeId, Long id, Integer pageNum, Integer pageSize) {
+    public List<DoctorVO> findDoctorList(Long officeId, Long id, Long hospitalId, Integer pageNum, Integer pageSize) {
         List<DoctorVO> doctorVOList;
-        if (null == officeId) {
-            throw new FormException();
-        }
-        if (!officeService.count(officeId)) {
-            throw new SourceNotFoundException("科室不存在");
+        if (!officeService.count(officeId) || !hospitalService.countOfficeRelation(hospitalId, officeId)) {
+            throw new SourceNotFoundException("科室不存在或者该医院不存在该科室");
         }
         if (null != pageNum && null != pageSize) {
             PageHelper.startPage(pageNum, pageSize);
         }
-        doctorVOList = doctorInfoMapper.findDoctorList(officeId, id, null, null);
-        return doctorVOList;
+        doctorVOList = doctorInfoMapper.findDoctorList(officeId, id, hospitalId, null);
+        if (CollectionUtil.isNotEmpty(doctorVOList)) {
+            return doctorVOList;
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public List<DoctorVO> findDoctorList(Long officeId, Integer pageNum, Integer pageSize) {
+
+        if (null != pageNum && null != pageSize) {
+            PageHelper.startPage(pageNum, pageSize);
+        }
+        List<DoctorVO> doctorVOList;
+        doctorVOList = doctorInfoMapper.findDoctorList(officeId, null, null, null);
+        if (CollectionUtil.isNotEmpty(doctorVOList)) {
+            return doctorVOList;
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     @Override
@@ -159,7 +179,11 @@ public class DoctorServiceImpl implements DoctorService {
             PageHelper.startPage(pageNum, pageSize);
         }
         doctorVOList = doctorInfoMapper.findDoctorList(null, null, hospitalId, null);
-        return doctorVOList;
+        if (CollectionUtil.isNotEmpty(doctorVOList)) {
+            return doctorVOList;
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     @Override

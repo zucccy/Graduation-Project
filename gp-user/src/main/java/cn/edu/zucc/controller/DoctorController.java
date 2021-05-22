@@ -1,10 +1,12 @@
 package cn.edu.zucc.controller;
 
+import cn.edu.zucc.AppointmentInfoService;
 import cn.edu.zucc.DoctorService;
 import cn.edu.zucc.VisitPlanService;
 import cn.edu.zucc.commonVO.ResponsePageVO;
 import cn.edu.zucc.commonVO.ResponseVO;
 import cn.edu.zucc.dto.DoctorInfoDTO;
+import cn.edu.zucc.dto.UpdateAppointmentStatusDTO;
 import cn.edu.zucc.exception.FormException;
 import cn.edu.zucc.po.VisitPlan;
 import cn.edu.zucc.utils.PageUtils;
@@ -45,6 +47,9 @@ public class DoctorController {
     @Resource
     private VisitPlanService visitPlanService;
 
+    @Resource
+    private AppointmentInfoService appointmentInfoService;
+
     @ApiOperation(value = "根据医生id查找医生信息")
     @GetMapping("/id")
     public ResponseVO<DoctorVO> findDoctorVOById(@RequestParam Long id) {
@@ -55,17 +60,30 @@ public class DoctorController {
         return ResponseBuilder.success(doctorService.findDoctorVOById(id));
     }
 
-    @ApiOperation(value = "按照科室编号查找医生列表(除了该医生以外)")
+    @ApiOperation(value = "查找同医院同科室医生列表(除了该医生以外)")
     @GetMapping("/getDoctorsByOfficeId/")
     public ResponsePageVO<DoctorVO> getDoctorsByOfficeId(@RequestParam Long officeId,
                                                          @RequestParam Long id,
+                                                         @RequestParam Long hospitalId,
                                                          @RequestParam(defaultValue = "1") Integer pageNum,
                                                          @RequestParam(defaultValue = "10") Integer pageSize) {
+
+        if (null == officeId || null == hospitalId || null == id) {
+            throw new FormException();
+        }
+        return ResponseBuilder.successPageable(PageUtils.restPage(doctorService.findDoctorList(officeId, id, hospitalId, pageNum, pageSize)));
+    }
+
+    @ApiOperation(value = "按照科室编号查找医生列表")
+    @GetMapping("/getDoctorListByOfficeId/")
+    public ResponsePageVO<DoctorVO> getDoctorListByOfficeId(@RequestParam Long officeId,
+                                                            @RequestParam(defaultValue = "1") Integer pageNum,
+                                                            @RequestParam(defaultValue = "10") Integer pageSize) {
 
         if (null == officeId) {
             throw new FormException();
         }
-        return ResponseBuilder.successPageable(PageUtils.restPage(doctorService.findDoctorList(officeId, id, pageNum, pageSize)));
+        return ResponseBuilder.successPageable(PageUtils.restPage(doctorService.findDoctorList(officeId, pageNum, pageSize)));
     }
 
     @ApiOperation(value = "按照医院编号查找医生列表")
@@ -149,4 +167,15 @@ public class DoctorController {
         }
         return ResponseBuilder.success(doctorService.update(id, doctorInfoDTO));
     }
+
+    @ApiOperation(value = "修改就诊人预约状态")
+    @PostMapping("/updateAppointmentStatus/")
+    public ResponseVO<Boolean> updateAppointmentStatus(@RequestBody UpdateAppointmentStatusDTO updateAppointmentStatusDTO) {
+        if (null == updateAppointmentStatusDTO || null == updateAppointmentStatusDTO.getId()) {
+            throw new FormException();
+        }
+        return ResponseBuilder.success(appointmentInfoService.updateByDoctorId(updateAppointmentStatusDTO.getId(),
+                updateAppointmentStatusDTO.getVisitStatus()));
+    }
+
 }

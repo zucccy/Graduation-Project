@@ -28,6 +28,12 @@ public class MyAppointmentVO {
     private String hospitalName;
 
     /**
+     * 医院编号
+     */
+    @ApiModelProperty(value = "医院编号")
+    private Long hospitalId;
+
+    /**
      * 医院地址
      */
     @ApiModelProperty(value = "医院地址")
@@ -68,6 +74,12 @@ public class MyAppointmentVO {
      */
     @ApiModelProperty(value = "科室名称")
     private String officeName;
+
+    /**
+     * 科室编号
+     */
+    @ApiModelProperty(value = "科室编号")
+    private Long officeId;
 
     /**
      * 出诊具体时间

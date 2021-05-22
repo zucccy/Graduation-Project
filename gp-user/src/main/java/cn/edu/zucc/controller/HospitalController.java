@@ -165,7 +165,7 @@ public class HospitalController {
 
     @ApiOperation(value = "获取推荐医院集合")
     @PostMapping("/getAdviceHospitalList")
-    public ResponseVO<List<Hospital>> getAdviceHospitalList(@RequestBody AddressVO addressVO) {
+    public ResponseVO<List<HospitalInfoVO>> getAdviceHospitalList(@RequestBody AddressVO addressVO) {
         if (null == addressVO
                 || null == addressVO.getDistance()
                 || null == addressVO.getLongitudes()

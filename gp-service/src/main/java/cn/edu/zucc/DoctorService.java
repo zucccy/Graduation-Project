@@ -75,6 +75,18 @@ public interface DoctorService {
     boolean count(Long id);
 
     /**
+     * 查找同医院同科室医生列表(除了该医生以外)
+     *
+     * @param officeId   科室编号
+     * @param id         医生编号
+     * @param hospitalId 医院编号
+     * @param pageNum    第几页
+     * @param pageSize   页大小
+     * @return java.util.List<cn.edu.zucc.vo.DoctorVO>
+     */
+    List<DoctorVO> findDoctorList(Long officeId, Long id, Long hospitalId, Integer pageNum, Integer pageSize);
+
+    /**
      * 根据科室编号查找医生信息
      *
      * @param officeId 科室编号
@@ -82,7 +94,7 @@ public interface DoctorService {
      * @param pageSize 页大小
      * @return java.util.List<cn.edu.zucc.vo.DoctorVO>
      */
-    List<DoctorVO> findDoctorList(Long officeId, Long id, Integer pageNum, Integer pageSize);
+    List<DoctorVO> findDoctorList(Long officeId, Integer pageNum, Integer pageSize);
 
     /**
      * 根据医院编号查找医生综合信息

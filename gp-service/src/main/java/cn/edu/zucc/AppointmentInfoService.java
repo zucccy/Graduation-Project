@@ -37,6 +37,15 @@ public interface AppointmentInfoService {
     boolean update(Long userId, Long id, Byte visitStatus);
 
     /**
+     * 医生更新就诊人预约信息
+     *
+     * @param id          预约信息编号
+     * @param visitStatus 预约信息更新参数
+     * @return boolean
+     */
+    boolean updateByDoctorId(Long id, Byte visitStatus);
+
+    /**
      * 删除预约信息
      *
      * @param id 预约信息编号

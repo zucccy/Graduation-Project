@@ -321,7 +321,7 @@ public class HospitalServiceImpl implements HospitalService {
     }
 
     @Override
-    public List<Hospital> findAdviceHospitalList(AddressVO addressVO) {
+    public List<HospitalInfoVO> findAdviceHospitalList(AddressVO addressVO) {
         Double distance = addressVO.getDistance();
         List<Long> hospitalIdList = new ArrayList<>();
         //Point(经度, 纬度) Distance(距离量, 距离单位)
@@ -335,8 +335,12 @@ public class HospitalServiceImpl implements HospitalService {
                 hospitalIdList.add(Long.valueOf((String) content.getName()));
             });
         }
+        List<HospitalInfoVO> hospitalInfoVOList = new ArrayList<>();
         System.out.println(hospitalIdList);
-        List<Hospital> hospitalList = findHospitalList(hospitalIdList);
-        return CollectionUtil.isNotEmpty(hospitalList) ? hospitalList : new ArrayList<>();
+        hospitalIdList.forEach(item -> {
+            HospitalInfoVO hospitalInfoVO = findHospitalVOById(item);
+            hospitalInfoVOList.add(hospitalInfoVO);
+        });
+        return CollectionUtil.isNotEmpty(hospitalInfoVOList) ? hospitalInfoVOList : new ArrayList<>();
     }
 }
