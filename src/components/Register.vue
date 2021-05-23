@@ -70,9 +70,13 @@ export default {
       if (this.userName.length == 0 || this.password.length == 0 || this.openCode.length == 0) {
         this.$alert("用户名为空或者手机号码/邮箱为空或者密码为空");
       } else {
-          this.$axios.post("/user/register", param).then((res) => {
+          this.$axios.post("http://localhost:8088/user/register", param).then((res) => {
           if (200 == res.data.code) {
             console.log(res);
+            this.$message({
+              message: '注册成功!',
+              type: 'success'
+      });
             this.$router.push("/Login");
           }
           else if (404 == res.data.code) {

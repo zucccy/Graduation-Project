@@ -1,56 +1,58 @@
 <template>
   <div>
-      <section class="topBar">
-        <div class="wrap">
-          <div class="topLogo">
-            <img src="../assets/hospital.png" alt="" />
-            <a @click="toIndex()">智慧医疗系统</a>
+    <section class="topBar">
+      <div class="wrap">
+        <div class="topLogo">
+          <img src="../assets/hospital.png" alt="" />
+          <a @click="toIndex()">智慧医疗系统</a>
+        </div>
+        <div class="top">
+          <div class="topLogin" :style="token === null ? '' : 'display:none'">
+            <a href="" @click="login()">登录</a>
+            <span>/</span>
+            <a href="" @click="register()">注册</a>
           </div>
-          <div class="top">
-            <div class="topLogin" :style="token === null ? '' : 'display:none'">
-              <a href="" @click="login()">登录</a>
-              <span>/</span>
-              <a href="" @click="register()">注册</a>
-            </div>
-            <div class="topUser" :style="token !== null ? '' : 'display:none'">
-              <img src="../assets/user.png">
-              <el-dropdown size="medium">
-                <span class="el-dropdown-link"
-                  >{{userName}}<i class="el-icon-arrow-down el-icon--right"></i
-                ></span>
-                <el-dropdown-menu class="for-user" slot="dropdown">
-                <el-dropdown-item :style="roleType === 1 ? '' : 'display:none'"
+          <div class="topUser" :style="token !== null ? '' : 'display:none'">
+            <img src="../assets/user.png" />
+            <el-dropdown size="medium">
+              <span class="el-dropdown-link"
+                >{{ userName }}<i class="el-icon-arrow-down el-icon--right"></i
+              ></span>
+              <el-dropdown-menu class="for-user" slot="dropdown">
+                <el-dropdown-item
+                  :style="roleType === 1 ? '' : 'display:none'"
                   index="/Appointment"
                   @click.native="setMenuClicked()"
                   >我的预约</el-dropdown-item
                 >
                 <el-dropdown-item
-                  index="/Appointment" :style="roleType === 2 ? '' : 'display:none'"
+                  index="/Appointment"
+                  :style="roleType === 2 ? '' : 'display:none'"
                   @click.native="ToDoctorWork()"
                   >预约就诊人管理</el-dropdown-item
                 >
-                  <el-dropdown-item @click.native="exit()"
-                    >退出</el-dropdown-item
-                  >
-                </el-dropdown-menu>
-              </el-dropdown>
-            </div>
-          </div>
-          <div class="topSearch">
-            <el-input
-              placeholder="请输入医院名/医生名/科室"
-              v-model="content"
-              class="input-with-select"
-            >
-              <el-button slot="append" icon="el-icon-search">搜索</el-button>
-            </el-input>
-          </div>
-          <div class="topLink">
-            <a href="" @click="doctorFind()">找医生</a>
-            <a href="" @click="hospitalFind()">找医院</a>
+                <el-dropdown-item @click.native="exit()">退出</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
           </div>
         </div>
-      </section>
+        <div class="topSearch">
+          <el-input
+            placeholder="请输入医院名/医生名/科室"
+            v-model="content"
+            class="input-with-select"
+          >
+            <el-button slot="append" icon="el-icon-search" @click="search()"
+              >搜索</el-button
+            >
+          </el-input>
+        </div>
+        <div class="topLink">
+          <a href="" @click="doctorFind()">找医生</a>
+          <a href="" @click="hospitalFind()">找医院</a>
+        </div>
+      </div>
+    </section>
     <div class="wrapsmall">
       <section class="block myNav">
         <div class="user">
@@ -87,7 +89,9 @@
                 <el-button
                   type="primary"
                   :style="
-                    item.visitStatus === 3 ? 'display:none' : 'display:block'
+                    item.visitStatus != 1 || item.flag == 1
+                      ? 'display:none'
+                      : 'display:block'
                   "
                   plain=""
                   @click="setState(index, item.id)"
@@ -126,12 +130,24 @@ export default {
         doctor: "doctor",
         hospital: "hospital",
       },
-      userName:"",
-      roleType:"",
+      userName: "",
+      roleType: "",
       userInfo: "",
     };
   },
   methods: {
+    search() {
+      this.$router.push({
+        name: "doctorInfo",
+        query: {
+          flag: 1,
+          hospitalName: this.content,
+          doctorName: this.content,
+          officeName: this.content,
+          status: "doctor",
+        },
+      });
+    },
     ToDoctorWork() {
       this.$router.push("/DoctorWork");
     },
@@ -151,7 +167,7 @@ export default {
       localStorage.removeItem("token");
       localStorage.removeItem("userInfo");
       this.reload();
-      this.$router.push('/');
+      this.$router.push("/");
     },
     selectMenu(key, keyPath) {
       this.menuItem = key;
@@ -161,9 +177,9 @@ export default {
         var param = {
           id: id,
           visitStatus: 3,
-        }
+        };
         this.$axios
-          .post("/doctor/updateAppointmentStatus/", param)
+          .post("http://localhost:8088/doctor/updateAppointmentStatus/", param)
           .then((res) => {
             if (200 == res.status) {
               console.log(res);
@@ -178,8 +194,8 @@ export default {
     },
     login() {
       //保存当前路由
-      localStorage.setItem("preRoute", this.$route.fullPath)
-      this.$router.push('/Login')
+      localStorage.setItem("preRoute", this.$route.fullPath);
+      this.$router.push("/Login");
     },
     register() {
       this.$router.push("Register");
@@ -200,7 +216,7 @@ export default {
     },
     getAppointmentList() {
       this.$axios
-        .get("/doctor/getAppointmentList/", {
+        .get("http://localhost:8088/doctor/getAppointmentList/", {
           params: {
             doctorId: 1,
           },
@@ -219,8 +235,8 @@ export default {
       this.getAppointmentList();
       this.userInfo = JSON.parse(localStorage.getItem("userInfo"));
       if (this.userInfo != null) {
-          this.userName = JSON.parse(localStorage.getItem("userInfo")).userName;
-          this.roleType = JSON.parse(localStorage.getItem("userInfo")).roleType;
+        this.userName = JSON.parse(localStorage.getItem("userInfo")).userName;
+        this.roleType = JSON.parse(localStorage.getItem("userInfo")).roleType;
       }
     });
   },

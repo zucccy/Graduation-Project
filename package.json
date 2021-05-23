@@ -17,6 +17,7 @@
     "vue": "^2.5.2",
     "vue-amap": "^0.5.10",
     "vue-baidu-map": "^0.21.22",
+    "vue-chat-scroll": "^1.4.0",
     "vue-router": "^3.0.1"
   },
   "devDependencies": {

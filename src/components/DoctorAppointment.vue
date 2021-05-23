@@ -42,7 +42,7 @@
               v-model="content"
               class="input-with-select"
             >
-              <el-button slot="append" icon="el-icon-search">搜索</el-button>
+              <el-button slot="append" icon="el-icon-search" @click="search()">搜索</el-button>
             </el-input>
           </div>
           <div class="topLink">
@@ -163,13 +163,12 @@
         <div class="block">
           <div class="title2">
             同科室其他医生
-            <a href="">更多</a>
           </div>
           <div class="sidedoctorlist" v-for="(item,index) in otherOfficeDoctor" :key="index">
             <div>
               <strong class="gua">
                 <a href=""><img :src="item.src" alt=""></a>
-                <span><a href="">{{item.doctorName}}</a></span>
+                <span><a href="" @click="toOther(item.id, item.officeId, item.hospitalId)">{{item.doctorName}}</a></span>
                 <span>{{item.position}}</span>
                 <span>{{item.officeName}}</span>
                 <span><p>{{item.description}}</p></span>
@@ -185,10 +184,7 @@
           </div>
           <div class="content">
             <p>
-              出诊时间：孙院长每周一、周三、周六(上午)在位于杭州市拱墅区花园岗街113号金通国际大厦二楼的杭州艾克中医肿瘤门诊部坐诊，周二(全天)、周四(全天)在位于杭州市拱墅区石祥路242号瓜东文教产业园A座种福堂中医医院坐诊。
-            </p>
-            <p>
-              擅长中医治疗肿瘤、肝硬化等疑难病。30年来，已接诊40万余人次肿瘤、肝硬化病人，自成一派。独创“解郁、通络、软坚、排毒”的孙氏疗法，使许多濒临死亡患者获救。
+              鼻科各类疾病的诊治，特别是鼻息肉、鼻窦炎、鼻腔鼻窦良性肿瘤切除，小儿先天性鼻腔疾病，小儿鼾症等，开展的手术有：鼻内镜下视神经减压术、鼻内镜下鼻前颅底手术、鼻内镜下脑脊液鼻漏修补术、鼻内镜下脑膜脑膨出切除及颅底修补手术、鼻内镜下鼻咽闭锁成形术，鼻内镜下球后肿瘤切除术，鼻内镜下垂体肿瘤切除等鼻眼、鼻颅底相关手术。
             </p>
           </div>
         </section>
@@ -236,20 +232,7 @@ export default {
       menuItem: "1",
       visitPlan: "",
       tableData: [],
-      patientList: [
-        {
-          number: "1",
-          name: "陈云",
-          ID: "3307xxxxxxxxx11",
-          tel: "15988879470",
-        },
-        {
-          number: "2",
-          name: "陈云",
-          ID: "3307xxxxxxxxx09",
-          tel: "13266523209",
-        },
-      ],
+      patientList: [],
       activeName: "index",
       status: {
         doctor: "doctor",
@@ -258,6 +241,28 @@ export default {
     };
   },
   methods: {
+    search() {
+      this.$router.push({
+        name:"doctorInfo",
+        query:{
+          flag: 1,
+          hospitalName: this.content,
+          doctorName: this.content,
+          officeName: this.content,
+          status: "doctor",
+        }
+      })
+    },
+    toOther(val1, val2, val3) {
+      this.$router.push({
+        name: "doctorAppointment",
+        query: { 
+          id: val1,
+          officeId: val2,
+          hospitalId: val3,
+         },
+      });
+    },
     login() {
       //保存当前路由
       localStorage.setItem("preRoute", this.$route.fullPath)
@@ -325,7 +330,6 @@ export default {
       if (this.userInfo == null) {
         this.$message({
         message: '请先登录!',
-        type: 'success'
       });
       //保存当前路由
       localStorage.setItem("preRoute", this.$route.fullPath)
@@ -337,7 +341,7 @@ export default {
     getDoctor() {
       // var param = { address: "杭州", hospitalName: null, pageNum: 1, pageSize: 10};
       this.$axios
-        .get("/doctor/id", {
+        .get("http://localhost:8088/doctor/id", {
           params: {
             id: this.$route.query.id,
           },
@@ -353,7 +357,7 @@ export default {
     getOtherDoctor() {
       // var param = { address: "杭州", hospitalName: null, pageNum: 1, pageSize: 10};
       this.$axios
-        .get("/doctor/getDoctorsByOfficeId/", {
+        .get("http://localhost:8088/doctor/getDoctorsByOfficeId/", {
           params: {
             officeId: this.$route.query.officeId,
             id: this.$route.query.id,
@@ -371,7 +375,7 @@ export default {
     getVisitPlan() {
       // var param = { address: "杭州", hospitalName: null, pageNum: 1, pageSize: 10};
       this.$axios
-        .get("/doctor/getDoctorPlan/", {
+        .get("http://localhost:8088/doctor/getDoctorPlan/", {
           params: {
             doctorId: this.$route.query.id,
           },

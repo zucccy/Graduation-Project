@@ -84,7 +84,7 @@ export default {
       if (this.openCode.length == 0 || this.password.length == 0) {
         this.$alert("手机号/邮箱为空或者密码为空");
       } else {
-        this.$axios.post("/user/login", param).then((res) => {
+        this.$axios.post("http://localhost:8088/user/login", param).then((res) => {
           if (200 == res.data.code) {
             // 如果直接进入登录页，无上一页面 默认跳转首页 存在上一页面，则返回上一页面
             var lastPath = '/';

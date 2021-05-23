@@ -14,6 +14,7 @@ import AddPatient from "../components/AddPatient.vue"
 import DeletePatient from "../components/DeletePatient.vue"
 import UpdatePatient from "../components/UpdatePatient.vue"
 import AppointmentInfo from "../components/AppointmentInfo.vue"
+import RobotChat from "../components/RobotChat.vue"
 
 Vue.use(Router)
 
@@ -36,6 +37,11 @@ export default new Router({
       path:"/Appointment",
       name:"Appointment",
       component:Appointment,
+    },
+    {
+      path:"/RobotChat",
+      name:"RobotChat",
+      component:RobotChat,
     },
     {
       path:"/AppointmentInfo",

@@ -42,7 +42,7 @@
               v-model="content"
               class="input-with-select"
             >
-              <el-button slot="append" icon="el-icon-search">搜索</el-button>
+              <el-button slot="append" icon="el-icon-search" @click="search()">搜索</el-button>
             </el-input>
           </div>
           <div class="topLink">
@@ -90,11 +90,11 @@
             <div class="pybutton" @click="selectPatient(index)">
               <span>
                 <strong>{{ item.patientName }}</strong>
-                <em class="edit" @click="UpdatePatientVisible = true">修改</em>
+                <em class="edit" @click="updatePatient(item)">修改</em>
               </span>
               <p>{{ item.idCard }}</p>
               <p>{{ item.phone }}</p>
-              <em class="delete" @click="DeletePatientVisible = true">删除</em>
+              <em class="delete" @click="deletePatient(item)">删除</em>
             </div>
           </el-radio-button>
         </el-radio-group>
@@ -107,16 +107,26 @@
       :title="'新增就诊人'"
       :visible="addPatientVisible"
       @close="addPatientVisible = false"
+      @rereload="updateList()"
     ></AddPatient>
     <UpdatePatient
       :title="'修改就诊人'"
       :visible="UpdatePatientVisible"
       @close="UpdatePatientVisible = false"
+      @rereload="updateList()"
+      :id="this.patientId"
+      :idCard="this.idCard"
+      :patientName="this.patientName"
+      :phone="this.phone"
+      v-if="update"
     ></UpdatePatient>
     <DeletePatient
       :title="'删除就诊人'"
       :visible="DeletePatientVisible"
       @close="DeletePatientVisible = false"
+      @rereload="updateList()"
+      :patientName="this.patientName"
+      :id="this.patientId"
     ></DeletePatient>
   </div>
 </template>
@@ -135,6 +145,11 @@ export default {
   },
   data() {
     return {
+      update: true,
+      phone: "",
+      idCard: "",
+      patientId: "",
+      patientName: "",
       token: localStorage.getItem("token"),
       radio1: "上海",
       visitType: { boolean: { 0: "普通门诊", 1: "专家门诊" } },
@@ -159,6 +174,18 @@ export default {
     };
   },
   methods: {
+    search() {
+      this.$router.push({
+        name:"doctorInfo",
+        query:{
+          flag: 1,
+          hospitalName: this.content,
+          doctorName: this.content,
+          officeName: this.content,
+          status: "doctor",
+        }
+      })
+    },
     exit() {
       localStorage.removeItem("token");
       localStorage.removeItem("userInfo");
@@ -168,6 +195,32 @@ export default {
     setMenuClicked() {
       this.$router.push("/Appointment");
     },
+    updatePatient(val) {
+      console.log(val);
+      this.UpdatePatientVisible = true;
+      this.patientName = val.patientName;
+      this.patientId = val.id;
+      this.idCard = val.idCard;
+      this.phone = val.phone;
+      this.update = false;
+      // 在组件移除后，重新渲染组件
+      // this.$nextTick可实现在DOM 状态更新后，执行传入的方法。
+      this.$nextTick(() => {
+        this.update = true;
+      });
+    },
+    deletePatient(val) {
+      console.log(val);
+      this.DeletePatientVisible = true;
+      this.patientId = val.id;
+      this.patientName = val.patientName;
+    },
+    rereload() {
+      this.reload();
+    },
+    updateList() {
+      this.getPatient();
+    },
     createAppointment() {
       var param = {
         doctorId: this.$route.query.doctorId,
@@ -175,7 +228,7 @@ export default {
         visitId: this.$route.query.id,
         visitStatus: 1,
       };
-      this.$axios.post("/appointment/createAppointment", param).then((res) => {
+      this.$axios.post("http://localhost:8088/appointment/createAppointment", param).then((res) => {
         if (200 == res.status) {
           console.log(res);
           this.$message({
@@ -218,7 +271,7 @@ export default {
     getHospital() {
       // var param = { address: "杭州", hospitalName: null, pageNum: 1, pageSize: 10};
       this.$axios
-        .get("/hospital/id", {
+        .get("http://localhost:8088/hospital/id", {
           params: {
             id: this.$route.query.hospitalId,
           },
@@ -234,7 +287,7 @@ export default {
     getVisitPlan() {
       // var param = { address: "杭州", hospitalName: null, pageNum: 1, pageSize: 10};
       this.$axios
-        .get("/doctor/getVisitPlan/", {
+        .get("http://localhost:8088/doctor/getVisitPlan/", {
           params: {
             visitPlanId: this.$route.query.id,
           },
@@ -250,7 +303,7 @@ export default {
     getDoctor() {
       // var param = { address: "杭州", hospitalName: null, pageNum: 1, pageSize: 10};
       this.$axios
-        .get("/doctor/id", {
+        .get("http://localhost:8088/doctor/id", {
           params: {
             id: this.$route.query.doctorId,
           },
@@ -272,7 +325,7 @@ export default {
     getPatient() {
       // var param = { address: "杭州", hospitalName: null, pageNum: 1, pageSize: 10};
       this.$axios
-        .get("/user/getMyPatients", {
+        .get("http://localhost:8088/user/getMyPatients", {
           params: {},
         })
         .then((res) => {
@@ -296,6 +349,11 @@ export default {
           this.roleType = JSON.parse(localStorage.getItem("userInfo")).roleType;
       }
     });
+  },
+  watch: {
+    patientList: function () {
+      console.log("changed");
+    },
   },
 };
 </script>

@@ -43,7 +43,7 @@
               v-model="content"
               class="input-with-select"
             >
-              <el-button slot="append" icon="el-icon-search">搜索</el-button>
+              <el-button slot="append" icon="el-icon-search" @click="search()">搜索</el-button>
             </el-input>
           </div>
           <div class="topLink">
@@ -52,7 +52,7 @@
           </div>
         </div>
       </section>
-      <section class="block">
+      <!-- <section class="block">
         <div class="filter nav">
           <div class="tab bydep">
             <div class="tabnav">
@@ -68,7 +68,7 @@
             </div>
           </div>
         </div>
-      </section>
+      </section> -->
       <section class="block">
         <div class="title">
           <div class="tabnav onlytab">
@@ -118,6 +118,7 @@
               ></strong
             >
             <p>{{ item.position }}</p>
+            <p>{{ item.hospitalName }}</p>
             <p>{{ item.officeName }}</p>
             <p>{{ item.description }}</p>
             <div class="comment">
@@ -185,6 +186,18 @@ export default {
     };
   },
   methods: {
+    search() {
+      this.$router.push({
+        name:"doctorInfo",
+        query:{
+          flag: 1,
+          hospitalName: this.content,
+          doctorName: this.content,
+          officeName: this.content,
+          status: "doctor",
+        }
+      })
+    },
     ToDoctorWork() {
       this.$router.push("/DoctorWork");
     },
@@ -207,7 +220,7 @@ export default {
       });
     },
     toHospitalInfo(val) {
-      this.$router.push({ path: "HospitalInfo", query: { id: val } });
+      this.$router.push({ path: "HospitalInfo", query: { hospitalId: val } });
     },
     toIndex() {
       this.$router.push("/");
@@ -235,12 +248,15 @@ export default {
       });
     },
     getHospitalList() {
-      // var param = { address: "杭州", hospitalName: null, pageNum: 1, pageSize: 10};
-      this.$axios
-        .get("/hospital/list", {
+      var flag = 0
+      if (this.$route.query.flag != null) {
+        flag = this.$route.query.flag
+      }
+      //不是搜索
+      if (flag == 0) {
+        this.$axios
+        .get("http://localhost:8088/hospital/getAllHospitals/", {
           params: {
-            address: "杭州",
-            hospitalName: null,
           },
         })
         .then((res) => {
@@ -250,14 +266,34 @@ export default {
             console.log(this.hospitalList);
           }
         });
+      }else {
+        this.$axios
+        .get("http://localhost:8088/hospital/list", {
+          params: {
+            hospitalName: this.$route.query.hospitalName,
+          },
+        })
+        .then((res) => {
+          if (200 == res.status) {
+            console.log(res);
+            this.hospitalList = res.data.data;
+            console.log(this.hospitalList);
+          }
+        });
+      }
     },
     getDoctorList() {
-      // var param = { address: "杭州", hospitalName: null, pageNum: 1, pageSize: 10};
-      if (this.$route.query.id == null) {
-        this.$axios
-          .get("/doctor/getDoctorsByHosId/", {
+      var flag = 0
+      if (this.$route.query.flag != null) {
+        flag = this.$route.query.flag
+      }
+      //若科室id为空
+      if (this.$route.query.officeId == null) {
+        //不是搜索
+        if (flag == 0) {
+          this.$axios
+          .get("http://localhost:8088/doctor/getAllDoctors/", {
             params: {
-              hospitalId: 1001,
             },
           })
           .then((res) => {
@@ -267,11 +303,26 @@ export default {
               console.log(this.doctorList);
             }
           });
+        } else {
+          this.$axios
+          .get("http://localhost:8088/doctor/getDoctorList", {
+            params: {
+              doctorName: this.$route.query.doctorName,
+            },
+          })
+          .then((res) => {
+            if (200 == res.status) {
+              console.log(res);
+              this.doctorList = res.data.data;
+              console.log(this.doctorList);
+            }
+          });
+        }
       } else {
         this.$axios
-          .get("/doctor/getDoctorListByOfficeId/", {
+          .get("http://localhost:8088/doctor/getDoctorListByOfficeId/", {
             params: {
-              officeId: this.$route.query.id
+              officeId: this.$route.query.officeId
             },
           })
           .then((res) => {
@@ -286,7 +337,7 @@ export default {
     getAllOfficeList() {
       // var param = {id:1};
       this.$axios
-        .get("/office/getOfficeNameAll", {
+        .get("http://localhost:8088/office/getOfficeNameAll", {
           params: {},
         })
         .then((res) => {
@@ -309,6 +360,8 @@ export default {
           this.userName = JSON.parse(localStorage.getItem("userInfo")).userName;
           this.roleType = JSON.parse(localStorage.getItem("userInfo")).roleType;
       }
+      console.log(this.$route.query.flag)
+      console.log(this.$route.query.hospitalName)
     });
   },
 };
@@ -560,7 +613,7 @@ cite {
 }
 
 .hospital .single {
-  height: 100px;
+  height: 120px;
   padding: 20px 0;
   border-bottom: #f0f0f0 1px dashed;
   overflow: hidden;
@@ -569,8 +622,8 @@ cite {
 
 .hospital .single img {
   float: left;
-  width: 138px;
-  height: 100px;
+  width: 150px;
+  height: 110px;
   margin-right: 20px;
   border-radius: 5px;
 }

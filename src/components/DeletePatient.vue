@@ -12,11 +12,11 @@
 
           <el-form-item >
             <div class="confirm">
-              是否确认删除就诊人 <p>{{name}}</p>？
+              是否确认删除就诊人 <p>{{this.patientName}}</p>？
             </div>
           </el-form-item>
           <el-form-item class="confirm-button" size="large">
-            <el-button type="primary" @click="checked" :loading="loading">确定</el-button>
+            <el-button type="success" @click="checked" :loading="loading">确定</el-button>
             <el-button type="info" @click="cancel" :loading="loading">取消</el-button>
           </el-form-item>
         </el-form>
@@ -28,24 +28,45 @@
 <script>
 
   export default {
-    props: ['visible', 'title'],
+    props: ['visible', 'title', 'id','patientName'],
     components: {
     },
     data () {
       return {
         loading: false,
-        name:"师姐冰",
-
       }
     },
     methods: {
       checked() {
-
+        console.log(this.id);
+        this.$axios
+        .delete("http://localhost:8088/patient/deleteMyPatient/patientId/", {
+          params: 
+          {
+            patientId: this.id,
+          },
+        })
+        .then((res) => {
+          if (200 == res.status) {
+            console.log(res);
+            this.$message.success("删除成功！");
+            this.$forceUpdate();
+            this.$emit('close');
+            this.$emit('rereload');
+          }else {
+            this.$alert(res.data.msg);
+          }
+        });
       },
       cancel() {
-
+            this.$forceUpdate();
+            this.$emit('close');
       },
     },
+    mounted() {
+      console.log(this.patientName);
+  },
+    
   }
 </script>
 <style lang="scss">
@@ -73,7 +94,7 @@
     .el-dialog {
       width: 558px;
     }
-    .el-button--primary {
+    .el-button--success {
       width: 90px;
       height: 36px;
       box-shadow: 2px 2px 9px 0px rgba(24, 190, 155, 0.5);

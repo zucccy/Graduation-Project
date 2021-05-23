@@ -42,7 +42,7 @@
               v-model="content"
               class="input-with-select"
             >
-              <el-button slot="append" icon="el-icon-search">搜索</el-button>
+              <el-button slot="append" icon="el-icon-search" @click="search()">搜索</el-button>
             </el-input>
           </div>
           <div class="topLink">
@@ -162,8 +162,10 @@
         <div class="single" v-for="(item,index) in hospitalInfo.doctorVOList" :key="index">
           <img :src="item.src" alt="" />
           <strong>{{ item.doctorName }}</strong>
-          <p>{{ item.description }}</p>
           <p>{{ item.position }}</p>
+          <p>{{ item.hospitalName }}</p>
+          <p>{{ item.officeName }}</p>
+          <p>{{ item.description }}</p>
           <div class="comment">
             <el-button type="primary" @click="toDoctorInfo(item.id,item.officeId,item.hospitalId)"
               >预约挂号</el-button
@@ -221,6 +223,18 @@ export default {
     };
   },
   methods: {
+    search() {
+      this.$router.push({
+        name:"doctorInfo",
+        query:{
+          flag: 1,
+          hospitalName: this.content,
+          doctorName: this.content,
+          officeName: this.content,
+          status: "doctor",
+        }
+      })
+    },
     toBaiDuMap(){
         this.activeName = "address"
     },
@@ -273,9 +287,9 @@ export default {
     getHospital() {
       // var param = { address: "杭州", hospitalName: null, pageNum: 1, pageSize: 10};
       this.$axios
-        .get("/hospital/id", {
+        .get("http://localhost:8088/hospital/id", {
           params: {
-            id: this.$route.query.id,
+            id: this.$route.query.hospitalId,
           },
         })
         .then((res) => {
@@ -293,7 +307,7 @@ export default {
   mounted() {
     this.$nextTick(() => {
       this.getHospital();
-      console.log(this.$route.query.id);
+      console.log(this.$route.query.hospitalId);
       this.userInfo = JSON.parse(localStorage.getItem("userInfo"));
       if (this.userInfo != null) {
           this.userName = JSON.parse(localStorage.getItem("userInfo")).userName;
@@ -605,7 +619,7 @@ cite {
 }
 
 .hospital .single {
-  height: 100px;
+  height: 120px;
   padding: 20px 0;
   border-bottom: #f0f0f0 1px dashed;
   overflow: hidden;
@@ -614,8 +628,8 @@ cite {
 
 .hospital .single img {
   float: left;
-  width: 138px;
-  height: 100px;
+  width: 150px;
+  height: 120px;
   margin-right: 20px;
   border-radius: 5px;
 }

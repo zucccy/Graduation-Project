@@ -1,56 +1,56 @@
 <template>
   <div>
-      <section class="topBar">
-        <div class="wrap">
-          <div class="topLogo">
-            <img src="../assets/hospital.png" alt="" />
-            <a @click="toIndex()">智慧医疗系统</a>
+    <section class="topBar">
+      <div class="wrap">
+        <div class="topLogo">
+          <img src="../assets/hospital.png" alt="" />
+          <a @click="toIndex()">智慧医疗系统</a>
+        </div>
+        <div class="top">
+          <div class="topLogin" :style="token === null ? '' : 'display:none'">
+            <a href="" @click="login()">登录</a>
+            <span>/</span>
+            <a href="" @click="register()">注册</a>
           </div>
-          <div class="top">
-            <div class="topLogin" :style="token === null ? '' : 'display:none'">
-              <a href="" @click="login()">登录</a>
-              <span>/</span>
-              <a href="" @click="register()">注册</a>
-            </div>
-            <div class="topUser" :style="token !== null ? '' : 'display:none'">
-              <img src="../assets/user.png">
-              <el-dropdown size="medium">
-                <span class="el-dropdown-link"
-                  >{{userName}}<i class="el-icon-arrow-down el-icon--right"></i
-                ></span>
-                <el-dropdown-menu class="for-user" slot="dropdown">
-                <el-dropdown-item :style="roleType === 1 ? '' : 'display:none'"
+          <div class="topUser" :style="token !== null ? '' : 'display:none'">
+            <img src="../assets/user.png" />
+            <el-dropdown size="medium">
+              <span class="el-dropdown-link"
+                >{{ userName }}<i class="el-icon-arrow-down el-icon--right"></i
+              ></span>
+              <el-dropdown-menu class="for-user" slot="dropdown">
+                <el-dropdown-item
+                  :style="roleType === 1 ? '' : 'display:none'"
                   index="/Appointment"
                   @click.native="setMenuClicked()"
                   >我的预约</el-dropdown-item
                 >
                 <el-dropdown-item
-                  index="/Appointment" :style="roleType === 2 ? '' : 'display:none'"
+                  index="/Appointment"
+                  :style="roleType === 2 ? '' : 'display:none'"
                   @click.native="ToDoctorWork()"
                   >预约就诊人管理</el-dropdown-item
                 >
-                  <el-dropdown-item @click.native="exit()"
-                    >退出</el-dropdown-item
-                  >
-                </el-dropdown-menu>
-              </el-dropdown>
-            </div>
-          </div>
-          <div class="topSearch">
-            <el-input
-              placeholder="请输入医院名/医生名/科室"
-              v-model="content"
-              class="input-with-select"
-            >
-              <el-button slot="append" icon="el-icon-search">搜索</el-button>
-            </el-input>
-          </div>
-          <div class="topLink">
-            <a href="" @click="doctorFind()">找医生</a>
-            <a href="" @click="hospitalFind()">找医院</a>
+                <el-dropdown-item @click.native="exit()">退出</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
           </div>
         </div>
-      </section>
+        <div class="topSearch">
+          <el-input
+            placeholder="请输入医院名/医生名/科室"
+            v-model="content"
+            class="input-with-select"
+          >
+            <el-button slot="append" icon="el-icon-search" @click="search()">搜索</el-button>
+          </el-input>
+        </div>
+        <div class="topLink">
+          <a href="" @click="doctorFind()">找医生</a>
+          <a href="" @click="hospitalFind()">找医院</a>
+        </div>
+      </div>
+    </section>
     <div class="wrapsmall">
       <!-- <section class="serviceInfo"></section> -->
       <section class="block myNav">
@@ -101,7 +101,8 @@
                 </i>
                 <el-button
                   :style="
-                    visitStatus.boolean[item.visitStatus] === '已退号'
+                    visitStatus.boolean[item.visitStatus] === '已退号' 
+                    || visitStatus.boolean[item.visitStatus] === '已完成'
                       ? 'display:none'
                       : ''
                   "
@@ -115,7 +116,11 @@
               </td>
               <td class="address">
                 <a class="hospital" href="">{{ item.hospitalName }}</a>
-                <i class="el-icon-map-location" @click="ToHospitalInfo(item.hospitalId)">查看地图</i>
+                <!-- <i
+                  class="el-icon-map-location"
+                  @click="ToHospitalInfo(item.hospitalId)"
+                  >查看地图</i
+                > -->
                 <br />
                 <a href="">{{ item.officeName }}</a>
                 <a href="">{{ item.doctorName }} 医生</a>
@@ -146,21 +151,42 @@
               v-for="(item, index) in patientList"
               :key="index"
             >
-              <div class="pybutton" @click="selectPatient(index)">
+              <div class="pybutton">
                 <span>
                   <strong>{{ item.patientName }}</strong>
-                  <em class="edit" @click="UpdatePatientVisible = true"
-                    >修改</em
-                  >
+                  <em class="edit" @click="updatePatient(item)">修改</em>
                 </span>
                 <p>{{ item.idCard }}</p>
                 <p>{{ item.phone }}</p>
-                <em class="delete" @click="DeletePatientVisible = true"
-                  >删除</em
-                >
+                <em class="delete" @click="deletePatient(item)">删除</em>
               </div>
             </el-radio-button>
           </el-radio-group>
+          <AddPatient
+            :title="'新增就诊人'"
+            :visible="addPatientVisible"
+            @close="addPatientVisible = false"
+            @rereload="updateList()"
+          ></AddPatient>
+          <UpdatePatient
+            :title="'修改就诊人'"
+            :visible="UpdatePatientVisible"
+            @close="UpdatePatientVisible = false"
+            @rereload="updateList()"
+            :id="this.patientId"
+            :idCard="this.idCard"
+            :patientName="this.patientName"
+            :phone="this.phone"
+            v-if="update"
+          ></UpdatePatient>
+          <DeletePatient
+            :title="'删除就诊人'"
+            :visible="DeletePatientVisible"
+            @close="DeletePatientVisible = false"
+            @rereload="updateList()"
+            :patientName="this.patientName"
+            :id="this.patientId"
+          ></DeletePatient>
           <div class="add" @click="addPatientVisible = true">新增就诊人</div>
         </div>
       </section>
@@ -168,8 +194,17 @@
         <div class="title">账号设置</div>
         <div class="tabnav onlytab">
           <el-tabs v-model="activeName">
-            <el-tab-pane label="基本资料" name="basic" class="pane" style="color:green"></el-tab-pane>
-            <el-tab-pane label="修改密码" name="updatePassword" class="pane"></el-tab-pane>
+            <el-tab-pane
+              label="基本资料"
+              name="basic"
+              class="pane"
+              style="color: green"
+            ></el-tab-pane>
+            <el-tab-pane
+              label="修改密码"
+              name="updatePassword"
+              class="pane"
+            ></el-tab-pane>
           </el-tabs>
         </div>
         <div class="content" v-if="activeName === 'basic'">
@@ -179,48 +214,37 @@
           </div>
           <div class="inline">
             <span>手机号：</span>
-            <el-input v-model="phone" placeholder="请输入手机号"></el-input>
+            <el-input v-model="userPhone" placeholder="请输入手机号"></el-input>
           </div>
           <div class="inline">
             <span>邮箱：</span>
             <el-input v-model="email" placeholder="请输入邮箱"></el-input>
           </div>
           <div class="save">
-            <el-button type="success">保存</el-button>
+            <el-button type="success" @click="updateUser()">保存</el-button>
           </div>
         </div>
         <div class="content" v-if="activeName === 'updatePassword'">
           <div class="inline">
             <span>当前密码：</span
-            ><el-input v-model="userName" placeholder="请输入当前密码"></el-input>
+            ><el-input
+              v-model="rowPassword"
+              placeholder="请输入当前密码"
+              show-password
+            ></el-input>
           </div>
           <div class="inline">
             <span>新密码：</span>
-            <el-input v-model="phone" placeholder="请输入新密码"></el-input>
+            <el-input v-model="newPassword" placeholder="请输入新密码" show-password></el-input>
           </div>
           <div class="save">
-            <el-button type="success">保存</el-button>
+            <el-button type="success" @click="updatePassword()">保存</el-button>
           </div>
         </div>
       </section>
       <div class="clear"></div>
       <div class="space"></div>
     </div>
-    <AddPatient
-      :title="'新增就诊人'"
-      :visible="addPatientVisible"
-      @close="addPatientVisible = false"
-    ></AddPatient>
-    <UpdatePatient
-      :title="'修改就诊人'"
-      :visible="UpdatePatientVisible"
-      @close="UpdatePatientVisible = false"
-    ></UpdatePatient>
-    <DeletePatient
-      :title="'删除就诊人'"
-      :visible="DeletePatientVisible"
-      @close="DeletePatientVisible = false"
-    ></DeletePatient>
   </div>
 </template>
 
@@ -241,15 +265,21 @@ export default {
   },
   data() {
     return {
-      token:localStorage.getItem('token'),
-      activeName: "basic",
+      newPassword:"",
+      rowPassword:"",
+      update: true,
       phone: "",
+      idCard: "",
+      patientId: "",
+      patientName: "",
+      token: localStorage.getItem("token"),
+      activeName: "basic",
+      userPhone: "",
       email: "",
-      userName: "",
       radio1: "上海",
       content: "",
       visitStatus: { boolean: { 1: "已预约", 2: "已退号", 3: "已完成" } },
-      menuItem: "1",
+      menuItem: 1,
       tableData: [],
       sex: "1",
       birthday: "",
@@ -264,31 +294,116 @@ export default {
       },
       appointmentList: [],
       userInfo: "",
-      userName:"",
-      roleType:"",
+      userName: "",
+      roleType: "",
     };
   },
   methods: {
-    ToHospitalInfo(val) {
-        this.$router.push({
-        name: "hospitalInfo",
-        query: { 
-          id: val,
-          activeName: 'address', 
-          },
+    search() {
+      this.$router.push({
+        name:"doctorInfo",
+        query:{
+          flag: 1,
+          hospitalName: this.content,
+          doctorName: this.content,
+          officeName: this.content,
+          status: "doctor",
+        }
+      })
+    },
+    updatePassword() {
+      if (this.rowPassword != "" && this.newPassword != "") {
+        var param = {
+          rowPassword: this.rowPassword,
+          newPassword: this.newPassword,
+        };
+        this.$axios
+          .post("http://localhost:8088/user/password", param)
+          .then((res) => {
+            if (200 == res.data.code) {
+              console.log(res);
+              this.$message.success("保存成功！");
+            } else if (404 == res.data.code) {
+              this.$alert(res.data.msg);
+            } else if (400 == res.data.code) {
+              this.$alert(res.data.msg);
+            }
+          });
+      } else {
+        this.$message.warning("必填信息未填写完毕！");
+      }
+    },
+    updateUser(){
+      if (this.userName != "") {
+        var param = {
+          userName: this.userName,
+          email: this.email,
+          phone: this.userPhone,
+        };
+        this.$axios
+          .post("http://localhost:8088/user/updateUserInfo", param)
+          .then((res) => {
+            if (200 == res.data.code) {
+              console.log(res);
+              this.$message.success("保存成功！");
+            } else if (404 == res.data.code) {
+              this.$alert(res.data.msg);
+            } else if (400 == res.data.code) {
+              this.$alert(res.data.msg);
+            }
+          });
+      } else {
+        this.$message.warning("必填信息未填写完毕！");
+      }
+    },
+    updatePatient(val) {
+      console.log(val);
+      this.UpdatePatientVisible = true;
+      this.patientName = val.patientName;
+      this.patientId = val.id;
+      this.idCard = val.idCard;
+      this.phone = val.phone;
+      this.update = false;
+      // 在组件移除后，重新渲染组件
+      // this.$nextTick可实现在DOM 状态更新后，执行传入的方法。
+      this.$nextTick(() => {
+        this.update = true;
       });
+    },
+    deletePatient(val) {
+      console.log(val);
+      this.DeletePatientVisible = true;
+      this.patientId = val.id;
+      this.patientName = val.patientName;
+    },
+    ToHospitalInfo(val) {
+      console.log(val);
+      this.$router.push({
+        name: "hospitalInfo",
+        query: {
+          id: val,
+          activeName: "address",
+        },
+      });
+    },
+    rereload() {
+      this.menuItem = "2";
+      this.reload();
+    },
+    updateList() {
+      this.getPatient();
     },
     exit() {
       localStorage.removeItem("token");
       localStorage.removeItem("userInfo");
       this.reload();
-      this.$router.push('/');
+      this.$router.push("/");
     },
     selectMenu(key, keyPath) {
       this.menuItem = key;
     },
     toInfo(val) {
-        this.$router.push({
+      this.$router.push({
         name: "AppointmentInfo",
         query: { id: val },
       });
@@ -298,7 +413,7 @@ export default {
         id: val,
         visitStatus: 2,
       };
-      this.$axios.post("/appointment/updateVisitStatus/", param).then((res) => {
+      this.$axios.post("http://localhost:8088/appointment/updateVisitStatus/", param).then((res) => {
         if (200 == res.status) {
           console.log(res);
           this.getAppointmentList();
@@ -308,7 +423,7 @@ export default {
     getPatient() {
       // var param = { address: "杭州", hospitalName: null, pageNum: 1, pageSize: 10};
       this.$axios
-        .get("/user/getMyPatients", {
+        .get("http://localhost:8088/user/getMyPatients", {
           params: {},
         })
         .then((res) => {
@@ -324,8 +439,8 @@ export default {
     },
     login() {
       //保存当前路由
-      localStorage.setItem("preRoute", this.$route.fullPath)
-      this.$router.push('/Login')
+      localStorage.setItem("preRoute", this.$route.fullPath);
+      this.$router.push("/Login");
     },
     register() {
       this.$router.push("Register");
@@ -346,7 +461,7 @@ export default {
     },
     getAppointmentList() {
       this.$axios
-        .get("/user/getMyAppointments", {
+        .get("http://localhost:8088/user/getMyAppointments", {
           params: {},
         })
         .then((res) => {
@@ -370,11 +485,18 @@ export default {
       this.getPatient();
       this.userInfo = JSON.parse(localStorage.getItem("userInfo"));
       if (this.userInfo != null) {
-          this.userName = JSON.parse(localStorage.getItem("userInfo")).userName;
-          this.roleType = JSON.parse(localStorage.getItem("userInfo")).roleType;
+        this.userName = JSON.parse(localStorage.getItem("userInfo")).userName;
+        this.roleType = JSON.parse(localStorage.getItem("userInfo")).roleType;
+        this.userPhone = JSON.parse(localStorage.getItem("userInfo")).phone;
+        this.email = JSON.parse(localStorage.getItem("userInfo")).email;
       }
       console.log(this.userInfo);
     });
+  },
+  watch: {
+    patientList: function () {
+      console.log("changed");
+    },
   },
 };
 </script>
@@ -473,7 +595,7 @@ export default {
 .el-avatar {
   margin-top: 14px;
   margin-right: 5px;
-  vertical-align:top;
+  vertical-align: top;
 }
 .topSearch {
   float: right;
@@ -663,6 +785,11 @@ tr {
   vertical-align: center;
   padding-left: 20px;
   margin-left: 10px;
+  cursor: pointer;
+}
+.appointmenttable .address .el-icon-map-location:hover {
+  text-decoration: underline;
+  color: orange;
 }
 .appointmenttable .patient {
   width: 200px;
@@ -910,7 +1037,7 @@ tr {
   color: orange;
   cursor: pointer;
 }
-.el-tabs__item{
+.el-tabs__item {
   color: orange !important;
 }
 </style>

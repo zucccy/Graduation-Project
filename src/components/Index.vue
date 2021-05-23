@@ -42,7 +42,7 @@
               v-model="content"
               class="input-with-select"
             >
-              <el-button slot="append" icon="el-icon-search">搜索</el-button>
+              <el-button slot="append" icon="el-icon-search" @click="search()">搜索</el-button>
             </el-input>
           </div>
           <div class="topLink">
@@ -98,6 +98,18 @@ export default {
     };
   },
   methods: {
+    search() {
+      this.$router.push({
+        name:"doctorInfo",
+        query:{
+          flag: 1,
+          hospitalName: this.content,
+          doctorName: this.content,
+          officeName: this.content,
+          status: "doctor",
+        }
+      })
+    },
     exit() {
       localStorage.removeItem("token");
       localStorage.removeItem("userInfo");
@@ -111,6 +123,8 @@ export default {
       this.$router.push("/");
     },
     login() {
+      //保存当前路由
+      localStorage.setItem("preRoute", this.$route.fullPath)
       this.$router.push("Login");
     },
     register() {

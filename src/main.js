@@ -6,12 +6,14 @@ import App from './App'
 import router from './router'
 import ElementUI from 'element-ui'
 import axios from "axios"
+import VueChatScroll from 'vue-chat-scroll'
 import 'element-ui/lib/theme-chalk/index.css'
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)
+Vue.use(VueChatScroll)
 Vue.prototype.$axios = axios;
-axios.defaults.baseURL = "http://localhost:8088/"
+// axios.defaults.baseURL = "http://localhost:8088/"
 //添加请求拦截器
 axios.interceptors.request.use(function (config) {
   // 在发送请求之前做些什么

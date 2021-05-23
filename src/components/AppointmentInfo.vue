@@ -42,7 +42,7 @@
               v-model="content"
               class="input-with-select"
             >
-              <el-button slot="append" icon="el-icon-search">搜索</el-button>
+              <el-button slot="append" icon="el-icon-search" @click="search()">搜索</el-button>
             </el-input>
           </div>
           <div class="topLink">
@@ -73,11 +73,11 @@
                 </el-menu-item>
                 <el-menu-item index="2">
                   <i class="el-icon-menu"></i>
-                  <span slot="title">就诊人管理</span>
+                  <span slot="title" @click="toAppointment()">就诊人管理</span>
                 </el-menu-item>
                 <el-menu-item index="3">
                   <i class="el-icon-setting"></i>
-                  <span slot="title">账号设置</span>
+                  <span slot="title" @click="toAppointment()">账号设置</span>
                 </el-menu-item>
               </el-menu>
             </el-col>
@@ -99,7 +99,9 @@
             <div class="info">就诊医院：<span>{{appointmentInfo.hospitalName}}</span></div>
         <div class="info">就诊医生：<span>{{appointmentInfo.doctorName}}</span></div>
             <div class="info">就诊科室：<span>{{appointmentInfo.officeName}}</span></div>
-            <div class="info">医院地址：<span>{{appointmentInfo.address}}</span><i class="el-icon-map-location" @click="ToHospitalInfo(appointmentInfo.hospitalId)">查看地图</i></div>
+             <div class="info">医院地址：<span>{{appointmentInfo.address}}</span>
+            <!-- <i class="el-icon-map-location" @click="ToHospitalInfo(appointmentInfo.hospitalId)">查看地图</i> -->
+            </div> 
             <div class="info">挂号时间：<span>{{appointmentInfo.createTime}}</span></div>
           </div>
         </div>
@@ -122,7 +124,7 @@
               v-for="(item, index) in patientList"
               :key="index"
             >
-              <div class="pybutton" @click="selectPatient(index)">
+              <div class="pybutton">
                 <span>
                   <strong>{{ item.patientName }}</strong>
                   <em class="edit" @click="UpdatePatientVisible = true"
@@ -246,6 +248,18 @@ export default {
     };
   },
   methods: {
+    search() {
+      this.$router.push({
+        name:"doctorInfo",
+        query:{
+          flag: 1,
+          hospitalName: this.content,
+          doctorName: this.content,
+          officeName: this.content,
+          status: "doctor",
+        }
+      })
+    },
     ToDoctorWork() {
       this.$router.push("/DoctorWork");
     },
@@ -265,7 +279,7 @@ export default {
         id: val,
         visitStatus: 2,
       };
-      this.$axios.post("/appointment/updateVisitStatus/", param).then((res) => {
+      this.$axios.post("http://localhost:8088/appointment/updateVisitStatus/", param).then((res) => {
         if (200 == res.status) {
           console.log(res);
           this.getAppointmentList();
@@ -275,7 +289,7 @@ export default {
     getPatient() {
       // var param = { address: "杭州", hospitalName: null, pageNum: 1, pageSize: 10};
       this.$axios
-        .get("/user/getMyPatients", {
+        .get("http://localhost:8088/user/getMyPatients", {
           params: {},
         })
         .then((res) => {
@@ -325,7 +339,7 @@ export default {
     },
     getAppointmentList() {
       this.$axios
-        .get("/user/getMyAppointments", {
+        .get("http://localhost:8088/user/getMyAppointments", {
           params: {},
         })
         .then((res) => {
@@ -338,7 +352,7 @@ export default {
     },
     getAppointmentInfo() {
       this.$axios
-        .get("/appointment/getMyAppointmentInfo/", {
+        .get("http://localhost:8088/appointment/getMyAppointmentInfo/", {
           params: {
               id:this.$route.query.id,
           },
@@ -499,6 +513,11 @@ export default {
     vertical-align: center;
     padding-left: 20px;
     margin-left: 10px;
+    cursor: pointer;
+  }
+  .el-icon-map-location:hover {
+    text-decoration: underline;
+    color: orange;
   }
 .pybutton span {
   display: block;
