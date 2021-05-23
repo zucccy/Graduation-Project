@@ -71,4 +71,10 @@ public class MyAppointmentListVO {
      */
     @ApiModelProperty(value = "出诊具体时间")
     private String timePeriod;
+
+    /**
+     * 预约时间
+     */
+    @ApiModelProperty(value = "是否为当前日期标志")
+    private Integer flag;
 }

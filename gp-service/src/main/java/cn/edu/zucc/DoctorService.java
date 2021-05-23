@@ -16,6 +16,15 @@ import java.util.List;
 public interface DoctorService {
 
     /**
+     * 查找所有医生列表
+     *
+     * @param pageNum  第几页
+     * @param pageSize 页大小
+     * @return java.util.List<cn.edu.zucc.vo.DoctorVO>
+     */
+    List<DoctorVO> getAllDoctors(Integer pageNum, Integer pageSize);
+
+    /**
      * 根据医生编号查找医生信息
      *
      * @param id 医生编号
@@ -32,7 +41,7 @@ public interface DoctorService {
     DoctorVO findDoctorVOById(Long id);
 
     /**
-     * 根据医生名称查找医生列表
+     * 分页搜索医生信息 按医生名字/所属医院名字/科室名模糊查询
      *
      * @param doctorName 医生名称
      * @param pageNum    第几页

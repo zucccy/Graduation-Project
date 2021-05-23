@@ -13,11 +13,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
@@ -44,7 +44,6 @@ public class PatientController {
     @PostMapping("/createPatient")
     public ResponseVO<Void> createPatient(@RequestHeader("Authorization") String token,
                                           @RequestBody PatientInfoDTO patientInfoDTO) {
-        //帐号、密码、用户名均不能为空
         if (null == patientInfoDTO
                 || null == patientInfoDTO.getSex()
                 || StringUtils.isBlank(patientInfoDTO.getPatientName())
@@ -59,9 +58,9 @@ public class PatientController {
     }
 
     @ApiOperation(value = "删除我的患者")
-    @DeleteMapping("/deleteMyPatient/{patientId}")
+    @DeleteMapping("/deleteMyPatient/patientId/")
     public ResponseVO<Void> deleteMyPatient(@RequestHeader("Authorization") String token,
-                                            @PathVariable Long patientId) {
+                                            @RequestParam Long patientId) {
         if (null == patientId) {
             throw new FormException();
         }
@@ -70,14 +69,13 @@ public class PatientController {
     }
 
     @ApiOperation(value = "修改我的患者")
-    @PostMapping("/updateMyPatient/{patientId}")
+    @PostMapping("/updateMyPatient/patientId/")
     public ResponseVO<Void> updateMyPatient(@RequestHeader("Authorization") String token,
-                                            @PathVariable Long patientId,
                                             @RequestBody PatientInfoUpdateDTO patientInfoUpdateDTO) {
-        if (null == patientId || null == patientInfoUpdateDTO) {
+        if (null == patientInfoUpdateDTO) {
             throw new FormException();
         }
-        patientInfoService.update(TokenUtils.getUserId(token, tokenSecret), patientId, patientInfoUpdateDTO);
+        patientInfoService.update(TokenUtils.getUserId(token, tokenSecret), patientInfoUpdateDTO.getPatientId(), patientInfoUpdateDTO);
         return ResponseBuilder.success();
     }
 }

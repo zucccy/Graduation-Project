@@ -98,7 +98,15 @@ public class DoctorController {
         return ResponseBuilder.successPageable(PageUtils.restPage(doctorService.findDoctorListByHosId(hospitalId, pageNum, pageSize)));
     }
 
-    @ApiOperation(value = "分页搜索医生信息 按医生名字模糊查询")
+    @ApiOperation(value = "查找所有医生列表")
+    @GetMapping("/getAllDoctors/")
+    public ResponsePageVO<DoctorVO> getAllDoctors(@RequestParam(defaultValue = "1") Integer pageNum,
+                                                  @RequestParam(defaultValue = "10") Integer pageSize) {
+
+        return ResponseBuilder.successPageable(PageUtils.restPage(doctorService.getAllDoctors(pageNum, pageSize)));
+    }
+
+    @ApiOperation(value = "分页搜索医生信息 按医生名字/所属医院名字/科室名模糊查询")
     @GetMapping("/getDoctorList")
     public ResponsePageVO<DoctorVO> getDoctorList(@RequestParam String doctorName,
                                                   @RequestParam(defaultValue = "1") Integer pageNum,

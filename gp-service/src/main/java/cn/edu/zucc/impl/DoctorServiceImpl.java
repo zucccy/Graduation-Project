@@ -50,6 +50,15 @@ public class DoctorServiceImpl implements DoctorService {
     VisitPlanService visitPlanService;
 
     @Override
+    public List<DoctorVO> getAllDoctors(Integer pageNum, Integer pageSize) {
+        if (null != pageNum && null != pageSize) {
+            PageHelper.startPage(pageNum, pageSize);
+        }
+        List<DoctorVO> doctorVOList = doctorInfoMapper.findDoctorList(null, null, null, null);
+        return doctorVOList;
+    }
+
+    @Override
     public DoctorInfo findDoctorById(Long id) {
 
         if (!count(id)) {
@@ -81,11 +90,7 @@ public class DoctorServiceImpl implements DoctorService {
             PageHelper.startPage(pageNum, pageSize);
         }
         List<DoctorVO> doctorVOList = doctorInfoMapper.findDoctorList(null, null, null, doctorName);
-        if (CollectionUtil.isNotEmpty(doctorVOList)) {
             return doctorVOList;
-        } else {
-            return new ArrayList<>();
-        }
     }
 
     @Override
@@ -143,11 +148,7 @@ public class DoctorServiceImpl implements DoctorService {
             PageHelper.startPage(pageNum, pageSize);
         }
         doctorVOList = doctorInfoMapper.findDoctorList(officeId, id, hospitalId, null);
-        if (CollectionUtil.isNotEmpty(doctorVOList)) {
             return doctorVOList;
-        } else {
-            return new ArrayList<>();
-        }
     }
 
     @Override
@@ -158,11 +159,7 @@ public class DoctorServiceImpl implements DoctorService {
         }
         List<DoctorVO> doctorVOList;
         doctorVOList = doctorInfoMapper.findDoctorList(officeId, null, null, null);
-        if (CollectionUtil.isNotEmpty(doctorVOList)) {
             return doctorVOList;
-        } else {
-            return new ArrayList<>();
-        }
     }
 
     @Override
@@ -179,11 +176,7 @@ public class DoctorServiceImpl implements DoctorService {
             PageHelper.startPage(pageNum, pageSize);
         }
         doctorVOList = doctorInfoMapper.findDoctorList(null, null, hospitalId, null);
-        if (CollectionUtil.isNotEmpty(doctorVOList)) {
             return doctorVOList;
-        } else {
-            return new ArrayList<>();
-        }
     }
 
     @Override
@@ -191,9 +184,6 @@ public class DoctorServiceImpl implements DoctorService {
         DoctorInfoExample example = new DoctorInfoExample();
         example.createCriteria().andIdIn(doctorIdList);
         List<DoctorInfo> doctorInfoList = doctorInfoMapper.selectByExample(example);
-        if (CollectionUtil.isEmpty(doctorInfoList)) {
-            return new ArrayList<>();
-        }
         return doctorInfoList;
     }
 

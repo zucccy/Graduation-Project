@@ -10,6 +10,10 @@ import cn.edu.zucc.enums.ResultCodeEnum;
  */
 public class WrongPasswordException extends BaseException {
 
+    public WrongPasswordException(String msg) {
+        super(msg, ResultCodeEnum.REQUEST_INFO_ERROR.getCode());
+    }
+
     public WrongPasswordException() {
         super("密码错误", ResultCodeEnum.REQUEST_INFO_ERROR.getCode());
     }

@@ -343,7 +343,7 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
                 throw new FormException();
             }
         } else {
-            throw new WrongPasswordException();
+            throw new WrongPasswordException("当前密码错误");
         }
     }
 

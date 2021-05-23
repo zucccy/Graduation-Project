@@ -9,6 +9,7 @@ import cn.edu.zucc.po.Hospital;
 import cn.edu.zucc.utils.PageUtils;
 import cn.edu.zucc.utils.ResponseBuilder;
 import cn.edu.zucc.vo.AddressVO;
+import cn.edu.zucc.vo.EssayVO;
 import cn.edu.zucc.vo.HospitalInfoVO;
 import cn.edu.zucc.vo.HospitalLocalationVO;
 import cn.edu.zucc.vo.HospitalNewsVO;
@@ -52,14 +53,13 @@ public class HospitalController {
         return ResponseBuilder.success(hospitalService.findHospitalVOById(id));
     }
 
-    @ApiOperation(value = "分页搜索医院信息 根据医院名、地址模糊查询")
+    @ApiOperation(value = "分页搜索医院信息 根据医院名模糊查询")
     @GetMapping("/list")
-    public ResponsePageVO<Hospital> findHospitalList(@RequestParam(required = false) String hospitalName,
-                                                     @RequestParam(required = false) String address,
+    public ResponsePageVO<Hospital> findHospitalList(@RequestParam String hospitalName,
                                                      @RequestParam(defaultValue = "1") Integer pageNum,
                                                      @RequestParam(defaultValue = "10") Integer pageSize) {
 
-        return ResponseBuilder.successPageable(PageUtils.restPage(hospitalService.findHospitalList(hospitalName, address, pageNum, pageSize)));
+        return ResponseBuilder.successPageable(PageUtils.restPage(hospitalService.findHospitalList(hospitalName, pageNum, pageSize)));
     }
 
     @ApiOperation(value = "根据科室编号查找医院列表")
@@ -72,6 +72,14 @@ public class HospitalController {
         }
         return ResponseBuilder.successPageable(PageUtils.restPage(hospitalService.findHospitalList(officeId, pageNum, pageSize)));
     }
+
+    @ApiOperation(value = "查找所有医院列表")
+    @GetMapping("/getAllHospitals/")
+    public ResponsePageVO<Hospital> getAllHospitals(@RequestParam(defaultValue = "1") Integer pageNum,
+                                                    @RequestParam(defaultValue = "10") Integer pageSize) {
+        return ResponseBuilder.successPageable(PageUtils.restPage(hospitalService.getAllHospitals(pageNum, pageSize)));
+    }
+
 
     @ApiOperation(value = "添加医院")
     @PostMapping("/insert")
@@ -173,5 +181,11 @@ public class HospitalController {
             throw new FormException();
         }
         return ResponseBuilder.success(hospitalService.findAdviceHospitalList(addressVO));
+    }
+
+    @ApiOperation(value = "获取权威文章集合")
+    @GetMapping("/getEssayList")
+    public ResponseVO<List<EssayVO>> getEssayList() {
+        return ResponseBuilder.success(hospitalService.findEssayList());
     }
 }

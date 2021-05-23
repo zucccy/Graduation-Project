@@ -4,6 +4,7 @@ import cn.edu.zucc.PatientInfoService;
 import cn.edu.zucc.UserAccountInfoService;
 import cn.edu.zucc.dto.PatientInfoDTO;
 import cn.edu.zucc.dto.PatientInfoUpdateDTO;
+import cn.edu.zucc.exception.ExistsException;
 import cn.edu.zucc.exception.FormException;
 import cn.edu.zucc.exception.SourceNotFoundException;
 import cn.edu.zucc.mapper.PatientInfoMapper;
@@ -70,11 +71,15 @@ public class PatientInfoServiceImpl implements PatientInfoService {
         //若患者已存在（验证身份证号），则插入关系
         if (countPatientInfo(patientInfoDTO.getIdCard())) {
             PatientInfo patientInfo = findPatientInfoByIdCard(patientInfoDTO.getIdCard());
-
+            if (countRelation(userId, patientInfo.getId())) {
+                throw new ExistsException("就诊人已存在");
+            }
             UserRelPatient userRelPatient = new UserRelPatient();
 
             userRelPatient.setUserId(userId);
             userRelPatient.setPatientId(patientInfo.getId());
+            userRelPatient.setCreateTime(new Date());
+            userRelPatient.setUpdateTime(new Date());
 
             return userRelPatientMapper.insertSelective(userRelPatient) > 0;
         }
@@ -102,7 +107,8 @@ public class PatientInfoServiceImpl implements PatientInfoService {
             UserRelPatient userRelPatient = new UserRelPatient();
             userRelPatient.setUserId(userId);
             userRelPatient.setPatientId(patientInfo.getId());
-
+            userRelPatient.setCreateTime(new Date());
+            userRelPatient.setUpdateTime(new Date());
             return userRelPatientMapper.insertSelective(userRelPatient) > 0;
         }
         //插入不成功

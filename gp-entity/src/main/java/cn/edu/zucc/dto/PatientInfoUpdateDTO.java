@@ -16,6 +16,12 @@ import lombok.Data;
 public class PatientInfoUpdateDTO {
 
     /**
+     * 患者编号
+     */
+    @ApiModelProperty(value = "患者编号")
+    private Long patientId;
+
+    /**
      * 患者名称
      */
     @ApiModelProperty(value = "患者名称")

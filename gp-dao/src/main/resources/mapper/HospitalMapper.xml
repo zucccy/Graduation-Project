@@ -87,4 +87,18 @@
     id, hospital_name, address, longitudes, latitudes, phone, description, src, create_time,
     update_time
   </sql>
+  <select id="findHospitalList" resultMap="BaseResultMap">
+    select id,
+           hospital_name,
+           address,
+           longitudes,
+           latitudes,
+           phone,
+           description,
+           src,
+           create_time,
+           update_time
+    from hospital
+    where (hospital_name LIKE "%"#{hospitalName}"%" OR address LIKE "%"#{hospitalName}"%")
+  </select>
 </mapper>

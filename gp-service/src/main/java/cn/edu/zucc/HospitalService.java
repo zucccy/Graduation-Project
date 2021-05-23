@@ -3,6 +3,7 @@ package cn.edu.zucc;
 import cn.edu.zucc.dto.HospitalInfoDTO;
 import cn.edu.zucc.po.Hospital;
 import cn.edu.zucc.vo.AddressVO;
+import cn.edu.zucc.vo.EssayVO;
 import cn.edu.zucc.vo.HospitalInfoVO;
 import cn.edu.zucc.vo.HospitalLocalationVO;
 import cn.edu.zucc.vo.HospitalNewsVO;
@@ -37,12 +38,11 @@ public interface HospitalService {
      * 分页搜索医院信息，可根据医院名、医院地址搜索
      *
      * @param hospitalName 医院名称
-     * @param address      医院地址
      * @param pageNum      第几页
      * @param pageSize     页大小
      * @return 医院列表
      */
-    List<Hospital> findHospitalList(String hospitalName, String address, Integer pageNum, Integer pageSize);
+    List<Hospital> findHospitalList(String hospitalName, Integer pageNum, Integer pageSize);
 
     /**
      * 添加医院信息
@@ -115,6 +115,15 @@ public interface HospitalService {
     List<Hospital> findHospitalList(Long officeId, Integer pageNum, Integer pageSize);
 
     /**
+     * 查找所有医院列表
+     *
+     * @param pageNum  第几页
+     * @param pageSize 页大小
+     * @return java.util.List<cn.edu.zucc.po.Hospital>
+     */
+    List<Hospital> getAllHospitals(Integer pageNum, Integer pageSize);
+
+    /**
      * 根据医院编号列表查找医院信息列表
      *
      * @param hospitalIdList 医院编号列表
@@ -160,4 +169,11 @@ public interface HospitalService {
      * @return java.util.List<cn.edu.zucc.vo.HospitalLocalationVO>
      */
     List<HospitalInfoVO> findAdviceHospitalList(AddressVO addressVO);
+
+    /**
+     * Redis中获取所有文章列表
+     *
+     * @return java.util.List<cn.edu.zucc.vo.EssayVO>
+     */
+    List<EssayVO> findEssayList();
 }

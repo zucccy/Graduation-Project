@@ -323,10 +323,16 @@ public class AppointmentInfoServiceImpl implements AppointmentInfoService {
         myAppointmentListVO.setPatientName(patientInfo.getPatientName());
         myAppointmentListVO.setPhone(patientInfo.getPhone());
 
-        //查找具体就诊时间
+        //查找具体就诊时间和出诊日期
         Long visitId = appointmentInfo.getVisitId();
         VisitPlan visitPlan = visitPlanService.findVisitPlanById(visitId);
         myAppointmentListVO.setTimePeriod(visitPlan.getTimePeriod());
+        //flag为0说明可以进行修改状态完成操作
+        if (new Date().before(visitPlan.getVisitDay())) {
+            myAppointmentListVO.setFlag(1);
+        } else {
+            myAppointmentListVO.setFlag(0);
+        }
 
         return myAppointmentListVO;
     }

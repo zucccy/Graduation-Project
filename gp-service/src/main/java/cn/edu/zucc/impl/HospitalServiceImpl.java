@@ -14,6 +14,7 @@ import cn.edu.zucc.po.HospitalRelOffice;
 import cn.edu.zucc.po.HospitalRelOfficeExample;
 import cn.edu.zucc.vo.AddressVO;
 import cn.edu.zucc.vo.DoctorVO;
+import cn.edu.zucc.vo.EssayVO;
 import cn.edu.zucc.vo.HospitalInfoVO;
 import cn.edu.zucc.vo.HospitalLocalationVO;
 import cn.edu.zucc.vo.HospitalNewsVO;
@@ -98,19 +99,12 @@ public class HospitalServiceImpl implements HospitalService {
     }
 
     @Override
-    public List<Hospital> findHospitalList(String hospitalName, String address, Integer pageNum, Integer pageSize) {
-
-        HospitalExample example = new HospitalExample();
-        HospitalExample.Criteria criteria = example.createCriteria();
-
-        if (!StringUtils.isBlank(hospitalName)) {
-            criteria.andHospitalNameLike("%" + hospitalName + "%");
+    public List<Hospital> findHospitalList(String hospitalName, Integer pageNum, Integer pageSize) {
+        if (null != pageNum && null != pageSize) {
+            PageHelper.startPage(pageNum, pageSize);
         }
-        if (!StringUtils.isBlank(address)) {
-            criteria.andAddressLike("%" + address + "%");
-        }
-        PageHelper.startPage(pageNum, pageSize);
-        return hospitalMapper.selectByExample(example);
+        List<Hospital> hospitalList = hospitalMapper.findHospitalList(hospitalName);
+        return hospitalList;
     }
 
     @Override
@@ -257,6 +251,12 @@ public class HospitalServiceImpl implements HospitalService {
     }
 
     @Override
+    public List<Hospital> getAllHospitals(Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        return hospitalMapper.selectAll();
+    }
+
+    @Override
     public List<Hospital> findHospitalList(List<Long> hospitalIdList) {
         HospitalExample example = new HospitalExample();
         HospitalExample.Criteria criteria = example.createCriteria();
@@ -342,5 +342,26 @@ public class HospitalServiceImpl implements HospitalService {
             hospitalInfoVOList.add(hospitalInfoVO);
         });
         return CollectionUtil.isNotEmpty(hospitalInfoVOList) ? hospitalInfoVOList : new ArrayList<>();
+    }
+
+    @Override
+    public List<EssayVO> findEssayList() {
+        List<EssayVO> essayVOList = new ArrayList<>();
+
+        Set<String> essayListStr = redisTemplate.opsForZSet().reverseRange("Essay", 0, 7);
+        if (CollectionUtil.isNotEmpty(essayListStr)) {
+            essayListStr.forEach(essayStr -> {
+                String essayTitle = StringUtils.substringBefore(essayStr, ":");
+                String essayUrl = StringUtils.substringAfter(essayStr, ":");
+                essayUrl = StringUtils.substringBeforeLast(essayUrl, ":");
+                String essayAuthor = StringUtils.substringAfterLast(essayStr, ":");
+                EssayVO essayVO = new EssayVO();
+                essayVO.setEssayTitle(essayTitle);
+                essayVO.setEssayUrl(essayUrl);
+                essayVO.setEssayAuthor(essayAuthor);
+                essayVOList.add(essayVO);
+            });
+        }
+        return essayVOList;
     }
 }
