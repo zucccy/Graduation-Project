@@ -91,7 +91,7 @@ public class OfficeController {
     }
 
     @ApiOperation(value = "删除科室")
-    @DeleteMapping("/delete/")
+    @DeleteMapping("/delete")
     public ResponseVO<Boolean> deleteOffice(@RequestParam Long id) {
         if (null == id) {
             throw new FormException();
@@ -100,15 +100,22 @@ public class OfficeController {
     }
 
     @ApiOperation(value = "修改科室")
-    @PostMapping("/update/")
-    public ResponseVO<Boolean> updateOffice(@RequestParam Long id, @RequestBody OfficeInfoDTO officeInfoDTO) {
+    @PostMapping("/update")
+    public ResponseVO<Boolean> updateOffice(@RequestBody OfficeInfoDTO officeInfoDTO) {
         if (StringUtils.isEmpty(officeInfoDTO.getOfficeName())
                 || null == officeInfoDTO.getParentId()
                 || null == officeInfoDTO) {
             throw new FormException();
         }
-        return ResponseBuilder.success(officeService.update(id, officeInfoDTO));
+        return ResponseBuilder.success(officeService.update(officeInfoDTO.getId(), officeInfoDTO));
     }
 
+    @ApiOperation(value = "获取所有科室（可按照科室名搜索）")
+    @GetMapping("/getAllOffices")
+    public ResponsePageVO<Office> getAllOffices(@RequestParam(required = false) String officeName,
+                                                @RequestParam(defaultValue = "1") Integer pageNum,
+                                                @RequestParam(defaultValue = "10") Integer pageSize) {
+        return ResponseBuilder.successPageable(PageUtils.restPage(officeService.getAllOffices(officeName, pageNum, pageSize)));
+    }
 
 }

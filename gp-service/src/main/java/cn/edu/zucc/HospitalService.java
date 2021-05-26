@@ -115,13 +115,15 @@ public interface HospitalService {
     List<Hospital> findHospitalList(Long officeId, Integer pageNum, Integer pageSize);
 
     /**
-     * 查找所有医院列表
+     * 查找所有医院列表（可按照地址、医院名查询）
      *
-     * @param pageNum  第几页
-     * @param pageSize 页大小
+     * @param address
+     * @param hospitalName
+     * @param pageNum
+     * @param pageSize
      * @return java.util.List<cn.edu.zucc.po.Hospital>
      */
-    List<Hospital> getAllHospitals(Integer pageNum, Integer pageSize);
+    List<Hospital> getAllHospitals(String address, String hospitalName, Integer pageNum, Integer pageSize);
 
     /**
      * 根据医院编号列表查找医院信息列表

@@ -251,9 +251,17 @@ public class HospitalServiceImpl implements HospitalService {
     }
 
     @Override
-    public List<Hospital> getAllHospitals(Integer pageNum, Integer pageSize) {
+    public List<Hospital> getAllHospitals(String address, String hospitalName, Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        return hospitalMapper.selectAll();
+        HospitalExample hospitalExample = new HospitalExample();
+        HospitalExample.Criteria criteria = hospitalExample.createCriteria();
+        if (null != address) {
+            criteria.andAddressLike("%" + address + "%");
+        }
+        if (null != hospitalName) {
+            criteria.andHospitalNameLike("%" + hospitalName + "%");
+        }
+        return hospitalMapper.selectByExample(hospitalExample);
     }
 
     @Override

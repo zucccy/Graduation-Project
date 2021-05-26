@@ -1,5 +1,6 @@
 package cn.edu.zucc;
 
+import cn.edu.zucc.dto.AdminLoginDTO;
 import cn.edu.zucc.dto.UpdatePasswordDTO;
 import cn.edu.zucc.dto.UserAccountInfoDTO;
 import cn.edu.zucc.dto.UserAccountInfoUpdateDTO;
@@ -25,6 +26,14 @@ public interface UserAccountInfoService {
      * @return 是否成功
      */
     UserAccountInfo login(UserLoginDTO userLoginDTO);
+
+    /**
+     * 管理员登录
+     *
+     * @param adminLoginDTO
+     * @return void
+     */
+    boolean adminLogin(AdminLoginDTO adminLoginDTO);
 
     /**
      * 注册普通用户
@@ -143,4 +152,14 @@ public interface UserAccountInfoService {
      * @return java.util.List<cn.edu.zucc.vo.MyAppointmentVO>
      */
     List<MyAppointmentListVO> getMyAppointments(Long id);
+
+    /**
+     * 获取所有用户列表（可按照用户名查询）
+     *
+     * @param userName
+     * @param pageNum
+     * @param pageSize
+     * @return java.util.List<cn.edu.zucc.po.UserAccountInfo>
+     */
+    List<UserAccountInfo> getAllUsers(String userName, Integer pageNum, Integer pageSize);
 }

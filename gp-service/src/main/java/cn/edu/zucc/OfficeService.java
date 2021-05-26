@@ -15,6 +15,8 @@ import java.util.List;
  */
 public interface OfficeService {
 
+    List<Office> getAllOffices(String officeName, Integer pageNum, Integer pageSize);
+
     /**
      * 根据科室编号查找科室信息
      *

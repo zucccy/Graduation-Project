@@ -2,7 +2,9 @@ package cn.edu.zucc.controller;
 
 import cn.edu.zucc.PatientInfoService;
 import cn.edu.zucc.UserAccountInfoService;
+import cn.edu.zucc.commonVO.ResponsePageVO;
 import cn.edu.zucc.commonVO.ResponseVO;
+import cn.edu.zucc.dto.AdminLoginDTO;
 import cn.edu.zucc.dto.UpdatePasswordDTO;
 import cn.edu.zucc.dto.UserAccountInfoDTO;
 import cn.edu.zucc.dto.UserAccountInfoUpdateDTO;
@@ -11,6 +13,7 @@ import cn.edu.zucc.dto.UserRegisterDTO;
 import cn.edu.zucc.exception.FormException;
 import cn.edu.zucc.exception.SourceNotFoundException;
 import cn.edu.zucc.po.UserAccountInfo;
+import cn.edu.zucc.utils.PageUtils;
 import cn.edu.zucc.utils.ResponseBuilder;
 import cn.edu.zucc.utils.TokenProviderUtils;
 import cn.edu.zucc.utils.TokenUtils;
@@ -165,7 +168,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "删除用户")
-    @DeleteMapping("/delete/")
+    @DeleteMapping("/delete")
     public ResponseVO<Boolean> deleteUser(@RequestParam Long id) {
         if (null == id) {
             throw new FormException();
@@ -174,20 +177,45 @@ public class UserController {
     }
 
     @ApiOperation(value = "修改用户")
-    @PostMapping("/update/")
-    public ResponseVO<Boolean> updateUser(@RequestParam Long id, @RequestBody UserAccountInfoDTO userAccountInfoDTO) {
-        if (null == id || null == userAccountInfoDTO) {
+    @PostMapping("/update")
+    public ResponseVO<Boolean> updateUser(@RequestBody UserAccountInfoDTO userAccountInfoDTO) {
+        if (null == userAccountInfoDTO) {
             throw new FormException();
         }
-        return ResponseBuilder.success(userAccountInfoService.update(id, userAccountInfoDTO));
+        return ResponseBuilder.success(userAccountInfoService.update(userAccountInfoDTO.getId(), userAccountInfoDTO));
     }
 
     @ApiOperation(value = "禁/启用用户")
-    @PostMapping("/disable/")
+    @GetMapping("/disable")
     public ResponseVO<Boolean> disableAndEnableUser(@RequestParam Long id, @RequestParam("status") Integer status) {
         if (null == id || null == status) {
             throw new FormException();
         }
         return ResponseBuilder.success(userAccountInfoService.disableAndEnableUser(id, status));
+    }
+
+    @ApiOperation(value = "管理员登录")
+    @PostMapping("/adminLogin")
+    public ResponseVO<Boolean> login(@RequestBody AdminLoginDTO adminLoginDTO) {
+        if (null == adminLoginDTO) {
+            if (StringUtils.isBlank(adminLoginDTO.getUserName())) {
+                throw new SourceNotFoundException("用户名为空！");
+            }
+            if (StringUtils.isBlank(adminLoginDTO.getPassword())) {
+                throw new SourceNotFoundException("密码为空！");
+            }
+            throw new FormException();
+        }
+
+        return ResponseBuilder.success(userAccountInfoService.adminLogin(adminLoginDTO));
+    }
+
+    @ApiOperation(value = "获取所有用户列表（可按照用户名查询）")
+    @GetMapping("/getAllUsers")
+    public ResponsePageVO<UserAccountInfo> getAllUsers(@RequestParam(required = false) String userName,
+                                                       @RequestParam(defaultValue = "1") Integer pageNum,
+                                                       @RequestParam(defaultValue = "10") Integer pageSize) {
+
+        return ResponseBuilder.successPageable(PageUtils.restPage(userAccountInfoService.getAllUsers(userName, pageNum, pageSize)));
     }
 }

@@ -15,6 +15,12 @@ import lombok.Data;
 public class DoctorInfoDTO {
 
     /**
+     * 医生编号
+     */
+    @ApiModelProperty(value = "医生编号")
+    private Long id;
+
+    /**
      * 医生名字
      */
     @ApiModelProperty(value = "医生名字")

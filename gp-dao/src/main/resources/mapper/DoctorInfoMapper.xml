@@ -15,6 +15,8 @@
     <result column="office_name" jdbcType="VARCHAR" property="officeName"/>
     <result column="description" jdbcType="VARCHAR" property="description"/>
     <result column="src" jdbcType="VARCHAR" property="src"/>
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
   </resultMap>
   <sql id="Example_Where_Clause">
     <!--
@@ -89,7 +91,7 @@
   </sql>
   <select id="findDoctorList" resultMap="BaseResultMap">
     SELECT doctor_info.id, doctor_name, sex, position, doctor_info.description, doctor_info.src, office_name,
-    hospital_name, doctor_info.office_id, doctor_info.hospital_id
+    hospital_name, doctor_info.office_id, doctor_info.hospital_id,doctor_info.create_time,doctor_info.update_time
     FROM doctor_info, office, hospital
     WHERE doctor_info.office_id = office.id
     AND doctor_info.hospital_id = hospital.id

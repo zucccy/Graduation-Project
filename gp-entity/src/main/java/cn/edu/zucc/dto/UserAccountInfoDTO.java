@@ -15,6 +15,9 @@ import lombok.Data;
 @Data
 public class UserAccountInfoDTO {
 
+    @ApiModelProperty(value = "用户编号")
+    private Long id;
+
     /**
      * 用户名
      */

@@ -50,11 +50,11 @@ public class DoctorServiceImpl implements DoctorService {
     VisitPlanService visitPlanService;
 
     @Override
-    public List<DoctorVO> getAllDoctors(Integer pageNum, Integer pageSize) {
+    public List<DoctorVO> getAllDoctors(String doctorName, Integer pageNum, Integer pageSize) {
         if (null != pageNum && null != pageSize) {
             PageHelper.startPage(pageNum, pageSize);
         }
-        List<DoctorVO> doctorVOList = doctorInfoMapper.findDoctorList(null, null, null, null);
+        List<DoctorVO> doctorVOList = doctorInfoMapper.findDoctorList(null, null, null, doctorName);
         return doctorVOList;
     }
 

@@ -100,10 +100,11 @@ public class DoctorController {
 
     @ApiOperation(value = "查找所有医生列表")
     @GetMapping("/getAllDoctors/")
-    public ResponsePageVO<DoctorVO> getAllDoctors(@RequestParam(defaultValue = "1") Integer pageNum,
+    public ResponsePageVO<DoctorVO> getAllDoctors(@RequestParam(required = false) String doctorName,
+                                                  @RequestParam(defaultValue = "1") Integer pageNum,
                                                   @RequestParam(defaultValue = "10") Integer pageSize) {
 
-        return ResponseBuilder.successPageable(PageUtils.restPage(doctorService.getAllDoctors(pageNum, pageSize)));
+        return ResponseBuilder.successPageable(PageUtils.restPage(doctorService.getAllDoctors(doctorName, pageNum, pageSize)));
     }
 
     @ApiOperation(value = "分页搜索医生信息 按医生名字/所属医院名字/科室名模糊查询")
@@ -159,7 +160,7 @@ public class DoctorController {
     }
 
     @ApiOperation(value = "删除医生")
-    @DeleteMapping("/delete/")
+    @DeleteMapping("/delete")
     public ResponseVO<Boolean> deleteDoctor(@RequestParam Long id) {
         if (null == id) {
             throw new FormException();
@@ -168,12 +169,12 @@ public class DoctorController {
     }
 
     @ApiOperation(value = "修改医生")
-    @PostMapping("/update/")
-    public ResponseVO<Boolean> updateDoctor(@RequestParam Long id, @RequestBody DoctorInfoDTO doctorInfoDTO) {
-        if (null == doctorInfoDTO || null == id) {
+    @PostMapping("/update")
+    public ResponseVO<Boolean> updateDoctor(@RequestBody DoctorInfoDTO doctorInfoDTO) {
+        if (null == doctorInfoDTO) {
             throw new FormException();
         }
-        return ResponseBuilder.success(doctorService.update(id, doctorInfoDTO));
+        return ResponseBuilder.success(doctorService.update(doctorInfoDTO.getId(), doctorInfoDTO));
     }
 
     @ApiOperation(value = "修改就诊人预约状态")

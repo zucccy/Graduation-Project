@@ -48,6 +48,17 @@ public class OfficeServiceImpl implements OfficeService {
     private HospitalService hospitalService;
 
     @Override
+    public List<Office> getAllOffices(String officeName, Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        OfficeExample example = new OfficeExample();
+        OfficeExample.Criteria criteria = example.createCriteria();
+        if (null != officeName) {
+            criteria.andOfficeNameLike("%" + officeName + "%");
+        }
+        return officeMapper.selectByExample(example);
+    }
+
+    @Override
     public Office findOfficeById(Long id) {
         if (!count(id)) {
             throw new SourceNotFoundException("科室不存在");

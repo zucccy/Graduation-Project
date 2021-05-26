@@ -75,9 +75,11 @@ public class HospitalController {
 
     @ApiOperation(value = "查找所有医院列表")
     @GetMapping("/getAllHospitals/")
-    public ResponsePageVO<Hospital> getAllHospitals(@RequestParam(defaultValue = "1") Integer pageNum,
+    public ResponsePageVO<Hospital> getAllHospitals(@RequestParam(required = false) String address,
+                                                    @RequestParam(required = false) String hospitalName,
+                                                    @RequestParam(defaultValue = "1") Integer pageNum,
                                                     @RequestParam(defaultValue = "10") Integer pageSize) {
-        return ResponseBuilder.successPageable(PageUtils.restPage(hospitalService.getAllHospitals(pageNum, pageSize)));
+        return ResponseBuilder.successPageable(PageUtils.restPage(hospitalService.getAllHospitals(address, hospitalName, pageNum, pageSize)));
     }
 
 
@@ -96,7 +98,7 @@ public class HospitalController {
     }
 
     @ApiOperation(value = "删除医院")
-    @DeleteMapping("/delete/")
+    @DeleteMapping("/delete")
     public ResponseVO<Boolean> deleteHospital(@RequestParam Long id) {
         if (null == id) {
             throw new FormException();
@@ -105,12 +107,12 @@ public class HospitalController {
     }
 
     @ApiOperation(value = "修改医院")
-    @PostMapping("/update/")
-    public ResponseVO<Boolean> updateHospital(@RequestParam Long id, @RequestBody HospitalInfoDTO hospitalInfoDTO) {
-        if (null == id || null == hospitalInfoDTO) {
+    @PostMapping("/update")
+    public ResponseVO<Boolean> updateHospital(@RequestBody HospitalInfoDTO hospitalInfoDTO) {
+        if (null == hospitalInfoDTO) {
             throw new FormException();
         }
-        return ResponseBuilder.success(hospitalService.update(id, hospitalInfoDTO));
+        return ResponseBuilder.success(hospitalService.update(hospitalInfoDTO.getId(), hospitalInfoDTO));
     }
 
     @ApiOperation(value = "删除医院下的指定科室")

@@ -43,7 +43,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         List<String> excludePath = new ArrayList<>();
         excludePath.add("/user/login");
+        excludePath.add("/user/adminLogin");
         excludePath.add("/user/register");
+        excludePath.add("/user/delete");
+        excludePath.add("/user/disable");
+        excludePath.add("/user/insert");
+        excludePath.add("/user/update");
+        excludePath.add("/user/getAllUsers");
         excludePath.add("/hospital/**");
         excludePath.add("/office/**");
         excludePath.add("/doctor/**");

@@ -18,11 +18,12 @@ public interface DoctorService {
     /**
      * 查找所有医生列表
      *
-     * @param pageNum  第几页
-     * @param pageSize 页大小
+     * @param doctorName
+     * @param pageNum
+     * @param pageSize
      * @return java.util.List<cn.edu.zucc.vo.DoctorVO>
      */
-    List<DoctorVO> getAllDoctors(Integer pageNum, Integer pageSize);
+    List<DoctorVO> getAllDoctors(String doctorName, Integer pageNum, Integer pageSize);
 
     /**
      * 根据医生编号查找医生信息

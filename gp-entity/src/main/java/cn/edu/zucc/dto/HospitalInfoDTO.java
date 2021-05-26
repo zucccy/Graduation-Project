@@ -17,6 +17,9 @@ import java.math.BigDecimal;
 @Data
 public class HospitalInfoDTO {
 
+    @ApiModelProperty(value = "医院编号")
+    private Long id;
+
     /**
      * 医院名称
      */

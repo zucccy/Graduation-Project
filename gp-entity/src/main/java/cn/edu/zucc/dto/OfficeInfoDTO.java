@@ -15,6 +15,9 @@ import lombok.Data;
 @Data
 public class OfficeInfoDTO {
 
+    @ApiModelProperty(value = "科室编号")
+    private Long id;
+
     /**
      * 父级科室编号，从1开始，顶级为0
      */

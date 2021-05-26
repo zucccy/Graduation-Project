@@ -9,7 +9,7 @@ package cn.edu.zucc.enums;
 public enum CommonStatusEnum {
 
     YES(1, "启用"),
-    NO(0, "禁用");
+    NO(2, "禁用");
 
     int code;
     String message;

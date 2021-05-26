@@ -7,6 +7,7 @@ import cn.edu.zucc.OfficeService;
 import cn.edu.zucc.PatientInfoService;
 import cn.edu.zucc.UserAccountInfoService;
 import cn.edu.zucc.VisitPlanService;
+import cn.edu.zucc.dto.AdminLoginDTO;
 import cn.edu.zucc.dto.UpdatePasswordDTO;
 import cn.edu.zucc.dto.UserAccountInfoDTO;
 import cn.edu.zucc.dto.UserAccountInfoUpdateDTO;
@@ -96,6 +97,22 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
             throw new WrongPasswordException();
         }
         return userAccountInfo;
+    }
+
+    @Override
+    public boolean adminLogin(AdminLoginDTO adminLoginDTO) {
+        //先查找管理员看是否存在
+        UserAccountInfoExample example = new UserAccountInfoExample();
+        example.createCriteria().andUserNameEqualTo(adminLoginDTO.getUserName())
+                .andRoleTypeEqualTo(Byte.parseByte(String.valueOf(RoleTypeEnum.ADMIN.getTypes())));
+        UserAccountInfo admin = userAccountInfoMapper.selectOneByExample(example);
+        if (null == admin) {
+            throw new SourceNotFoundException("管理员不存在");
+        }
+        if (!CryptUtils.matchAccountPassword(admin.getPassword(), adminLoginDTO.getPassword())) {
+            throw new WrongPasswordException();
+        }
+        return true;
     }
 
     @Override
@@ -377,6 +394,19 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
                     });
         }
         return list;
+    }
+
+    @Override
+    public List<UserAccountInfo> getAllUsers(String userName, Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+
+        UserAccountInfoExample example = new UserAccountInfoExample();
+        UserAccountInfoExample.Criteria criteria = example.createCriteria();
+        if (null != userName) {
+            criteria.andUserNameLike("%" + userName + "%");
+        }
+        criteria.andRoleTypeNotEqualTo(Byte.parseByte("3"));
+        return userAccountInfoMapper.selectByExample(example);
     }
 
 }
