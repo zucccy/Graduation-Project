@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -83,6 +84,15 @@ public class DoctorServiceImpl implements DoctorService {
         return doctorVO;
     }
 
+    public DoctorInfo findDoctorByPhone(String phone) {
+        if (!count(phone)) {
+            throw new SourceNotFoundException("医生不存在");
+        }
+        DoctorInfoExample example = new DoctorInfoExample();
+        example.createCriteria().andPhoneEqualTo(phone);
+        return doctorInfoMapper.selectOneByExample(example);
+    }
+
     @Override
     public List<DoctorVO> findDoctorList(String doctorName, Integer pageNum, Integer pageSize) {
 
@@ -90,7 +100,7 @@ public class DoctorServiceImpl implements DoctorService {
             PageHelper.startPage(pageNum, pageSize);
         }
         List<DoctorVO> doctorVOList = doctorInfoMapper.findDoctorList(null, null, null, doctorName);
-            return doctorVOList;
+        return doctorVOList;
     }
 
     @Override
@@ -135,6 +145,12 @@ public class DoctorServiceImpl implements DoctorService {
     public boolean count(Long id) {
         DoctorInfoExample example = new DoctorInfoExample();
         example.createCriteria().andIdEqualTo(id);
+        return doctorInfoMapper.selectCountByExample(example) > 0;
+    }
+
+    public boolean count(String phone) {
+        DoctorInfoExample example = new DoctorInfoExample();
+        example.createCriteria().andPhoneEqualTo(phone);
         return doctorInfoMapper.selectCountByExample(example) > 0;
     }
 
@@ -188,11 +204,12 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
-    public List<MyAppointmentListVO> getAppointmentListByDoctorId(Long doctorId) {
-        if (!count(doctorId)) {
+    public List<MyAppointmentListVO> getAppointmentListByDoctorId(String phone) {
+        if (!count(phone)) {
             throw new SourceNotFoundException("医生不存在");
         }
-        List<AppointmentInfo> appointmentInfoList = appointmentInfoService.findAppointmentListByDoctorId(doctorId, null, 1, 10);
+        DoctorInfo doctor = findDoctorByPhone(phone);
+        List<AppointmentInfo> appointmentInfoList = appointmentInfoService.findAppointmentListByDoctorId(doctor.getId(), null, 1, 10);
         List<MyAppointmentListVO> myAppointmentListVOList = new ArrayList<>();
         //该集合不为空，则进行转换
         if (CollectionUtil.isNotEmpty(appointmentInfoList)) {
@@ -200,6 +217,8 @@ public class DoctorServiceImpl implements DoctorService {
                 myAppointmentListVOList.add(appointmentInfoService.convertMyAppointmentListVO(item));
             });
         }
+        //按照时间降序排序
+        myAppointmentListVOList.sort(Comparator.comparing(MyAppointmentListVO::getTimePeriod).reversed());
         return myAppointmentListVOList;
     }
 }

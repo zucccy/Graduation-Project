@@ -26,6 +26,12 @@ public class DoctorInfo {
     private String doctorName;
 
     /**
+     * 医生手机号，绑定医生用户
+     */
+    @Column(name = "`phone`")
+    private String phone;
+
+    /**
      * 医生性别 默认为1 男1女0
      */
     @Column(name = "`sex`")

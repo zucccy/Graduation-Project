@@ -7,6 +7,7 @@
     -->
     <id column="id" jdbcType="BIGINT" property="id"/>
     <result column="doctor_name" jdbcType="VARCHAR" property="doctorName"/>
+    <result column="phone" jdbcType="VARCHAR" property="phone"/>
     <result column="sex" jdbcType="TINYINT" property="sex"/>
     <result column="position" jdbcType="VARCHAR" property="position"/>
     <result column="hospital_id" jdbcType="BIGINT" property="hospitalId"/>
@@ -86,11 +87,12 @@
     <!--
       WARNING - @mbg.generated
     -->
-    id, doctor_name, sex, position, hospital_id, office_id, description, src, create_time,
+    id, doctor_name, phone, sex, position, hospital_id, office_id, description, src, create_time,
     update_time
   </sql>
   <select id="findDoctorList" resultMap="BaseResultMap">
-    SELECT doctor_info.id, doctor_name, sex, position, doctor_info.description, doctor_info.src, office_name,
+    SELECT doctor_info.id, doctor_name, doctor_info.phone, sex, position, doctor_info.description, doctor_info.src,
+    office_name,
     hospital_name, doctor_info.office_id, doctor_info.hospital_id,doctor_info.create_time,doctor_info.update_time
     FROM doctor_info, office, hospital
     WHERE doctor_info.office_id = office.id

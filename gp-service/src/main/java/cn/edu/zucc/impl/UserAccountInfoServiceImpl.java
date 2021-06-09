@@ -39,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -156,12 +157,32 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
         UserAccountInfo userAccountInfo = new UserAccountInfo();
 
         if (!userAccountInfoDTO.getRoleType().equals(Byte.parseByte(String.valueOf(RoleTypeEnum.USER.getTypes())))
-                || !userAccountInfoDTO.getRoleType().equals(Byte.parseByte(String.valueOf(RoleTypeEnum.DOCTOR.getTypes())))) {
+                && !userAccountInfoDTO.getRoleType().equals(Byte.parseByte(String.valueOf(RoleTypeEnum.DOCTOR.getTypes())))) {
             throw new FormException("角色类型错误，只能添加用户或医生角色");
         }
 
         BeanUtils.copyProperties(userAccountInfoDTO, userAccountInfo);
         //密码加密
+        //手机号不为空
+        if (null != userAccountInfoDTO.getPhone()) {
+            if (FormatUtils.isPhoneNumber(userAccountInfoDTO.getPhone())) {
+                userAccountInfo.setPhone(userAccountInfoDTO.getPhone());
+            } else {
+                throw new FormException("手机号不规范");
+            }
+        }
+        if (null != userAccountInfoDTO.getEmail()) {
+            if (FormatUtils.isEmail(userAccountInfoDTO.getEmail())) {
+                userAccountInfo.setEmail(userAccountInfoDTO.getEmail());
+            } else {
+                throw new FormException("邮箱不规范");
+            }
+        }
+        //若两者都为空
+        if (null == userAccountInfoDTO.getPhone() && null == userAccountInfoDTO.getEmail()) {
+            throw new FormException("手机号和邮箱必须有一个不为空");
+        }
+        //加密
         userAccountInfo.setPassword(CryptUtils.cryptAccountPassword(userAccountInfoDTO.getPassword()));
         userAccountInfo.setCreateTime(new Date());
         userAccountInfo.setUpdateTime(new Date());
@@ -188,7 +209,7 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
             if (FormatUtils.isPhoneNumber(phone)) {
                 userAccountInfo.setPhone(phone);
             } else {
-                throw new FormException();
+                throw new FormException("手机号不规范");
             }
         }
         //邮箱不为空，修改邮箱
@@ -197,7 +218,7 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
             if (FormatUtils.isEmail(email)) {
                 userAccountInfo.setEmail(email);
             } else {
-                throw new FormException();
+                throw new FormException("邮箱不规范");
             }
         }
 
@@ -215,11 +236,29 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
         }
 
         if (!userAccountInfoDTO.getRoleType().equals(Byte.parseByte(String.valueOf(RoleTypeEnum.USER.getTypes())))
-                || !userAccountInfoDTO.getRoleType().equals(Byte.parseByte(String.valueOf(RoleTypeEnum.DOCTOR.getTypes())))) {
+                && !userAccountInfoDTO.getRoleType().equals(Byte.parseByte(String.valueOf(RoleTypeEnum.DOCTOR.getTypes())))) {
             throw new FormException("角色类型错误，只能修改用户或医生角色");
         }
         BeanUtils.copyProperties(userAccountInfoDTO, userAccountInfo);
 
+        //手机号不为空，修改手机号
+        String phone = userAccountInfoDTO.getPhone();
+        if (!StringUtils.isBlank(phone)) {
+            if (FormatUtils.isPhoneNumber(phone)) {
+                userAccountInfo.setPhone(phone);
+            } else {
+                throw new FormException("手机号不规范");
+            }
+        }
+        //邮箱不为空，修改邮箱
+        String email = userAccountInfoDTO.getEmail();
+        if (!StringUtils.isBlank(email)) {
+            if (FormatUtils.isEmail(email)) {
+                userAccountInfo.setEmail(email);
+            } else {
+                throw new FormException("邮箱不规范");
+            }
+        }
         userAccountInfo.setId(id);
         userAccountInfo.setUpdateTime(new Date());
         userAccountInfo.setPassword(CryptUtils.cryptAccountPassword(userAccountInfoDTO.getPassword()));
@@ -287,6 +326,8 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
             //若为邮箱
             else if (FormatUtils.isEmail(openCode)) {
                 example.createCriteria().andEmailEqualTo(openCode);
+            } else {
+                throw new FormException("手机号或邮箱输入不规范");
             }
         }
         UserAccountInfo userAccountInfo = userAccountInfoMapper.selectOneByExample(example);
@@ -393,6 +434,8 @@ public class UserAccountInfoServiceImpl implements UserAccountInfoService {
                         redisTemplate.opsForValue().set(key, myAppointmentVOListJson);
                     });
         }
+        //按照id降序排序
+        list.sort(Comparator.comparing(MyAppointmentListVO::getTimePeriod).reversed());
         return list;
     }
 

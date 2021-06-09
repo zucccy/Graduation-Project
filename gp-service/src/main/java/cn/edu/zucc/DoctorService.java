@@ -127,8 +127,8 @@ public interface DoctorService {
     /**
      * 根据医生编号获取预约集合
      *
-     * @param doctorId 医生编号
+     * @param phone 医生手机号
      * @return java.util.List<cn.edu.zucc.vo.MyAppointmentListVO>
      */
-    List<MyAppointmentListVO> getAppointmentListByDoctorId(Long doctorId);
+    List<MyAppointmentListVO> getAppointmentListByDoctorId(String phone);
 }

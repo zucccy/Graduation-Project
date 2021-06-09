@@ -136,13 +136,13 @@ public class DoctorController {
         return ResponseBuilder.success(visitPlanService.findVisitPlanById(visitPlanId));
     }
 
-    @ApiOperation(value = "根据医生编号获取预约集合")
+    @ApiOperation(value = "根据医生手机号获取预约集合")
     @GetMapping("/getAppointmentList/")
-    public ResponseVO<List<MyAppointmentListVO>> getAppointmentList(@RequestParam Long doctorId) {
-        if (null == doctorId) {
+    public ResponseVO<List<MyAppointmentListVO>> getAppointmentList(@RequestParam String phone) {
+        if (null == phone) {
             throw new FormException();
         }
-        return ResponseBuilder.success(doctorService.getAppointmentListByDoctorId(doctorId));
+        return ResponseBuilder.success(doctorService.getAppointmentListByDoctorId(phone));
     }
 
     @ApiOperation(value = "添加医生")
