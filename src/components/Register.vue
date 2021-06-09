@@ -3,7 +3,7 @@
     <div class="topbar">
       <div class="layout clearfix">
         <div class="logo fl">
-          <a href="/" target="_blank" class="name"
+          <a href="/"  class="name"
             >面向城市大脑的智慧医疗系统</a
           >
         </div>
@@ -33,7 +33,7 @@
               ></el-input>
             </div>
             <div class="singleInput">
-              <el-input v-model="password" placeholder="请输入密码"></el-input>
+              <el-input v-model="password" placeholder="请输入密码" show-password></el-input>
             </div>
             <div class="divButton">
               <button class="regButton" @click="toLogin()">注册</button>

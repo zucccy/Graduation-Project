@@ -133,6 +133,7 @@ export default {
       userName: "",
       roleType: "",
       userInfo: "",
+      phone:"",
     };
   },
   methods: {
@@ -215,10 +216,11 @@ export default {
       });
     },
     getAppointmentList() {
+      console.log(JSON.parse(localStorage.getItem("userInfo")).phone);
       this.$axios
         .get("http://localhost:8088/doctor/getAppointmentList/", {
           params: {
-            doctorId: 1,
+            phone: JSON.parse(localStorage.getItem("userInfo")).phone,
           },
         })
         .then((res) => {
@@ -237,6 +239,8 @@ export default {
       if (this.userInfo != null) {
         this.userName = JSON.parse(localStorage.getItem("userInfo")).userName;
         this.roleType = JSON.parse(localStorage.getItem("userInfo")).roleType;
+        this.phone = JSON.parse(localStorage.getItem("userInfo")).phone;
+        console.log(this.phone);
       }
     });
   },

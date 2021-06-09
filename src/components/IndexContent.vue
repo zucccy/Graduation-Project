@@ -75,7 +75,7 @@
         </div>
       </section>
       <section class="block">
-        <div class="title">智能分诊</div>
+        <div class="title">智能问诊</div>
         <div class="box">
           <div class="header">
             <h3>{{ list[0].name }}</h3>
@@ -142,7 +142,7 @@
                 ><b>{{ item.doctorName }}</b></strong
               >
               <p>{{ item.position }}</p>
-              <span>{{ item.description }}</span>
+              <span class="des">{{ item.description }}</span>
             </a>
           </div>
         </div>
@@ -863,6 +863,7 @@ h3 {
 }
 .person span {
   line-height: 24px;
+  width: 185px;
   padding-top: 14px;
   margin-top: 20px;
   border-top: #f0f0f0 1px solid;

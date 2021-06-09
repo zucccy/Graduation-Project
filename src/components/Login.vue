@@ -10,24 +10,33 @@
         <div class="loginnav"><span class="current">账号登录</span></div>
         <div class="loginform">
           <div class="logintab">
-            <div class="maininput">
-              <el-input
+            <el-form 
+            >
+              <el-form-item prop="openCode">
+                <div class="maininput">
+                  <el-input
                 v-model="openCode"
                 placeholder="请输入手机号/邮箱"
               ></el-input>
             </div>
-            <div class="maininput">
+              </el-form-item>
+            <el-form-item prop="password">
+              <div class="maininput">
               <el-input
                 v-model="password"
                 placeholder="请输入密码"
                 show-password
               ></el-input>
             </div>
+            </el-form-item>
+            <el-form-item prop="radio">
             <div class="checkbox">
               <el-radio v-model="radio" label="1">用户</el-radio>
               <el-radio v-model="radio" label="2">医生</el-radio>
             </div>
-            <div class="submit">
+            </el-form-item>
+            <el-form-item>
+              <div class="submit">
               <el-button
                 type="success"
                 round
@@ -45,6 +54,8 @@
                 >回到首页</el-button
               >
             </div>
+            </el-form-item>
+            </el-form>
             <div class="register">
               <span class="toreg"
                 >没有账号？<a href="" @click="toRegister()">立即注册 ></a></span
@@ -62,6 +73,7 @@ export default {
   name: "Login",
   data() {
     return {
+      
       openCode: "",
       password: "",
       radio: "1",
